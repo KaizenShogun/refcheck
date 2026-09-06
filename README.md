@@ -8,7 +8,7 @@ Retraction Watch keeps the list, and both are free. A retraction is also the
 
 I counted the rest against the Crossref API on 2026-09-06:
 
-| change notice | registered | warned about by free tools |
+| change notice | registered | Zotero / Retraction Watch warns you |
 |---|---:|:---:|
 | retraction | 65,974 | yes |
 | **correction** | **205,005** | **no** |
