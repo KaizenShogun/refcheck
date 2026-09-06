@@ -17,9 +17,10 @@ I counted the rest against the Crossref API on 2026-09-06:
 | **new edition** | **10,761** | **no** |
 | **withdrawal / removal / addendum / clarification** | **5,733** | **no** |
 
-**339,165 change notices that nothing free will warn you about — 5.1 times the
-retractions.** Zotero's own documentation is explicit that it "only shows actual
-retractions, not expressions of concern".
+**339,165 change notices — 5.1 times the retractions.** The tools most people
+actually have will not mention them: Zotero's own documentation is explicit that
+it "only shows actual retractions, not expressions of concern", and Retraction
+Watch is, by name and by design, about retractions.
 
 These are the quiet ones, and they are quiet for a reason: unlike a retraction,
 the paper stays valid. Only a number moved. Nobody emails you to say that the
@@ -61,6 +62,27 @@ goes out, a systematic review checking its own included studies.
 **No installation, no account, no key.** One file, Python 3.9+, standard library
 only. Set `REFCHECK_MAILTO=you@example.org` to identify yourself politely to
 Crossref and get their faster pool.
+
+## What else is out there
+
+I checked before building, and then checked again afterwards and found something
+I had missed — so here is the honest landscape:
+
+- **[Zotero](https://www.zotero.org/) + [Retraction Watch](https://retractionwatch.com/)** —
+  excellent, free, integrated into the tool most researchers already use.
+  Retractions only.
+- **[CiteGuard](https://github.com/lonexreb/cite-guard)** (`pip install retractguard`) —
+  OpenAlex-native, and it *does* cover corrections and expressions of concern.
+  If you want an institution-scale watchdog with a package behind it, look there
+  first. I found it after publishing this, which says more about my search than
+  about their work.
+- **[agbarnett/retraction_watch](https://github.com/agbarnett/retraction_watch)** —
+  a Shiny app for checking a BibTeX file. Retractions.
+- **scite.ai** — commercial, and it does far more than this.
+
+**What is different here:** one file, standard library, nothing to install and no
+account, asking Crossref directly. You can drop it in a CI job or hand it to
+someone who has never used `pip` and it will work. That is the whole claim.
 
 ## Who this is for
 
