@@ -32,6 +32,15 @@ These are the quiet ones, and they are quiet for a reason: unlike a retraction,
 the paper stays valid. Only a number moved. Nobody emails you to say that the
 figure you built an argument on was corrected two years after you read it.
 
+**That gap is a reasonable decision, not an oversight, and it is worth saying so.**
+When a Zotero developer was asked about showing corrections, the answer was that
+"corrections have become so common that this would be a mess" — and inside a
+reference manager that sits in your library all year, that is plainly right. A
+permanent red flag on a paper whose axis label was fixed would train you to ignore
+red flags. But a check you run *deliberately*, once, when you are about to submit,
+has the opposite economics: there the noise is the point, because you are the one
+deciding what to read. Different shape of tool, not a better one.
+
 `refcheck` reads your bibliography and tells you which references carry a
 published change notice, what kind, and where to read it.
 
