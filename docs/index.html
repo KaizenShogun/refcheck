@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>refcheck — has anything you cite been quietly corrected?</title>
+<meta name="description" content="Paste your bibliography. See which references carry a published correction, erratum, expression of concern or retraction. Free, no account, nothing is uploaded to us.">
+<style>
+  /* Every ratio below is measured, not guessed, and every one clears WCAG AAA
+     (7:1) rather than just AA. Checked 2026-09-08 in both schemes. */
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;        /* 17.40:1 on white */
+    --muted: #545454;     /*  7.57:1 on white */
+    --line: #c9c9c9;
+    --accent: #0a5299;    /*  7.84:1 on white */
+    --box: #f4f4f4;
+    --sev3: #8a1c1c;      /*  9.28:1 on white */
+    --sev2: #7a4600;      /*  7.77:1 on white */
+    --sev1: #1f5c1f;      /*  8.05:1 on white */
+    --sev0: #4a4a4a;      /*  8.86:1 on white */
+  }
+  @media (prefers-color-scheme: dark) {
+    /* on #16181c: fg 15.04 · muted 8.48 · accent 8.11 · sev3 7.37 · sev2 9.02 · sev1 9.81 */
+    :root {
+      --bg: #16181c; --fg: #ececec; --muted: #b3b3b3; --line: #3d4149;
+      --accent: #7db3f0; --box: #212429;
+      --sev3: #f08a8a; --sev2: #e0b169; --sev1: #8fd08f; --sev0: #b3b3b3;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0 auto; padding: 1.5rem 1.1rem 4rem; max-width: 46rem;
+    background: var(--bg); color: var(--fg);
+    font: 1rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  /* Never remove the focus ring. A keyboard user needs to see where they are. */
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  a { color: var(--accent); }
+  h1 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 .3rem; }
+  h2 { font-size: 1.15rem; margin: 2.2rem 0 .6rem; }
+  h3 { font-size: 1rem; margin: 1.6rem 0 .5rem; }
+  .lede { color: var(--muted); margin: 0 0 1.6rem; font-size: 1.05rem; }
+  label { display: block; font-weight: 600; margin-bottom: .35rem; }
+  .hint { color: var(--muted); font-size: .9rem; margin: .1rem 0 .5rem; }
+  textarea {
+    width: 100%; min-height: 11rem; padding: .7rem;
+    font: .92rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--fg); background: var(--bg);
+    border: 2px solid var(--line); border-radius: 6px; resize: vertical;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .8rem; }
+  button {
+    font: inherit; font-weight: 600; padding: .55rem 1.1rem; border-radius: 6px;
+    border: 2px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer;
+  }
+  @media (prefers-color-scheme: dark) { button { color: #10131a; } }
+  button.secondary { background: transparent; color: var(--accent); }
+  button[disabled] { opacity: .55; cursor: not-allowed; }
+  #status { margin-top: 1rem; min-height: 1.5rem; color: var(--muted); }
+  .summary {
+    margin: 1.4rem 0 0; padding: .9rem 1rem; background: var(--box);
+    border-left: 5px solid var(--accent); border-radius: 4px;
+  }
+  .summary p { margin: .25rem 0; }
+  ol.results { list-style: none; padding: 0; margin: 1.2rem 0 0; }
+  ol.results > li {
+    border: 2px solid var(--line); border-radius: 6px;
+    padding: .85rem 1rem; margin-bottom: .9rem;
+  }
+  .sev { font-weight: 700; letter-spacing: .01em; display: block; margin-bottom: .3rem; }
+  .s3 { color: var(--sev3); } .s2 { color: var(--sev2); }
+  .s1 { color: var(--sev1); } .s0 { color: var(--sev0); }
+  .title { font-weight: 600; }
+  .meta { color: var(--muted); font-size: .9rem; word-break: break-word; }
+  ul.notices { margin: .5rem 0 0; padding-left: 1.2rem; }
+  ul.notices li { margin-bottom: .2rem; }
+  details { margin-top: 1rem; }
+  summary { cursor: pointer; font-weight: 600; padding: .2rem 0; }
+  code { background: var(--box); padding: .1rem .3rem; border-radius: 3px; font-size: .9em; }
+  footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+           color: var(--muted); font-size: .92rem; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden;
+        clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Has anything you cite been quietly corrected?</h1>
+  <p class="lede">
+    Paste your bibliography. This tells you which of your references carry a published
+    <strong>correction, erratum, expression of concern, withdrawal or retraction</strong> —
+    not just the retractions everyone checks for.
+  </p>
+
+  <form id="form">
+    <label for="input">Your references</label>
+    <p class="hint" id="hint">
+      Paste a reference list, a BibTeX file, or one DOI per line. Anything works —
+      the DOIs get picked out of the mess. Nothing else is read.
+    </p>
+    <textarea id="input" aria-describedby="hint" spellcheck="false"
+      placeholder="Smith, J. et al. (2016). A paper. PLoS ONE 11(8): e0161231. https://doi.org/10.1371/journal.pone.0161231"></textarea>
+    <div class="row">
+      <button type="submit" id="go">Check references</button>
+      <button type="button" class="secondary" id="demo">Try an example</button>
+      <button type="button" class="secondary" id="copy" hidden>Copy report</button>
+    </div>
+  </form>
+
+  <p id="status" role="status" aria-live="polite"></p>
+  <div id="out"></div>
+
+  <noscript>
+    <p class="summary">This page needs JavaScript, because the lookups happen in your own
+    browser rather than on a server. If you would rather not run it, the same check is
+    available as a command-line script in the repository linked below.</p>
+  </noscript>
+
+  <h2>What this is, and what it is not</h2>
+  <p>
+    Retractions are the famous case and free tools already cover them. But a retraction is
+    the <em>rarest</em> kind of change to the scientific record. Corrections and errata are
+    several times more common, and nobody emails you when the figure you built an argument
+    on was corrected two years after you read it — the paper is still perfectly valid, which
+    is exactly why nobody looks.
+  </p>
+  <p>
+    <strong>A change notice is not a verdict on the science.</strong> Most corrections are a
+    typo, a wrong unit, a mislabelled axis. This tells you <em>something changed</em>;
+    reading what changed is your job.
+  </p>
+  <p>
+    It only sees what publishers registered with <a href="https://www.crossref.org/">Crossref</a>.
+    A correction that was never deposited is invisible here, and so is anything without a DOI —
+    preprints, books and chapters often come back &ldquo;not found&rdquo;, and this page says so
+    instead of pretending they came back clean.
+  </p>
+
+  <h2>Your bibliography is not uploaded anywhere</h2>
+  <p>
+    There is no server behind this page. Your text stays in your browser; only the DOIs found
+    in it are sent, directly from your browser to Crossref&rsquo;s public API. No account, no
+    cookies, no analytics, nothing logged by me. You can save this page and run it offline
+    from your own disk — it is one HTML file with no dependencies.
+  </p>
+
+  <footer>
+    <p>
+      <a href="https://github.com/KaizenShogun/refcheck">Source and command-line version</a>
+      · MIT licence · data from the
+      <a href="https://api.crossref.org">Crossref REST API</a>, a public good — please be kind to it.
+    </p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var API = "https://api.crossref.org/works";
+  var BATCH = 40;          // DOIs per request; measured safe against the API
+  var RETRIES = 3;         // per batch, with backoff
+  var DOI_RE = /10\.\d{4,9}\/[-._;()/:A-Za-z0-9<>\[\]]+/g;
+
+  var GRAVEDAD = {
+    retraction: 3, partial_retraction: 3, removal: 3, withdrawal: 3,
+    expression_of_concern: 2,
+    correction: 1, erratum: 1, corrigendum: 1,
+    addendum: 0, clarification: 0, new_edition: 0, new_version: 0
+  };
+  var ETIQUETA = {
+    3: "RETRACTED — do not cite this as evidence",
+    2: "EXPRESSION OF CONCERN — the journal itself is unsure",
+    1: "CORRECTED — check the number you are quoting is still there",
+    0: "UPDATED — additional material published"
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var input = $("input"), status = $("status"), out = $("out"),
+      go = $("go"), demo = $("demo"), copyBtn = $("copy");
+  var lastReport = "", lastError = "";
+
+  function extractDois(text) {
+    var seen = Object.create(null), list = [], m;
+    DOI_RE.lastIndex = 0;
+    while ((m = DOI_RE.exec(text)) !== null) {
+      // Trim trailing punctuation that belongs to the sentence, not the DOI,
+      // and the closing brace of a BibTeX  doi = {10.xxxx/yyy},  field.
+      var d = m[0].replace(/[.,;:'"\)\]}]+$/, "").toLowerCase();
+      if (d && !seen[d]) { seen[d] = 1; list.push(d); }
+    }
+    return list;
+  }
+
+  function chunk(arr, n) {
+    var o = [];
+    for (var i = 0; i < arr.length; i += n) o.push(arr.slice(i, i + n));
+    return o;
+  }
+
+  function fmtDate(parts) {
+    if (!parts || !parts.length || parts[0] == null) return "";
+    return parts.map(function (p, i) {
+      return i === 0 ? String(p) : (p < 10 ? "0" + p : String(p));
+    }).join("-");
+  }
+
+  function noticesOf(work) {
+    var raw = work["updated-by"] || [];
+    var list = raw.map(function (u) {
+      var t = String(u.type || "unknown").toLowerCase();
+      var g = Object.prototype.hasOwnProperty.call(GRAVEDAD, t) ? GRAVEDAD[t] : 1;
+      return {
+        tipo: t,
+        gravedad: g,
+        fecha: fmtDate(((u.updated || {})["date-parts"] || [[null]])[0]),
+        doi: u.DOI || "",
+        etiqueta: u.label || t.replace(/_/g, " ").replace(/\b\w/g, function (c) {
+          return c.toUpperCase();
+        })
+      };
+    });
+    list.sort(function (a, b) {
+      return (b.gravedad - a.gravedad) || (a.fecha < b.fecha ? -1 : 1);
+    });
+    return list;
+  }
+
+  function sleep(ms) {
+    return new Promise(function (r) { setTimeout(r, ms); });
+  }
+
+  // Retry, because a browser on hotel wifi is not a server in a datacentre.
+  // Measured 2026-09-08: roughly one run in three lost a batch to a transient
+  // "Failed to fetch"; without this the whole bibliography came back as an error.
+  function fetchBatch(dois, attempt) {
+    attempt = attempt || 0;
+    var filter = dois.map(function (d) {
+      return "doi:" + encodeURIComponent(d);
+    }).join(",");
+    var url = API + "?rows=" + BATCH + "&select=DOI,title,container-title,updated-by" +
+              "&filter=" + filter;
+    return fetch(url, { headers: { Accept: "application/json" } })
+      .then(function (r) {
+        // Crossref publishes 3 requests/second. A 429 is us being rude, so wait.
+        if (r.status === 429 || r.status >= 500) {
+          throw new Error("Crossref replied " + r.status);
+        }
+        if (!r.ok) throw new Error("Crossref replied " + r.status);
+        return r.json();
+      })
+      .then(function (j) { return (j.message && j.message.items) || []; })
+      .catch(function (e) {
+        if (attempt >= RETRIES) throw e;
+        return sleep(700 * Math.pow(2, attempt)).then(function () {
+          return fetchBatch(dois, attempt + 1);
+        });
+      });
+  }
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function render(found, notFound, unchecked, total) {
+    out.textContent = "";
+    lastReport = "";
+    var checked = total - unchecked.length;
+
+    var box = el("div", "summary");
+    var h = el("h2");
+    h.textContent = "Result";
+    h.style.margin = "0 0 .4rem";
+    h.style.fontSize = "1.1rem";
+    box.appendChild(h);
+    box.appendChild(el("p", null,
+      checked + " reference" + (checked === 1 ? "" : "s") + " checked · " +
+      found.length + " carr" + (found.length === 1 ? "ies" : "y") + " a change notice"));
+    if (unchecked.length) {
+      box.appendChild(el("p", null,
+        unchecked.length + " could NOT be checked — the connection to Crossref failed" +
+        (lastError ? " (" + lastError + ")" : "") + ". Run those again before you " +
+        "rely on this; they are not clean, they are unknown."));
+    }
+    if (notFound.length) {
+      box.appendChild(el("p", null,
+        notFound.length + " not found in Crossref (preprints, books, chapters, or a " +
+        "mistyped DOI) — these were not checked, which is not the same as clean."));
+    }
+    if (!found.length && checked > 0) {
+      box.appendChild(el("p", null,
+        "Nothing found. That is the expected result most of the time; it is the " +
+        "one-in-a-hundred that this exists for."));
+    }
+    out.appendChild(box);
+
+    var lines = [
+      "refcheck report",
+      checked + " reference(s) checked, " + found.length + " carry a change notice"
+    ];
+    if (unchecked.length) {
+      lines.push(unchecked.length + " could NOT be checked (connection failed): " +
+                 unchecked.join(", "));
+    }
+
+    if (found.length) {
+      var ol = el("ol", "results");
+      found.sort(function (a, b) {
+        return b.notices[0].gravedad - a.notices[0].gravedad;
+      });
+      found.forEach(function (r) {
+        var worst = r.notices[0].gravedad;
+        var li = el("li");
+        var sev = el("span", "sev s" + worst, ETIQUETA[worst]);
+        li.appendChild(sev);
+        if (r.titulo) li.appendChild(el("p", "title", r.titulo));
+        var meta = el("p", "meta");
+        meta.appendChild(document.createTextNode(r.revista ? r.revista + " · " : ""));
+        var a = el("a", null, r.doi);
+        a.href = "https://doi.org/" + r.doi;
+        meta.appendChild(a);
+        li.appendChild(meta);
+
+        var ul = el("ul", "notices");
+        lines.push("");
+        lines.push(ETIQUETA[worst]);
+        if (r.titulo) lines.push("  " + r.titulo);
+        lines.push("  https://doi.org/" + r.doi);
+        r.notices.forEach(function (n) {
+          var item = el("li");
+          item.appendChild(document.createTextNode(
+            n.etiqueta + (n.fecha ? " (" + n.fecha + ")" : "") + ": "));
+          var na = el("a", null, "read the notice");
+          na.href = "https://doi.org/" + n.doi;
+          item.appendChild(na);
+          ul.appendChild(item);
+          lines.push("    -> " + n.etiqueta + (n.fecha ? " (" + n.fecha + ")" : "") +
+                     ": https://doi.org/" + n.doi);
+        });
+        li.appendChild(ul);
+        ol.appendChild(li);
+      });
+      out.appendChild(ol);
+    }
+
+    if (unchecked.length) {
+      var det0 = el("details");
+      det0.open = true;
+      det0.appendChild(el("summary", null,
+        "Could not be checked (" + unchecked.length + ")"));
+      det0.appendChild(el("p", "hint",
+        "The lookup failed for these — a dropped connection, not an answer from " +
+        "Crossref. Try again; until then their status is unknown."));
+      var ul0 = el("ul");
+      unchecked.forEach(function (d) { ul0.appendChild(el("li", "meta", d)); });
+      det0.appendChild(ul0);
+      out.appendChild(det0);
+    }
+
+    if (notFound.length) {
+      var det = el("details");
+      det.appendChild(el("summary", null,
+        "Not found in Crossref (" + notFound.length + ")"));
+      var p = el("p", "hint",
+        "Not an error and not a clean bill of health — Crossref simply has no record " +
+        "under this DOI. Common for preprints, books, chapters and theses.");
+      det.appendChild(p);
+      var ul2 = el("ul");
+      lines.push("");
+      lines.push("Not found in Crossref (not checked):");
+      notFound.forEach(function (d) {
+        ul2.appendChild(el("li", "meta", d));
+        lines.push("  " + d);
+      });
+      det.appendChild(ul2);
+      out.appendChild(det);
+    }
+
+    lastReport = lines.join("\n");
+    copyBtn.hidden = false;
+  }
+
+  function run(text) {
+    var dois = extractDois(text);
+    if (!dois.length) {
+      status.textContent = "No DOIs found in that text. Every entry needs a DOI " +
+        "(the 10.xxxx/… string) for this to have anything to look up.";
+      out.textContent = "";
+      copyBtn.hidden = true;
+      return;
+    }
+
+    go.disabled = true;
+    copyBtn.hidden = true;
+    out.textContent = "";
+    lastError = "";
+    var batches = chunk(dois, BATCH);
+    var found = [], seen = Object.create(null), unchecked = [], done = 0;
+
+    status.textContent = "Checking " + dois.length + " reference" +
+      (dois.length === 1 ? "" : "s") + "…";
+
+    // Sequential on purpose: one public API, shared by everyone, funded by nobody.
+    batches.reduce(function (chain, b) {
+      return chain.then(function () {
+        return fetchBatch(b).then(function (items) {
+          items.forEach(function (w) {
+            var d = String(w.DOI || "").toLowerCase();
+            seen[d] = 1;
+            var n = noticesOf(w);
+            if (n.length) {
+              found.push({
+                doi: d,
+                titulo: (w.title || [""])[0] || "",
+                revista: (w["container-title"] || [""])[0] || "",
+                notices: n
+              });
+            }
+          });
+        }).catch(function (e) {
+          // A dead batch loses those DOIs, not the whole bibliography — and they
+          // are reported as unchecked, never folded in with the clean ones.
+          b.forEach(function (d) { unchecked.push(d); });
+          lastError = e.message;
+        }).then(function () {
+          done += b.length;
+          if (batches.length > 1) {
+            status.textContent = "Checking… " + Math.min(done, dois.length) +
+              " of " + dois.length;
+          }
+        });
+      });
+    }, Promise.resolve())
+      .then(function () {
+        var pending = Object.create(null);
+        unchecked.forEach(function (d) { pending[d] = 1; });
+        var notFound = dois.filter(function (d) { return !seen[d] && !pending[d]; });
+        status.textContent = unchecked.length
+          ? "Done, but " + unchecked.length + " reference" +
+            (unchecked.length === 1 ? " could" : "s could") + " not be checked."
+          : "Done.";
+        render(found, notFound, unchecked, dois.length);
+      })
+      .then(function () { go.disabled = false; });
+  }
+
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    run(input.value);
+  });
+
+  demo.addEventListener("click", function () {
+    input.value = [
+      "Zhang, X. et al. Virus-Like Nanoparticle Vaccine Confers Protection against",
+      "  Toxoplasma gondii. PLoS ONE (2016). doi:10.1371/journal.pone.0161231",
+      "Lee, B. D. et al. LRRK2 kinase activity mediates toxic interactions.",
+      "  Neurobiol Dis (2012). https://doi.org/10.1016/j.nbd.2012.05.020",
+      "Wakefield, A. J. et al. Ileal-lymphoid-nodular hyperplasia. Lancet (1998).",
+      "  doi: 10.1016/S0140-6736(97)11096-0",
+      "A book with no DOI, Some Press, 2019.",
+      "Vaswani, A. et al. Attention is all you need. arXiv (2017). 10.48550/arXiv.1706.03762"
+    ].join("\n");
+    status.textContent = "Example loaded. Press “Check references”.";
+    input.focus();
+  });
+
+  copyBtn.addEventListener("click", function () {
+    if (!lastReport) return;
+    var done = function () { status.textContent = "Report copied to the clipboard."; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastReport).then(done, function () {
+        status.textContent = "Could not copy automatically — your browser blocked it.";
+      });
+    } else {
+      status.textContent = "Copying is not available in this browser.";
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -105,6 +105,69 @@ class Robustez(unittest.TestCase):
         self.assertIn("1 not found in Crossref", txt)
 
 
+class Lotes(unittest.TestCase):
+    """El camino por lotes: una petición por cada 40 DOIs en vez de una por DOI."""
+
+    def test_parte_en_lotes_del_tamano_declarado(self):
+        vistos = []
+
+        def falso(trozo, **kw):
+            vistos.append(list(trozo))
+            return {}
+
+        with mock.patch.object(refcheck, "consulta_lote", side_effect=falso):
+            refcheck.revisa_lote([f"10.1234/x{i}" for i in range(95)], pausa=0)
+        self.assertEqual([len(v) for v in vistos], [40, 40, 15])
+
+    def test_ausente_de_la_respuesta_es_desconocido(self):
+        with mock.patch.object(refcheck, "consulta_lote", return_value={}):
+            r = refcheck.revisa_lote(["10.9999/nada"], pausa=0)
+        self.assertEqual(r[0]["estado"], "desconocido")
+
+    def test_fallo_de_red_NO_se_disfraza_de_desconocido(self):
+        # El fallo que importa: si la consulta se cae, decir "no encontrado" le
+        # cuenta al lector que su referencia está limpia. No lo está: es un ?.
+        with mock.patch.object(refcheck, "consulta_lote",
+                               side_effect=ConnectionError("boom")):
+            r = refcheck.revisa_lote(["10.1234/x"], pausa=0)
+        self.assertEqual(r[0]["estado"], "sin_comprobar")
+        self.assertNotEqual(r[0]["estado"], "desconocido")
+
+    def test_un_lote_muerto_no_se_lleva_a_los_demas(self):
+        def falso(trozo, **kw):
+            if trozo[0].endswith("0"):
+                raise ConnectionError("boom")
+            return {trozo[0].lower(): {"title": ["t"], "container-title": [""],
+                                       "updated-by": [{"type": "retraction", "DOI": "10.1/r",
+                                                       "updated": {"date-parts": [[2020, 1, 1]]}}]}}
+
+        dois = [f"10.1234/a{i}" for i in range(40)] + ["10.1234/b1"]
+        with mock.patch.object(refcheck, "consulta_lote", side_effect=falso):
+            r = refcheck.revisa_lote(dois, pausa=0)
+        self.assertEqual(sum(1 for x in r if x["estado"] == "sin_comprobar"), 40)
+        self.assertEqual(sum(1 for x in r if x["avisos"]), 1)
+
+    def test_la_respuesta_casa_aunque_cambie_la_caja(self):
+        # Crossref devuelve el DOI con su propia capitalización.
+        with mock.patch.object(refcheck, "consulta_lote",
+                               return_value={"10.1234/x": {"title": ["t"],
+                                                           "container-title": [""],
+                                                           "updated-by": []}}):
+            r = refcheck.revisa_lote(["10.1234/X"], pausa=0)
+        self.assertEqual(r[0]["estado"], "ok")
+
+    def test_informe_no_cuenta_lo_no_comprobado_como_comprobado(self):
+        res = [{"doi": "a", "estado": "ok", "titulo": "t", "avisos": []},
+               {"doi": "b", "estado": "sin_comprobar", "error": "boom", "avisos": []}]
+        txt = refcheck.informe(res)
+        self.assertIn("1 reference(s) checked", txt)
+        self.assertIn("could NOT be checked", txt)
+
+    def test_informe_no_dice_limpio_si_no_comprobo_nada(self):
+        res = [{"doi": "b", "estado": "sin_comprobar", "error": "boom", "avisos": []}]
+        self.assertNotIn("Nothing found", refcheck.informe(res))
+
+
 @unittest.skipUnless(os.environ.get("REFCHECK_RED") == "1", "necesita red: REFCHECK_RED=1")
 class ContraLaRealidad(unittest.TestCase):
     def test_correccion_conocida(self):
@@ -114,6 +177,19 @@ class ContraLaRealidad(unittest.TestCase):
     def test_articulo_limpio(self):
         r = refcheck.revisa("10.1038/nature12373")
         self.assertEqual(r["avisos"], [])
+
+    def test_lote_real_contra_la_api(self):
+        r = refcheck.revisa_lote(["10.1371/journal.pone.0161231",   # corregido
+                                  "10.1016/j.nbd.2012.05.020",     # retractado
+                                  "10.1038/nature12373",           # limpio
+                                  "10.9999/no.existe.9999"])       # no está
+        por = {x["doi"]: x for x in r}
+        self.assertEqual(len(r), 4)
+        self.assertTrue(any(a["tipo"] == "correction"
+                            for a in por["10.1371/journal.pone.0161231"]["avisos"]))
+        self.assertEqual(por["10.1016/j.nbd.2012.05.020"]["avisos"][0]["gravedad"], 3)
+        self.assertEqual(por["10.1038/nature12373"]["avisos"], [])
+        self.assertEqual(por["10.9999/no.existe.9999"]["estado"], "desconocido")
 
 
 if __name__ == "__main__":

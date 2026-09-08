@@ -3,15 +3,16 @@
 
 Retractions are the famous case, and free tools already cover them: Zotero warns
 you, Retraction Watch keeps the list. But a retraction is the rarest kind of
-change to the scientific record. Measured against the Crossref API on 2026-09-06:
+change to the scientific record. Measured against the Crossref API on 2026-09-08:
 
-    retractions (covered by free tools) ....  65,976
-    corrections ........................... 205,005
-    errata ................................ 113,437
-    expressions of concern .................  4,229
-    withdrawals, removals, addenda, ... ....  16,494
-    -------------------------------------------------
-    NOT covered by any free tool ........... 339,165   (5.1x the retractions)
+    retractions (what the familiar tools cover) ....  75,265
+    corrections ................................... 213,113
+    errata ........................................ 116,091
+    expressions of concern .........................   4,233
+    new editions ..................................  10,874
+    withdrawals, removals, addenda, clarifications .   6,328
+    ------------------------------------------------------
+    the quiet ones ................................ 350,639   (4.7x the retractions)
 
 Those are the quiet ones. Nobody emails you when the paper you are citing had
 its numbers corrected two years after you read it — and unlike a retraction, the
@@ -20,14 +21,18 @@ paper is still perfectly valid, which is exactly why nobody looks.
 This reads a list of DOIs (or a .bib file) and tells you which of your references
 carry a published change notice, what kind, and where to read it.
 
+No terminal? The same check runs in a browser, with nothing to install:
+https://kaizenshogun.github.io/refcheck/
+
 Usage:
     refcheck.py refs.bib
     refcheck.py dois.txt
     echo 10.1371/journal.pone.0161231 | refcheck.py -
     refcheck.py refs.bib --json          machine-readable, for pipelines
 
-Exit codes: 0 nothing found · 1 something found · 2 usage/network error.
-So it can gate a CI job in a journal or a lab.
+Exit codes: 0 nothing found · 1 something found · 2 bad usage, or a reference
+that could not be looked up. A failed lookup is not a clean reference, so it
+does not let a CI gate go green.
 
 Standard library only. No account, no key, no tracking. MIT.
 """
@@ -42,6 +47,8 @@ import urllib.parse
 import urllib.request
 
 API = "https://api.crossref.org/works/"
+LOTE = 40   # DOIs per request. Measured safe against the API on 2026-09-08 (75 also
+            # worked); 40 keeps the URL short and the public service unbothered.
 # Crossref asks callers to identify themselves; being polite gets you the fast pool.
 CONTACT = os.environ.get("REFCHECK_MAILTO", "")
 UA = f"refcheck/1.0 (https://github.com/KaizenShogun/refcheck{'; mailto:' + CONTACT if CONTACT else ''})"
@@ -103,11 +110,8 @@ def consulta(doi, reintentos=3):
     return None
 
 
-def revisa(doi):
-    """Return the change notices attached to one DOI, worst first."""
-    obra = consulta(doi)
-    if obra is None:
-        return {"doi": doi, "estado": "desconocido", "avisos": []}
+def avisos_de(obra):
+    """Change notices attached to one work record, worst first."""
     avisos = []
     for u in (obra.get("updated-by") or []):
         tipo = (u.get("type") or "unknown").lower()
@@ -121,14 +125,76 @@ def revisa(doi):
             "etiqueta": u.get("label") or tipo.replace("_", " ").title(),
         })
     avisos.sort(key=lambda a: (-a["gravedad"], a["fecha"]))
-    titulo = (obra.get("title") or [""])[0]
-    return {"doi": doi, "estado": "ok", "titulo": titulo,
-            "revista": (obra.get("container-title") or [""])[0], "avisos": avisos}
+    return avisos
+
+
+def ficha(doi, obra):
+    return {"doi": doi, "estado": "ok", "titulo": (obra.get("title") or [""])[0],
+            "revista": (obra.get("container-title") or [""])[0],
+            "avisos": avisos_de(obra)}
+
+
+def revisa(doi):
+    """Return the change notices attached to one DOI, worst first."""
+    obra = consulta(doi)
+    if obra is None:
+        return {"doi": doi, "estado": "desconocido", "avisos": []}
+    return ficha(doi, obra)
+
+
+def consulta_lote(dois, reintentos=3):
+    """One request for up to LOTE DOIs. Returns {doi: work}, or raises.
+
+    Crossref answers a `filter=doi:a,doi:b,…` query with only the DOIs it holds,
+    so a DOI missing from the reply means "no record", not "lookup failed" —
+    and those two must never be shown to the reader as the same thing.
+    """
+    filtro = ",".join("doi:" + urllib.parse.quote(d, safe="") for d in dois)
+    url = f"{API.rstrip('/')}?rows={len(dois)}&select=DOI,title,container-title,updated-by&filter={filtro}"
+    ultimo = None
+    for intento in range(reintentos):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                items = json.load(r)["message"].get("items") or []
+            return {str(w.get("DOI", "")).lower(): w for w in items}
+        except Exception as e:
+            ultimo = e
+            if intento < reintentos - 1:
+                time.sleep(2 ** intento)
+    raise ConnectionError(f"Crossref lookup failed: {ultimo}")
+
+
+def revisa_lote(dois, pausa=0.4, avisa=None):
+    """Check every DOI, in batches. Never reports a failed lookup as 'not found'."""
+    resultados, hechos = [], 0
+    for i in range(0, len(dois), LOTE):
+        trozo = dois[i:i + LOTE]
+        try:
+            obras = consulta_lote(trozo)
+        except ConnectionError as e:
+            # This batch is lost, the rest of the bibliography is not.
+            for d in trozo:
+                resultados.append({"doi": d, "estado": "sin_comprobar",
+                                   "error": str(e), "avisos": []})
+            obras = None
+        if obras is not None:
+            for d in trozo:
+                w = obras.get(d.lower())
+                resultados.append(ficha(d, w) if w
+                                  else {"doi": d, "estado": "desconocido", "avisos": []})
+        hechos += len(trozo)
+        if avisa:
+            avisa(hechos, len(dois))
+        if i + LOTE < len(dois):
+            time.sleep(pausa)
+    return resultados
 
 
 def informe(resultados, ancho=78):
     con = [r for r in resultados if r["avisos"]]
     desc = [r for r in resultados if r["estado"] == "desconocido"]
+    sinc = [r for r in resultados if r["estado"] == "sin_comprobar"]
     lineas = []
     for r in sorted(con, key=lambda r: -r["avisos"][0]["gravedad"]):
         peor = r["avisos"][0]
@@ -140,12 +206,17 @@ def informe(resultados, ancho=78):
         for a in r["avisos"]:
             fecha = f" ({a['fecha']})" if a["fecha"] else ""
             lineas.append(f"      → {a['etiqueta']}{fecha}: https://doi.org/{a['doi_aviso']}")
-    cab = [f"  {len(resultados)} reference(s) checked · {len(con)} carry a change notice"]
+    cab = [f"  {len(resultados) - len(sinc)} reference(s) checked · "
+           f"{len(con)} carry a change notice"]
+    if sinc:
+        cab.append(f"  {len(sinc)} could NOT be checked — the lookup failed. Not clean: unknown.")
     if desc:
         cab.append(f"  {len(desc)} not found in Crossref (preprints, books, bad DOI) — not checked")
-    if not con:
+    if not con and len(resultados) > len(sinc):
         cab.append("  Nothing found. That is the expected result most of the time;")
         cab.append("  it is the 1-in-N that this exists for.")
+    for r in sinc:
+        lineas.append(f"      ? not checked: {r['doi']}")
     return "\n".join(cab + lineas)
 
 
@@ -155,7 +226,7 @@ def main():
                     "erratum, expression of concern or retraction.")
     p.add_argument("fichero", help="file with DOIs or a .bib file; use - for stdin")
     p.add_argument("--json", action="store_true", help="machine-readable output")
-    p.add_argument("--pausa", type=float, default=0.12, help="seconds between API calls")
+    p.add_argument("--pausa", type=float, default=0.4, help="seconds between API calls")
     a = p.parse_args()
 
     texto = sys.stdin.read() if a.fichero == "-" else open(a.fichero, encoding="utf-8", errors="replace").read()
@@ -164,13 +235,15 @@ def main():
         print("No DOIs found in that file.", file=sys.stderr)
         return 2
 
-    resultados = []
-    for i, d in enumerate(dois):
-        resultados.append(revisa(d))
-        if not a.json and len(dois) > 8:
-            print(f"\r  checking {i + 1}/{len(dois)}…", end="", file=sys.stderr, flush=True)
-        time.sleep(a.pausa)
-    if not a.json and len(dois) > 8:
+    # Only draw progress on a real terminal; piped into a log it is just \r noise.
+    ruidoso = not a.json and len(dois) > LOTE and sys.stderr.isatty()
+
+    def avisa(hechos, total):
+        if ruidoso:
+            print(f"\r  checking {hechos}/{total}…", end="", file=sys.stderr, flush=True)
+
+    resultados = revisa_lote(dois, pausa=a.pausa, avisa=avisa)
+    if ruidoso:
         print("\r" + " " * 30 + "\r", end="", file=sys.stderr)
 
     if a.json:
@@ -178,7 +251,13 @@ def main():
         print()
     else:
         print(informe(resultados))
-    return 1 if any(r["avisos"] for r in resultados) else 0
+
+    if any(r["avisos"] for r in resultados):
+        return 1
+    # A reference we could not look up must not let a CI gate go green.
+    if any(r["estado"] == "sin_comprobar" for r in resultados):
+        return 2
+    return 0
 
 
 if __name__ == "__main__":
