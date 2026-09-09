@@ -161,14 +161,49 @@ it and one command.
 - **Not a citation checker.** It does not tell you whether the paper says what
   you claim it says. Nothing does that for you yet.
 
+## When Crossref contradicts itself, you get told
+
+Look up `10.1148/85.3.474` and the API hands you two notices for the same paper,
+from the same Retraction Watch record (#19937), with the same timestamp, and
+different verdicts: **retraction** and **expression of concern**. Upstream, the
+retraction was downgraded to an expression of concern in March 2026. Crossref
+appends the new verdict instead of overwriting the old one, so both are served
+and nothing in the response says which is current. A user
+[reported this in May 2026](https://community.crossref.org/t/15831); Crossref
+confirmed the cause and opened CR-2746 at medium priority. It is still live.
+
+Until this was measured, refcheck took the worst notice and printed
+**RETRACTED — do not cite this as evidence** over a paper that was never
+retracted. That is the single most expensive thing this tool can get wrong: it
+does not waste your time, it makes you throw away a good citation. It now says
+the notices contradict each other and sends you to
+[retractiondatabase.org](https://retractiondatabase.org/) to settle it yourself.
+
+`research/measure_conflicts.py` is the script that sized it. Scanning every
+retraction and every expression-of-concern notice in Crossref on 2026-09-09
+(79,531 records) found **6 affected works** — rare, but each one is a maximum-volume
+false alarm. Run it yourself; it takes about seven minutes and needs no key:
+
+```
+python3 research/measure_conflicts.py --out conflicts.json
+```
+
+The same scan turned up a second oddity, reported separately: one work
+(`10.3892/etm.2024.12720`) carries an update whose `type` is the literal string
+`68818` — a record id that leaked into the type field.
+
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 22 tests, offline
-REFCHECK_RED=1 python3 test_refcheck.py   # 25, adding the live-API cases
+python3 test_refcheck.py                  # 28 tests, offline
+REFCHECK_RED=1 python3 test_refcheck.py   # 32, adding the live-API cases
 ```
 
-The browser version has its own battery — 34 checks driving the real page in
+One of those live tests asserts that `10.1148/85.3.474` still arrives
+contradictory. If Crossref fixes CR-2746 the test goes red — which is exactly
+how I want to find out.
+
+The browser version has its own battery — 41 checks driving the real page in
 headless chromium against the real Crossref API, including forced network
 failures, because the interesting bugs live there:
 

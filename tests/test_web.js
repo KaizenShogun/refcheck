@@ -76,6 +76,30 @@
      document.querySelectorAll("ol.results > li").length >= 3,
      String(document.querySelectorAll("ol.results > li").length));
 
+  // ---- 3b. contradictory assertions must not be flattened into the worst one ----
+  // 10.1148/85.3.474 arrives from Crossref with two Retraction Watch assertions
+  // carrying the SAME record-id (19937) and different types: `retraction` and
+  // `expression_of_concern`. Upstream, the retraction was downgraded to an
+  // expression of concern in March 2026; Crossref appends instead of overwriting
+  // (CR-2746). Calling this one RETRACTED tells a reader to bin a live citation.
+  s = await check("Spondyloepiphysial Dysplasia Tarda. doi:10.1148/85.3.474");
+  ok("contradictory run completes", s === "Done.", s);
+  const conflictBody = txt();
+  ok("contradiction is named, not resolved",
+     /CONTRADICTORY NOTICES/.test(conflictBody), conflictBody);
+  ok("does NOT shout the stale retraction",
+     !/RETRACTED — do not cite this as evidence/.test(conflictBody), conflictBody);
+  ok("both conflicting types are shown",
+     /Retraction/.test(conflictBody) && /Expression of concern/.test(conflictBody));
+  ok("each notice says what it contradicts",
+     document.querySelectorAll("ul.notices .clash").length === 2,
+     String(document.querySelectorAll("ul.notices .clash").length));
+  ok("reader is sent to the upstream database",
+     [...document.querySelectorAll("ol.results a")]
+       .some((a) => /retractiondatabase\.org/.test(a.href)));
+  ok("copied report also carries the contradiction",
+     /contradictory/i.test(conflictBody));
+
   // ---- 4. a clean bibliography must say so, not stay silent ----
   s = await check("Shannon. A mathematical theory of communication. 10.1002/j.1538-7305.1948.tb01338.x");
   ok("clean run completes", s === "Done.", s);

@@ -71,6 +71,10 @@
   .sev { font-weight: 700; letter-spacing: .01em; display: block; margin-bottom: .3rem; }
   .s3 { color: var(--sev3); } .s2 { color: var(--sev2); }
   .s1 { color: var(--sev1); } .s0 { color: var(--sev0); }
+  /* Reuses the measured --sev2 rather than inventing a colour I have not
+     contrast-checked; the underline is what sets it apart, not a new hue. */
+  .sev.conflict { color: var(--sev2); text-decoration: underline wavy; text-underline-offset: .25em; }
+  .clash { color: var(--sev2); font-weight: 600; }
   .title { font-weight: 600; }
   .meta { color: var(--muted); font-size: .9rem; word-break: break-word; }
   ul.notices { margin: .5rem 0 0; padding-left: 1.2rem; }
@@ -175,6 +179,7 @@
     1: "CORRECTED — check the number you are quoting is still there",
     0: "UPDATED — additional material published"
   };
+  var CONFLICTO = "CONTRADICTORY NOTICES — check this one by hand, Crossref disagrees with itself";
 
   var $ = function (id) { return document.getElementById(id); };
   var input = $("input"), status = $("status"), out = $("out"),
@@ -206,6 +211,37 @@
     }).join("-");
   }
 
+  // Crossref does not overwrite a Retraction Watch assertion when the upstream
+  // record changes its nature: it appends a second one with the SAME record-id,
+  // same source and same timestamp, and a different type. So 10.1148/85.3.474
+  // arrives as both `retraction` and `expression_of_concern`, and the retraction
+  // is the stale half — downgraded upstream on 2026-03-26. Acknowledged by
+  // Crossref as CR-2746: https://community.crossref.org/t/15831
+  // Nothing in the response says which half is current, so we must not pick one.
+  // Showing the worst would tell a reader to bin a citation that was never
+  // retracted, which is the one mistake this tool cannot afford to make.
+  function flagContradictions(list) {
+    var groups = Object.create(null), i, a, k;
+    for (i = 0; i < list.length; i++) {
+      a = list[i];
+      if (a.registro == null) continue;   // no record-id: no shared origin to prove
+      k = encodeURIComponent(a.fuente) + "|" + encodeURIComponent(a.registro);
+      (groups[k] || (groups[k] = [])).push(a);
+    }
+    Object.keys(groups).forEach(function (key) {
+      var members = groups[key], types = [];
+      members.forEach(function (m) {
+        if (types.indexOf(m.tipo) === -1) types.push(m.tipo);
+      });
+      if (types.length > 1) {
+        members.forEach(function (m) {
+          m.contradice = types.filter(function (t) { return t !== m.tipo; });
+        });
+      }
+    });
+    return list;
+  }
+
   function noticesOf(work) {
     var raw = work["updated-by"] || [];
     var list = raw.map(function (u) {
@@ -216,15 +252,26 @@
         gravedad: g,
         fecha: fmtDate(((u.updated || {})["date-parts"] || [[null]])[0]),
         doi: u.DOI || "",
+        fuente: u.source || "",
+        registro: u["record-id"] == null ? null : String(u["record-id"]),
+        contradice: [],
         etiqueta: u.label || t.replace(/_/g, " ").replace(/\b\w/g, function (c) {
           return c.toUpperCase();
         })
       };
     });
+    flagContradictions(list);
     list.sort(function (a, b) {
       return (b.gravedad - a.gravedad) || (a.fecha < b.fecha ? -1 : 1);
     });
     return list;
+  }
+
+  function isContradictory(notices) {
+    for (var i = 0; i < notices.length; i++) {
+      if (notices[i].contradice && notices[i].contradice.length) return true;
+    }
+    return false;
   }
 
   function sleep(ms) {
@@ -314,8 +361,10 @@
       });
       found.forEach(function (r) {
         var worst = r.notices[0].gravedad;
+        var choca = isContradictory(r.notices);
         var li = el("li");
-        var sev = el("span", "sev s" + worst, ETIQUETA[worst]);
+        var sev = el("span", choca ? "sev conflict" : "sev s" + worst,
+                     choca ? CONFLICTO : ETIQUETA[worst]);
         li.appendChild(sev);
         if (r.titulo) li.appendChild(el("p", "title", r.titulo));
         var meta = el("p", "meta");
@@ -327,7 +376,7 @@
 
         var ul = el("ul", "notices");
         lines.push("");
-        lines.push(ETIQUETA[worst]);
+        lines.push(choca ? CONFLICTO : ETIQUETA[worst]);
         if (r.titulo) lines.push("  " + r.titulo);
         lines.push("  https://doi.org/" + r.doi);
         r.notices.forEach(function (n) {
@@ -337,11 +386,30 @@
           var na = el("a", null, "read the notice");
           na.href = "https://doi.org/" + n.doi;
           item.appendChild(na);
+          if (n.contradice && n.contradice.length) {
+            item.appendChild(el("span", "clash",
+              " — contradicts: " + n.contradice.join(", ")));
+          }
           ul.appendChild(item);
           lines.push("    -> " + n.etiqueta + (n.fecha ? " (" + n.fecha + ")" : "") +
-                     ": https://doi.org/" + n.doi);
+                     ": https://doi.org/" + n.doi +
+                     (n.contradice && n.contradice.length
+                        ? "  [contradicts: " + n.contradice.join(", ") + "]" : ""));
         });
         li.appendChild(ul);
+        if (choca) {
+          var nota = el("p", "hint");
+          nota.appendChild(document.createTextNode(
+            "One upstream record, two different verdicts, the same date — the API " +
+            "does not say which is current, so neither do we. Look this one up in "));
+          var rw = el("a", null, "the Retraction Watch database");
+          rw.href = "https://retractiondatabase.org/";
+          rw.rel = "noopener";
+          nota.appendChild(rw);
+          nota.appendChild(document.createTextNode("."));
+          li.appendChild(nota);
+          lines.push("    (contradictory: check retractiondatabase.org by hand)");
+        }
         ol.appendChild(li);
       });
       out.appendChild(ol);

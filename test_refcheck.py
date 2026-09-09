@@ -192,5 +192,72 @@ class ContraLaRealidad(unittest.TestCase):
         self.assertEqual(por["10.9999/no.existe.9999"]["estado"], "desconocido")
 
 
+def _rw(tipo, rid, doi="10.1234/notice", fecha=(2019, 2, 1)):
+    return {"DOI": doi, "type": tipo, "label": tipo.replace("_", " ").capitalize(),
+            "source": "retraction-watch", "record-id": rid,
+            "updated": {"date-parts": [list(fecha)]}}
+
+
+class Contradicciones(unittest.TestCase):
+    """Two assertions from one upstream record that disagree about what happened.
+
+    Crossref appends rather than overwrites when a Retraction Watch record
+    changes its nature, so the API serves both the old verdict and the new one
+    with identical timestamps (CR-2746). Picking the worst is the expensive
+    error: it bins a citation that was never retracted.
+    """
+
+    def test_mismo_registro_tipos_distintos_se_marca(self):
+        a = refcheck.avisos_de({"updated-by": [_rw("retraction", 19937),
+                                               _rw("expression_of_concern", 19937)]})
+        self.assertTrue(all(x["contradice"] for x in a))
+        self.assertEqual(sorted(a[0]["contradice"] + a[1]["contradice"]),
+                         ["expression_of_concern", "retraction"])
+
+    def test_ficha_marca_el_trabajo_entero(self):
+        f = refcheck.ficha("10.1148/85.3.474",
+                           {"updated-by": [_rw("retraction", 19937),
+                                           _rw("expression_of_concern", 19937)]})
+        self.assertTrue(f["contradictorio"])
+
+    def test_informe_no_grita_la_retractacion_rancia(self):
+        f = refcheck.ficha("10.1148/85.3.474",
+                           {"updated-by": [_rw("retraction", 19937),
+                                           _rw("expression_of_concern", 19937)]})
+        txt = refcheck.informe([f])
+        self.assertIn("CONTRADICTORY NOTICES", txt)
+        self.assertNotIn("RETRACTED — do not cite this as evidence", txt)
+        self.assertIn("retractiondatabase.org", txt)
+        self.assertIn("contradicts", txt)
+
+    def test_registros_distintos_no_son_contradiccion(self):
+        """A paper genuinely corrected and later retracted is not a data bug."""
+        f = refcheck.ficha("10.1234/x", {"updated-by": [_rw("correction", 100),
+                                                        _rw("retraction", 200)]})
+        self.assertFalse(f["contradictorio"])
+        self.assertIn("RETRACTED", refcheck.informe([f]))
+
+    def test_sin_record_id_no_se_agrupa(self):
+        """Without a record-id there is no evidence the two share an origin."""
+        f = refcheck.ficha("10.1234/x", {"updated-by": [
+            {"DOI": "a", "type": "correction", "source": "publisher"},
+            {"DOI": "b", "type": "retraction", "source": "publisher"}]})
+        self.assertFalse(f["contradictorio"])
+
+    def test_mismo_registro_mismo_tipo_no_es_contradiccion(self):
+        f = refcheck.ficha("10.1234/x", {"updated-by": [_rw("retraction", 7, doi="10.1/a"),
+                                                        _rw("retraction", 7, doi="10.1/b")]})
+        self.assertFalse(f["contradictorio"])
+
+    @unittest.skipUnless(os.environ.get("REFCHECK_RED") == "1", "necesita red: REFCHECK_RED=1")
+    def test_contra_la_api_real(self):
+        """The live record that started all this. If Crossref fixes CR-2746 this
+        test goes red — which is the correct way to find out."""
+        r = refcheck.revisa("10.1148/85.3.474")
+        self.assertTrue(r["contradictorio"],
+                        "10.1148/85.3.474 no longer carries contradictory assertions "
+                        "— check whether CR-2746 was fixed, then relax this test")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

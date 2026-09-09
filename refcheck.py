@@ -67,6 +67,9 @@ ETIQUETA = {
     1: "CORRECTED — check the number you are quoting is still there",
     0: "UPDATED — additional material published",
 }
+# Said in the loudest place because it is the one answer this tool cannot give you.
+CONFLICTO = ("CONTRADICTORY NOTICES — check this one by hand, Crossref disagrees "
+             "with itself")
 
 DOI_RE = re.compile(r"10\.\d{4,9}/[-._;()/:A-Za-z0-9<>\[\]]+")
 
@@ -110,6 +113,35 @@ def consulta(doi, reintentos=3):
     return None
 
 
+def marca_contradicciones(avisos):
+    """Flag assertions that come from one upstream record but disagree on type.
+
+    Crossref does not overwrite a Retraction Watch assertion when the upstream
+    record changes its nature: it appends a second one carrying the same
+    `record-id`, the same source and the same timestamp, with a different type.
+    So 10.1148/85.3.474 is served as both `retraction` and
+    `expression_of_concern` — and the retraction is the stale half, downgraded
+    upstream on 2026-03-26. Reported by a user in 2026-05, acknowledged by
+    Crossref (CR-2746), still live. https://community.crossref.org/t/15831
+
+    Nothing in the response says which half is current, so this tool must not
+    pick one. Taking the worst — what it did until this was measured — is the
+    expensive mistake: it tells a reader to bin a citation that was never
+    retracted. Both halves get flagged and the reader is sent upstream.
+    """
+    grupos = {}
+    for a in avisos:
+        if a.get("registro") is None:
+            continue        # no record-id: no evidence these share an origin
+        grupos.setdefault((a["fuente"], a["registro"]), []).append(a)
+    for miembros in grupos.values():
+        tipos = sorted({m["tipo"] for m in miembros})
+        if len(tipos) > 1:
+            for m in miembros:
+                m["contradice"] = [t for t in tipos if t != m["tipo"]]
+    return avisos
+
+
 def avisos_de(obra):
     """Change notices attached to one work record, worst first."""
     avisos = []
@@ -123,15 +155,21 @@ def avisos_de(obra):
             "fecha": fecha,
             "doi_aviso": u.get("DOI", ""),
             "etiqueta": u.get("label") or tipo.replace("_", " ").title(),
+            "fuente": u.get("source", ""),
+            "registro": str(u["record-id"]) if u.get("record-id") is not None else None,
+            "contradice": [],
         })
+    marca_contradicciones(avisos)
     avisos.sort(key=lambda a: (-a["gravedad"], a["fecha"]))
     return avisos
 
 
 def ficha(doi, obra):
+    avisos = avisos_de(obra)
     return {"doi": doi, "estado": "ok", "titulo": (obra.get("title") or [""])[0],
             "revista": (obra.get("container-title") or [""])[0],
-            "avisos": avisos_de(obra)}
+            "contradictorio": any(a["contradice"] for a in avisos),
+            "avisos": avisos}
 
 
 def revisa(doi):
@@ -196,18 +234,27 @@ def informe(resultados, ancho=78):
     desc = [r for r in resultados if r["estado"] == "desconocido"]
     sinc = [r for r in resultados if r["estado"] == "sin_comprobar"]
     lineas = []
+    chocan = [r for r in con if r.get("contradictorio")]
     for r in sorted(con, key=lambda r: -r["avisos"][0]["gravedad"]):
         peor = r["avisos"][0]
         lineas.append("")
-        lineas.append(f"  {ETIQUETA[peor['gravedad']]}")
+        lineas.append(f"  {CONFLICTO if r.get('contradictorio') else ETIQUETA[peor['gravedad']]}")
         t = r.get("titulo", "")
         lineas.append(f"    {t[:ancho - 4]}" if t else "")
         lineas.append(f"    {r['doi']}")
         for a in r["avisos"]:
             fecha = f" ({a['fecha']})" if a["fecha"] else ""
-            lineas.append(f"      → {a['etiqueta']}{fecha}: https://doi.org/{a['doi_aviso']}")
+            # .get: a report loaded from an older --json run has no such key.
+            choca = a.get("contradice") or []
+            choque = f"  [contradicts: {', '.join(choca)}]" if choca else ""
+            lineas.append(f"      → {a['etiqueta']}{fecha}: https://doi.org/{a['doi_aviso']}{choque}")
+        if r.get("contradictorio"):
+            lineas.append("      Same upstream record, two different verdicts, same date — the API")
+            lineas.append("      does not say which is current. Look it up: retractiondatabase.org")
     cab = [f"  {len(resultados) - len(sinc)} reference(s) checked · "
            f"{len(con)} carry a change notice"]
+    if chocan:
+        cab.append(f"  {len(chocan)} of them carry CONTRADICTORY notices — decide those by hand")
     if sinc:
         cab.append(f"  {len(sinc)} could NOT be checked — the lookup failed. Not clean: unknown.")
     if desc:
