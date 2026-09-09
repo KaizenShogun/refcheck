@@ -58,7 +58,7 @@ dependencies, no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 34-check battery in a real headless browser against the real API.
+is driven by a 41-check battery in a real headless browser against the real API.
 
 ## Use it from the command line
 
@@ -106,6 +106,24 @@ Crossref and get their faster pool.
 References are looked up **40 per request** rather than one at a time. Measured on
 20 references: 6.3 s and 20 requests before, 0.3 s and 1 request after — 19× faster
 and 20× less traffic aimed at a public service that nobody funds.
+
+And it now runs at the speed Crossref says it may, rather than the speed I
+guessed. Read off the response headers on 2026-09-09:
+
+| pool | how you get there | stated limit |
+|---|---|---|
+| `public-array` | no mailto — the default | **1 request/second** |
+| `polite-array` | `REFCHECK_MAILTO` set | 3 requests/second |
+
+refcheck used to pause a flat 0.4 s, which is 2.5 requests a second: two and a
+half times over the limit for every user who never set a mailto, which is most
+of them. It now reads `x-rate-limit-limit` back off each response and paces
+itself to that, starting from the conservative 1/s. I found this by rate-limiting
+myself into 429s while measuring something else — the README had been asking you
+to be kind to a public service the code was leaning on.
+
+The browser version paces to 1/s too, hardcoded, because Crossref's CORS policy
+exposes only the `Link` header and JavaScript cannot read the limit back.
 
 ## What else is out there
 
@@ -179,24 +197,37 @@ does not waste your time, it makes you throw away a good citation. It now says
 the notices contradict each other and sends you to
 [retractiondatabase.org](https://retractiondatabase.org/) to settle it yourself.
 
-`research/measure_conflicts.py` is the script that sized it. Scanning every
-retraction and every expression-of-concern notice in Crossref on 2026-09-09
-(79,531 records) found **6 affected works** — rare, but each one is a maximum-volume
-false alarm. Run it yourself; it takes about seven minutes and needs no key:
+`research/measure_conflicts.py` is the script that sized it. On 2026-09-09 it
+scanned **417,618 update records** — every retraction, correction, erratum,
+corrigendum, expression of concern, withdrawal, removal and partial retraction
+Crossref holds — and found **6 works** carrying assertions that share a
+record-id and disagree about what happened:
+
+| work | Retraction Watch record | the API says both |
+|---|---|---|
+| `10.1148/85.3.474` | 19937 | retraction · expression of concern |
+| `10.1109/bibe.2018.00052` | 45015 | retraction · expression of concern |
+| `10.1051/ocl/2024009` | 63890 | retraction · expression of concern |
+| `10.1007/s12275-015-0740-4` | 37343 | retraction · correction |
+| `10.1038/s41598-022-06705-7` | 37754 | retraction · correction |
+| `10.3892/etm.2024.12720` | 69356 | retraction · `68818` |
+
+Six in 417,618 is rare. It is also, in every one of the six, the loudest wrong
+answer the tool can give. Run the scan yourself — no key, about half an hour:
 
 ```
 python3 research/measure_conflicts.py --out conflicts.json
 ```
 
-The same scan turned up a second oddity, reported separately: one work
-(`10.3892/etm.2024.12720`) carries an update whose `type` is the literal string
-`68818` — a record id that leaked into the type field.
+That last row is a different bug and was reported separately: the assertion's
+`type` **and** `label` are both the literal string `68818`, which is another
+Retraction Watch record id sitting in a field that should hold a notice type.
 
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 28 tests, offline
-REFCHECK_RED=1 python3 test_refcheck.py   # 32, adding the live-API cases
+python3 test_refcheck.py                  # 35 tests, offline
+REFCHECK_RED=1 python3 test_refcheck.py   # 39, adding the live-API cases
 ```
 
 One of those live tests asserts that `10.1148/85.3.474` still arrives

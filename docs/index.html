@@ -290,7 +290,7 @@
               "&filter=" + filter;
     return fetch(url, { headers: { Accept: "application/json" } })
       .then(function (r) {
-        // Crossref publishes 3 requests/second. A 429 is us being rude, so wait.
+        // A 429 is us being rude, so wait and try again rather than give up.
         if (r.status === 429 || r.status >= 500) {
           throw new Error("Crossref replied " + r.status);
         }
@@ -473,8 +473,21 @@
       (dois.length === 1 ? "" : "s") + "…";
 
     // Sequential on purpose: one public API, shared by everyone, funded by nobody.
+    // And spaced, not just serialised. Measured 2026-09-09 from the response
+    // headers: without a mailto you are in `public-array`, where the stated limit
+    // is x-rate-limit-limit: 1 per 1s. This page cannot send a mailto — it has no
+    // address to send and would not want one — so it must pace itself to 1/s.
+    // The header is unreadable from JavaScript (Crossref's CORS exposes only
+    // `Link`), so the number is hardcoded here rather than discovered. If they
+    // ever loosen it, this is the line to change.
+    var GAP_MS = 1000;
+    var firstBatch = true;
     batches.reduce(function (chain, b) {
       return chain.then(function () {
+        var wait = firstBatch ? 0 : GAP_MS;
+        firstBatch = false;
+        return sleep(wait);
+      }).then(function () {
         return fetchBatch(b).then(function (items) {
           items.forEach(function (w) {
             var d = String(w.DOI || "").toLowerCase();

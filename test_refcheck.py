@@ -10,6 +10,7 @@ import io
 import json
 import os
 import sys
+import time
 import unittest
 from unittest import mock
 
@@ -190,6 +191,71 @@ class ContraLaRealidad(unittest.TestCase):
         self.assertEqual(por["10.1016/j.nbd.2012.05.020"]["avisos"][0]["gravedad"], 3)
         self.assertEqual(por["10.1038/nature12373"]["avisos"], [])
         self.assertEqual(por["10.9999/no.existe.9999"]["estado"], "desconocido")
+
+
+class Cortesia(unittest.TestCase):
+    """Stay inside the rate the server states, not the one I assumed.
+
+    Measured 2026-09-09: no mailto puts you in `public-array` at 1 request per
+    second; a mailto puts you in `polite-array` at 3. The old default paused
+    0.4 s — 2.5 requests a second — and most users never set a mailto.
+    """
+
+    def test_por_defecto_es_el_limite_publico(self):
+        self.assertEqual(refcheck.Ritmo().hueco, 1.0)
+
+    def test_aprende_el_pool_cortes(self):
+        r = refcheck.Ritmo()
+        r.aprende({"x-rate-limit-limit": "3", "x-rate-limit-interval": "1s"})
+        self.assertAlmostEqual(r.hueco, 1 / 3, places=4)
+
+    def test_aprende_intervalos_que_no_son_de_un_segundo(self):
+        r = refcheck.Ritmo()
+        r.aprende({"x-rate-limit-limit": "50", "x-rate-limit-interval": "10s"})
+        self.assertAlmostEqual(r.hueco, 0.2, places=4)
+
+    def test_cabecera_ausente_no_afloja_el_limite(self):
+        r = refcheck.Ritmo()
+        r.aprende({})
+        self.assertEqual(r.hueco, 1.0)
+
+    def test_cabecera_absurda_no_afloja_el_limite(self):
+        for mala in ({"x-rate-limit-limit": "muchas", "x-rate-limit-interval": "1s"},
+                     {"x-rate-limit-limit": "0", "x-rate-limit-interval": "1s"},
+                     {"x-rate-limit-limit": "3", "x-rate-limit-interval": "0s"},
+                     {"x-rate-limit-limit": "3"}):
+            r = refcheck.Ritmo()
+            r.aprende(mala)
+            self.assertEqual(r.hueco, 1.0, mala)
+
+    def test_espera_lo_que_falta_y_no_mas(self):
+        r = refcheck.Ritmo(limite=1, intervalo=0.2)
+        t0 = time.monotonic()
+        r.espera()                       # first call: nothing to wait for
+        primero = time.monotonic() - t0
+        r.espera()                       # second: must cover the 0.2 s gap
+        total = time.monotonic() - t0
+        self.assertLess(primero, 0.05)
+        self.assertGreaterEqual(total, 0.19)
+        self.assertLess(total, 0.45)
+
+    def test_el_lote_pide_permiso_antes_de_llamar(self):
+        """The pacing must sit in the request path, not in an optional argument."""
+        vistos = []
+        ritmo = refcheck.Ritmo()
+        ritmo.espera = lambda: vistos.append("waited")
+
+        respuesta = io.BytesIO(b'{"message":{"items":[]}}')
+        respuesta.headers = {"x-rate-limit-limit": "3", "x-rate-limit-interval": "1s"}
+
+        with mock.patch.object(refcheck, "RITMO", ritmo), \
+             mock.patch("urllib.request.urlopen") as u:
+            u.return_value.__enter__.return_value = respuesta
+            refcheck.consulta_lote(["10.1/a"])
+
+        self.assertEqual(vistos, ["waited"], "the batch call did not pace itself")
+        self.assertAlmostEqual(ritmo.hueco, 1 / 3, places=4,
+                               msg="the declared rate was not read back off the response")
 
 
 def _rw(tipo, rid, doi="10.1234/notice", fecha=(2019, 2, 1)):

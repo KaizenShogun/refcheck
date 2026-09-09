@@ -53,6 +53,49 @@ LOTE = 40   # DOIs per request. Measured safe against the API on 2026-09-08 (75 
 CONTACT = os.environ.get("REFCHECK_MAILTO", "")
 UA = f"refcheck/1.0 (https://github.com/KaizenShogun/refcheck{'; mailto:' + CONTACT if CONTACT else ''})"
 
+
+class Ritmo:
+    """Obey the rate limit the API states, instead of the one I assumed.
+
+    Measured 2026-09-09 by reading the response headers:
+
+        no mailto  → x-api-pool: public-array · x-rate-limit-limit: 1 per 1s
+        mailto set → x-api-pool: polite-array · x-rate-limit-limit: 3 per 1s
+
+    refcheck used to pause 0.4 s between batches, which is 2.5 requests a second
+    — two and a half times what the public pool permits, and most people never
+    set REFCHECK_MAILTO. That is how you earn a 429 from a service the README
+    asks you to be kind to. The default is now the conservative 1/s, raised only
+    when the server itself says a higher rate is allowed.
+    """
+
+    def __init__(self, limite=1, intervalo=1.0):
+        self.limite, self.intervalo, self.ultima = limite, intervalo, 0.0
+
+    def aprende(self, cabeceras):
+        try:
+            limite = int(cabeceras.get("x-rate-limit-limit", "") or 0)
+            crudo = (cabeceras.get("x-rate-limit-interval", "") or "").strip().lower()
+            intervalo = float(crudo.rstrip("s")) if crudo.endswith("s") else float(crudo)
+        except (TypeError, ValueError):
+            return                       # header missing or odd: keep the safe default
+        if limite > 0 and intervalo > 0:
+            self.limite, self.intervalo = limite, intervalo
+
+    @property
+    def hueco(self):
+        return self.intervalo / self.limite
+
+    def espera(self):
+        """Sleep only for whatever is left of the gap after the last request."""
+        queda = self.hueco - (time.monotonic() - self.ultima)
+        if queda > 0:
+            time.sleep(queda)
+        self.ultima = time.monotonic()
+
+
+RITMO = Ritmo()
+
 # How loudly to shout. A retraction means "do not use this". A correction means
 # "check that the bit you are citing is still the bit that is written there".
 GRAVEDAD = {
@@ -193,7 +236,9 @@ def consulta_lote(dois, reintentos=3):
     for intento in range(reintentos):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
+            RITMO.espera()
             with urllib.request.urlopen(req, timeout=60) as r:
+                RITMO.aprende(r.headers)
                 items = json.load(r)["message"].get("items") or []
             return {str(w.get("DOI", "")).lower(): w for w in items}
         except Exception as e:
@@ -203,8 +248,13 @@ def consulta_lote(dois, reintentos=3):
     raise ConnectionError(f"Crossref lookup failed: {ultimo}")
 
 
-def revisa_lote(dois, pausa=0.4, avisa=None):
-    """Check every DOI, in batches. Never reports a failed lookup as 'not found'."""
+def revisa_lote(dois, pausa=None, avisa=None):
+    """Check every DOI, in batches. Never reports a failed lookup as 'not found'.
+
+    Pacing is handled by RITMO, which follows the rate the server declares.
+    `pausa` is an extra courtesy delay on top, for anyone who wants to go slower
+    still; it is not the thing keeping us inside the limit.
+    """
     resultados, hechos = [], 0
     for i in range(0, len(dois), LOTE):
         trozo = dois[i:i + LOTE]
@@ -224,7 +274,7 @@ def revisa_lote(dois, pausa=0.4, avisa=None):
         hechos += len(trozo)
         if avisa:
             avisa(hechos, len(dois))
-        if i + LOTE < len(dois):
+        if pausa and i + LOTE < len(dois):
             time.sleep(pausa)
     return resultados
 
@@ -273,7 +323,9 @@ def main():
                     "erratum, expression of concern or retraction.")
     p.add_argument("fichero", help="file with DOIs or a .bib file; use - for stdin")
     p.add_argument("--json", action="store_true", help="machine-readable output")
-    p.add_argument("--pausa", type=float, default=0.4, help="seconds between API calls")
+    p.add_argument("--pausa", type=float, default=None,
+                   help="extra seconds between API calls, on top of the rate the "
+                        "server declares (public pool 1/s, polite pool 3/s)")
     a = p.parse_args()
 
     texto = sys.stdin.read() if a.fichero == "-" else open(a.fichero, encoding="utf-8", errors="replace").read()
