@@ -33,6 +33,16 @@ than one distinct `type`.
     python3 measure_conflicts.py                  # the two scans above
     python3 measure_conflicts.py --filter update-type:correction
     python3 measure_conflicts.py --out conflicts.json
+    python3 measure_conflicts.py --csv retraction_watch.csv   # say which half is stale
+
+`--csv` settles each conflict against the upstream source. Crossref publishes the
+Retraction Watch database at
+https://gitlab.com/crossref/retraction-watch-data (one row per record, and the
+`RetractionNature` column holds the current verdict), so for any record-id in
+conflict you can read off which of the API's two types is the live one and which
+is the leftover. Measured 2026-09-09: the file holds exactly five distinct
+natures — Retraction, Expression of concern, Correction, Reinstatement, and
+blank — so anything else the API reports as a `type` did not come from there.
 
 Standard library only. MIT.
 """
@@ -120,6 +130,46 @@ def escanea(filtro, filas=1000, pausa=0.2, verboso=True):
             "afectados": afectados, "pares": dict(pares)}
 
 
+# The API spells these the Crossref way; the CSV spells them the English way.
+NATURALEZA = {
+    "retraction": "retraction",
+    "expression of concern": "expression_of_concern",
+    "correction": "correction",
+    "reinstatement": "reinstatement",
+}
+
+
+def upstream(ruta):
+    """{record-id: current type} straight from the Retraction Watch CSV."""
+    import csv
+    csv.field_size_limit(10 ** 7)
+    vivos = {}
+    with open(ruta, encoding="utf-8", errors="replace", newline="") as fh:
+        for fila in csv.DictReader(fh):
+            rid = (fila.get("Record ID") or "").strip()
+            if not rid:
+                continue
+            crudo = (fila.get("RetractionNature") or "").strip()
+            vivos[rid] = NATURALEZA.get(crudo.lower(), crudo.lower() or "unknown")
+    return vivos
+
+
+def arbitra(union, vivos):
+    """For each conflict, say which type the upstream still holds — and which not."""
+    filas = []
+    for doi, w in sorted(union.items()):
+        for g in w["grupos"]:
+            actual = vivos.get(g["record_id"])
+            filas.append({
+                "doi": doi,
+                "record_id": g["record_id"],
+                "api_dice": g["types"],
+                "origen_dice": actual,
+                "sobra": [t for t in g["types"] if t != actual] if actual else None,
+            })
+    return filas
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--filter", action="append", dest="filtros",
@@ -127,6 +177,7 @@ def main():
     p.add_argument("--rows", type=int, default=1000)
     p.add_argument("--pausa", type=float, default=0.2)
     p.add_argument("--out", help="write the full findings as JSON")
+    p.add_argument("--csv", help="Retraction Watch CSV, to settle which half is stale")
     a = p.parse_args()
 
     filtros = a.filtros or ["update-type:retraction", "update-type:expression_of_concern"]
@@ -148,9 +199,22 @@ def main():
             print(f"      {c:6d}  {par}")
     print(f"\n  distinct works affected across all scans: {len(union)}")
 
+    arbitraje = None
+    if a.csv:
+        arbitraje = arbitra(union, upstream(a.csv))
+        print("\n  settled against the Retraction Watch CSV:")
+        for f in arbitraje:
+            if f["origen_dice"] is None:
+                print(f"    {f['doi']}  #{f['record_id']}: not in the CSV at all")
+                continue
+            sobra = ", ".join(f["sobra"]) or "(nothing — both match?)"
+            print(f"    {f['doi']}  #{f['record_id']}: upstream says "
+                  f"{f['origen_dice']}; the API also serves {sobra}")
+
     if a.out:
         with open(a.out, "w", encoding="utf-8") as fh:
-            json.dump({"scans": salidas, "distinct": sorted(union)}, fh, indent=1)
+            json.dump({"scans": salidas, "distinct": sorted(union),
+                       "arbitraje": arbitraje}, fh, indent=1)
         print(f"  written: {a.out}")
     return 0
 

@@ -203,25 +203,37 @@ corrigendum, expression of concern, withdrawal, removal and partial retraction
 Crossref holds — and found **6 works** carrying assertions that share a
 record-id and disagree about what happened:
 
-| work | Retraction Watch record | the API says both |
-|---|---|---|
-| `10.1148/85.3.474` | 19937 | retraction · expression of concern |
-| `10.1109/bibe.2018.00052` | 45015 | retraction · expression of concern |
-| `10.1051/ocl/2024009` | 63890 | retraction · expression of concern |
-| `10.1007/s12275-015-0740-4` | 37343 | retraction · correction |
-| `10.1038/s41598-022-06705-7` | 37754 | retraction · correction |
-| `10.3892/etm.2024.12720` | 69356 | retraction · `68818` |
+| work | record | the API serves | upstream CSV says | leftover |
+|---|---|---|---|---|
+| `10.1148/85.3.474` | 19937 | retraction · EoC | Expression of concern | `retraction` |
+| `10.1109/bibe.2018.00052` | 45015 | retraction · EoC | Expression of concern | `retraction` |
+| `10.1051/ocl/2024009` | 63890 | retraction · EoC | Expression of concern | `retraction` |
+| `10.1007/s12275-015-0740-4` | 37343 | retraction · correction | Correction | `retraction` |
+| `10.1038/s41598-022-06705-7` | 37754 | retraction · correction | Correction | `retraction` |
+| `10.3892/etm.2024.12720` | 69356 | retraction · `68818` | Retraction | `68818` |
 
-Six in 417,618 is rare. It is also, in every one of the six, the loudest wrong
-answer the tool can give. Run the scan yourself — no key, about half an hour:
+Six in 417,618 is rare. It is also, in five of the six, the loudest possible
+wrong answer: the leftover half is the retraction. Run the scan yourself — no
+key, about half an hour:
 
 ```
 python3 research/measure_conflicts.py --out conflicts.json
+python3 research/measure_conflicts.py --csv retraction_watch.csv   # who is stale
 ```
 
-That last row is a different bug and was reported separately: the assertion's
-`type` **and** `label` are both the literal string `68818`, which is another
-Retraction Watch record id sitting in a field that should hold a notice type.
+Those last two columns come from the
+[Retraction Watch CSV](https://gitlab.com/crossref/retraction-watch-data) that
+Crossref publishes, which holds one row per record id and so can settle which
+half is current. **refcheck itself does not do this** and will not: it is a 66 MB
+download to resolve six works, and the browser version has no business fetching
+it at all. Knowing the answer here is what tells you the tool is right to refuse
+to guess, not a licence for it to start guessing.
+
+That last row is a different bug, reported alongside: the assertion's `type`
+**and** `label` are both the literal string `68818` — itself a live Retraction
+Watch record id, for a retraction of an unrelated paper. The CSV is clean there
+(72,431 rows, five distinct `RetractionNature` values, and record 69356's is a
+plain `Retraction`), so that string is not coming from upstream.
 
 ## Tests
 
