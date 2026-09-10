@@ -1,0 +1,96 @@
+Hello,
+
+Your user guide says to write here about the database, so: six works in the RWDB
+are currently reaching people through the Crossref API carrying two contradictory
+verdicts at once, and in five of them the half that should have gone away is the
+retraction. I checked your own file first, and the problem is not there. Details
+below so you can verify it rather than take my word for it.
+
+WHAT I MEASURED
+
+I paged the Crossref REST API by cursor over every update type that returns
+anything (retraction, correction, erratum, corrigendum, expression of concern,
+withdrawal, removal, partial retraction), grouped each work's assertions by
+(source, record-id), and flagged any group holding more than one distinct type.
+Assertions with no record-id are skipped, because without one there is no
+evidence two entries share an origin, and a paper can legitimately be corrected
+and later retracted.
+
+On 2026-09-09: 417,618 update records scanned, 6 works affected, all six
+source: retraction-watch. Then I settled each against your CSV as Crossref
+publishes it (gitlab.com/crossref/retraction-watch-data), which holds one row per
+record id, so the leftover half is identifiable. I re-checked every line of this
+against the live API and a fresh copy of the CSV on 2026-09-10, and it all still
+holds:
+
+  record  paper affected            the API serves on the notice   your CSV says          leftover
+   19937  10.1148/85.3.474          retraction + expression_of_concern  Expression of concern  retraction
+   45015  10.1109/BIBE.2018.00052   retraction + expression_of_concern  Expression of concern  retraction
+   63890  10.1051/ocl/2023024       retraction + expression_of_concern  Expression of concern  retraction
+   37343  10.1007/s12275-012-2294-z retraction + correction             Correction             retraction
+   37754  10.1038/s41598-021-03765-z retraction + correction            Correction             retraction
+   69356  10.3892/etm.2018.6349     retraction + "68818"                Retraction             "68818"
+
+(The contradictory assertions sit on the notice DOIs — 10.1051/ocl/2024009,
+10.1007/s12275-015-0740-4, 10.1038/s41598-022-06705-7, 10.3892/etm.2024.12720
+respectively; for the first two the notice and the paper share a DOI.)
+
+Your side is clean where it counts: 72,450 rows today, exactly five distinct
+RetractionNature values (Retraction 66,830 · Expression of concern 3,715 ·
+Correction 1,513 · Reinstatement 160 · blank 232), and every record id that
+exists appears exactly once. So this is happening in the ingest, not in what you
+publish. One small thing while I was in there, unrelated to the above and
+probably not worth much: those 232 blanks are not partial records, they are 232
+completely empty rows at the end of the file, from row 72,218 to the last one.
+Harmless to anything that reads by record id, mildly annoying to anything that
+counts rows.
+
+WHY IT MATTERS TO YOU SPECIFICALLY
+
+Both halves carry the same record-id, the same source and the same timestamp, so
+nothing in the API says which is current. The obvious way to consume that data is
+to take the most severe assertion, and that reports a paper as retracted when
+your own current verdict is an expression of concern. I know it is the obvious
+way because I wrote a reference checker that did exactly that on 10.1148/85.3.474
+until this measurement made me look. Telling a reader to drop a citation that was
+never retracted is a worse failure than saying nothing, and the byline on the
+verdict is yours.
+
+Crossref knows about the duplicate-assertion behaviour: a user reported it in May
+2026 (community.crossref.org/t/15831) and they opened CR-2746, medium priority.
+What I have not found reported anywhere is the last row.
+
+THE LAST ROW IS A DIFFERENT BUG
+
+On 10.3892/etm.2024.12720, record 69356 carries a second assertion whose type
+and label are both the literal string "68818":
+
+  { "DOI": "10.3892/etm.2018.6349", "type": "68818", "label": "68818",
+    "source": "retraction-watch", "record-id": "69356",
+    "updated": { "date-time": "2024-09-18T00:00:00Z" } }
+
+68818 is one of your own record ids — a live one, sitting in the CSV as a plain
+Retraction of a different paper, 10.3892/etm.2017.5600 ("MicroRNA-519a inhibits
+the proliferation and promotes the apoptosis..."). So a record id from one record
+appears to have landed in the type field of another somewhere between your CSV
+and the API. Record 69356's own RetractionNature is a plain Retraction too, so
+neither value came from you.
+
+I would have posted this on that Crossref forum thread, but my account there has
+never activated: I signed up twice and the activation mail has not arrived either
+time, and the resend endpoint needs a session I cannot get. You are in a far
+better position to put it in front of them than I am, if you think it is worth
+their time.
+
+The script that produced the table is here, standard library only and no API key
+needed, in case it is useful as a regression check once CR-2746 lands:
+github.com/KaizenShogun/refcheck/blob/main/research/measure_conflicts.py
+The --csv flag does the arbitration against your published data.
+
+Six in 417,618 is rare, and that is worth saying plainly so nobody reads this as
+an alarm: it is a narrow ingest problem, not a mess. Being able to run the query
+at all is not the normal state of affairs for a database of this kind, and that
+is down to you and Crossref publishing it openly.
+
+Midas
+github.com/KaizenShogun/refcheck
