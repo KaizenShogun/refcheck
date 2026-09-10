@@ -15,7 +15,7 @@
       const t0 = Date.now();
       const poll = setInterval(() => {
         const s = $("#status").textContent;
-        if (/^Done\.|No DOIs found|Could not reach/.test(s) || Date.now() - t0 > 45000) {
+        if (/^Done\.|Nothing to look up|Could not reach/.test(s) || Date.now() - t0 > 45000) {
           clearInterval(poll);
           setTimeout(() => res(s), 120);
         }
@@ -40,8 +40,15 @@
 
   // ---- 2. empty / junk input must not silently do nothing ----
   let s = await check("no identifiers here at all, just prose");
-  ok("junk text is refused with an explanation", /No DOIs found/.test(s), s);
+  ok("junk text is refused with an explanation", /Nothing to look up/.test(s), s);
   ok("copy button hidden when there is nothing to copy", $("#copy").hidden);
+
+  // A bibliography is made of numbers. None of these is an identifier, and
+  // treating one as a PMID would send a stranger's page number to NCBI and then
+  // report back about whatever unrelated paper holds that id.
+  s = await check("Smith J. Lancet 1998;351(9103):637-41. ISBN 9780262033848, " +
+                  "pages 12345678-12345699, volume 351, year 2019.");
+  ok("bare numbers are not mistaken for PMIDs", /Nothing to look up/.test(s), s);
 
   // ---- 3. the real thing: a mixed bibliography, live against Crossref ----
   s = await check([
@@ -106,6 +113,42 @@
   ok("clean result is stated explicitly", /Nothing found/.test(txt()), txt());
   ok("clean run still counts the reference", /1 reference checked/.test(txt()));
 
+  // ---- 4b. Vancouver style: the half of biomedicine that never writes a DOI ----
+  // Before PMIDs were understood, this whole bibliography came back as "no DOIs
+  // found in that text" — a tool that is silent about the reference that matters.
+  s = await check([
+    "1. Wakefield AJ, Murch SH, Anthony A, et al. Ileal-lymphoid-nodular",
+    "   hyperplasia. Lancet. 1998;351(9103):637-41. PMID: 9500320.",
+    "2. Kovalevskii AA. [Aleksandr Antonovich Kovalevskii]. 1971. PMID: 4948411.",
+    "3. Someone. A citation with a digit too many. PMID: 999999999."
+  ].join("\n"));
+  ok("PMID-only bibliography runs", /^Done\./.test(s), s);
+  const pmidBody = txt();
+  ok("the retraction is found through the PMID alone",
+     /RETRACTED — do not cite this as evidence/.test(pmidBody), pmidBody);
+  ok("the reference is named back the way it was cited",
+     /PMID 9500320/.test(pmidBody), pmidBody);
+  ok("a PMID with no DOI is reported, not dropped",
+     /PMIDs with no DOI — not checked \(1\)/.test(pmidBody), pmidBody);
+  ok("a PMID with no DOI is not sold as clean",
+     /not the same as clean/.test(pmidBody) && /nothing to ask about it/.test(pmidBody),
+     pmidBody);
+  ok("a PMID that does not exist is named",
+     /PMIDs not found in PubMed \(1\)/.test(pmidBody), pmidBody);
+  ok("only what really got checked is counted",
+     /\b1 reference checked\b/.test(pmidBody), pmidBody.split("\n").slice(0, 3).join(" | "));
+
+  // 4c. the same paper cited twice, once each way, is one reference
+  s = await check("Zhu N, et al. N Engl J Med. 2020. doi:10.1056/NEJMoa2001017. PMID: 31978945.");
+  ok("DOI and PMID of one paper are not counted twice",
+     /\b1 reference checked\b/.test(txt()), txt().split("\n").slice(0, 3).join(" | "));
+
+  // 4d. a PMID with nothing behind it must not produce an empty screen
+  s = await check("Kovalevskii AA. 1971. PMID: 4948411.");
+  ok("a bibliography that could not be checked at all says so",
+     /Nothing could be checked/.test(s), s);
+  ok("and does not claim a clean result", !/Nothing found/.test(txt()), txt());
+
   // ---- 5. the example button has to actually work ----
   $("#demo").click();
   ok("example button fills the box", $("#input").value.length > 50);
@@ -150,6 +193,23 @@
      /RETRACTED/.test(txt()) && /Could not be checked \(40\)/.test(txt()), s);
   ok("partial run counts only what it really checked",
      /1 reference checked/.test(txt()), txt().split("\n").slice(0, 4).join(" | "));
+
+  // 6d. PubMed falling over is its own failure, and it must not turn a PMID
+  // into silence. Only the NCBI calls are broken here; Crossref stays up, so
+  // the DOI in the same bibliography still gets its answer.
+  window.fetch = function (u, o) {
+    if (/eutils\.ncbi\.nlm\.nih\.gov/.test(String(u))) {
+      return Promise.reject(new TypeError("Failed to fetch"));
+    }
+    return realFetch(u, o);
+  };
+  s = await check("Wakefield. PMID: 9500320.\nZhang. doi:10.1371/journal.pone.0161231");
+  ok("a PMID whose lookup died is admitted, not hidden",
+     /could not be checked/i.test(s), s);
+  ok("the dead PMID is listed by name so it can be rerun",
+     /Could not be checked \(1\)/.test(txt()) && /PMID 9500320/.test(txt()), txt());
+  ok("PubMed being down does not take Crossref down with it",
+     /CORRECTED — check the number/.test(txt()), txt());
 
   window.fetch = realFetch;
 

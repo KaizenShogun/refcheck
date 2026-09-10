@@ -303,6 +303,48 @@ class Contradicciones(unittest.TestCase):
         self.assertFalse(f["contradictorio"])
         self.assertIn("RETRACTED", refcheck.informe([f]))
 
+    def test_el_mismo_aviso_repetido_se_enseña_una_vez(self):
+        """10.1038/nature12968 comes back with its retraction listed twice.
+
+        Two identical lines make the reader look for a difference that is not
+        there. Identical on every field, so nothing that could disagree is being
+        hidden — that is what the contradiction check is for.
+        """
+        u = {"type": "retraction", "DOI": "10.1038/nature13598",
+             "updated": {"date-parts": [[2014, 7, 2]]}, "source": "publisher"}
+        rw = dict(u, source="retraction-watch")
+        rw["record-id"] = "2081"
+        f = refcheck.ficha("10.1038/nature12968", {"updated-by": [rw, u]})
+        self.assertEqual(len(f["avisos"]), 1)
+        self.assertEqual(refcheck.informe([f]).count("nature13598"), 1)
+
+    def test_al_deduplicar_sobrevive_la_copia_con_record_id(self):
+        """Otherwise the contradiction check loses the evidence it runs on.
+
+        The publisher's copy of a notice is anonymous; only the Retraction Watch
+        one carries the record-id that proves two assertions share an origin. If
+        the anonymous copy won, a stale retraction sitting next to its own
+        downgrade would stop being flagged and start being shouted.
+        """
+        publicador = {"type": "retraction", "DOI": "10.1/r", "source": "publisher",
+                      "updated": {"date-parts": [[2020, 1, 1]]}}
+        rw = dict(publicador, source="retraction-watch")
+        rw["record-id"] = 19937
+        eoc = {"type": "expression_of_concern", "DOI": "10.1/e",
+               "source": "retraction-watch", "record-id": 19937,
+               "updated": {"date-parts": [[2020, 1, 1]]}}
+        # publisher copy first on purpose: that is the order that used to break it
+        f = refcheck.ficha("10.1/x", {"updated-by": [publicador, rw, eoc]})
+        self.assertEqual(len(f["avisos"]), 2)
+        self.assertTrue(f["contradictorio"],
+                        "the deduplication threw away the record-id and disarmed the check")
+
+    def test_dos_avisos_del_mismo_tipo_en_fechas_distintas_se_quedan(self):
+        u1 = {"type": "correction", "DOI": "10.1/a", "updated": {"date-parts": [[2019, 1, 1]]}}
+        u2 = {"type": "correction", "DOI": "10.1/b", "updated": {"date-parts": [[2021, 5, 4]]}}
+        f = refcheck.ficha("10.1234/x", {"updated-by": [u1, u2]})
+        self.assertEqual(len(f["avisos"]), 2)
+
     def test_sin_record_id_no_se_agrupa(self):
         """Without a record-id there is no evidence the two share an origin."""
         f = refcheck.ficha("10.1234/x", {"updated-by": [
@@ -323,6 +365,209 @@ class Contradicciones(unittest.TestCase):
         self.assertTrue(r["contradictorio"],
                         "10.1148/85.3.474 no longer carries contradictory assertions "
                         "— check whether CR-2746 was fixed, then relax this test")
+
+
+class ExtraccionPmid(unittest.TestCase):
+    """A PMID is only a PMID where the text says so.
+
+    The danger here is not missing one, it is inventing one: a bibliography is
+    made of numbers — years, pages, volumes, ISBNs — and a greedy pattern would
+    ship a stranger's page number to NCBI and then report back on whatever
+    unrelated paper happens to hold that id.
+    """
+
+    def test_forma_vancouver(self):
+        self.assertEqual(refcheck.pmids_de("Zhu N, et al. N Engl J Med. 2020. PMID: 31978945."),
+                         ["31978945"])
+
+    def test_sin_dos_puntos(self):
+        self.assertEqual(refcheck.pmids_de("PMID 31978945"), ["31978945"])
+
+    def test_campo_bibtex(self):
+        self.assertEqual(refcheck.pmids_de("  pmid = {31978945},"), ["31978945"])
+
+    def test_url_de_pubmed(self):
+        self.assertEqual(refcheck.pmids_de("https://pubmed.ncbi.nlm.nih.gov/31978945/"),
+                         ["31978945"])
+
+    def test_url_antigua_de_pubmed(self):
+        self.assertEqual(refcheck.pmids_de("http://www.ncbi.nlm.nih.gov/pubmed/17284678"),
+                         ["17284678"])
+
+    def test_numeros_sueltos_NO_son_pmids(self):
+        suelto = ("Smith J. Lancet 1998;351(9103):637-41. Volume 351, ISBN 9780262033848, "
+                  "pages 12345678 to 12345679, year 2019.")
+        self.assertEqual(refcheck.pmids_de(suelto), [])
+
+    def test_un_id_demasiado_largo_no_se_recorta(self):
+        """`PMID: 315789451` must not become a lookup of PMID 31578945.
+
+        Truncating to the first eight digits would return a real, unrelated
+        paper and report on it as if it were the one cited — the worst kind of
+        wrong answer, because it looks like an answer.
+        """
+        self.assertEqual(refcheck.pmids_de("PMID: 315789451"), ["315789451"])
+        with mock.patch.object(refcheck, "consulta_pmids") as c:
+            r = refcheck.resuelve_pmids(["315789451"])
+        c.assert_not_called()        # no point asking: PubMed cannot hold it
+        self.assertEqual(r["315789451"]["estado"], "desconocido")
+
+    def test_ceros_a_la_izquierda_y_duplicados(self):
+        t = "PMID: 0031978945 y https://pubmed.ncbi.nlm.nih.gov/31978945/"
+        self.assertEqual(refcheck.pmids_de(t), ["31978945"])
+
+    def test_orden_de_lectura(self):
+        self.assertEqual(refcheck.pmids_de("PMID: 2 no, PMID: 31978945, PMID: 17284678")[1:],
+                         ["31978945", "17284678"])
+
+
+def _resumen(pmid, doi=None, titulo="A paper", fecha="1979 Jan"):
+    ids = [{"idtype": "pubmed", "value": pmid}]
+    if doi:
+        ids.append({"idtype": "doi", "value": doi})
+    return {"uid": pmid, "title": titulo, "pubdate": fecha, "articleids": ids}
+
+
+class ResolucionPmid(unittest.TestCase):
+    """Three ways to end without a DOI, and they are three different sentences.
+
+    Folding them together is the same mistake the tool already made once with
+    failed lookups: a reader reads silence as "clean", and none of these three
+    are clean.
+    """
+
+    def test_registro_con_doi(self):
+        with mock.patch.object(refcheck, "consulta_pmids",
+                               return_value={"1": _resumen("1", "10.1/A")}):
+            r = refcheck.resuelve_pmids(["1"])
+        self.assertEqual(r["1"]["estado"], "ok")
+        self.assertEqual(r["1"]["doi"], "10.1/a")     # normalised like every other DOI
+
+    def test_registro_sin_doi_no_es_limpio(self):
+        with mock.patch.object(refcheck, "consulta_pmids",
+                               return_value={"1": _resumen("1")}):
+            r = refcheck.resuelve_pmids(["1"])
+        self.assertEqual(r["1"]["estado"], "sin_doi")
+
+    def test_pmid_inexistente(self):
+        with mock.patch.object(refcheck, "consulta_pmids", return_value={}):
+            r = refcheck.resuelve_pmids(["999999999"])
+        self.assertEqual(r["999999999"]["estado"], "desconocido")
+
+    def test_fallo_de_red_NO_se_disfraza(self):
+        with mock.patch.object(refcheck, "consulta_pmids",
+                               side_effect=ConnectionError("boom")):
+            r = refcheck.resuelve_pmids(["1", "2"])
+        self.assertEqual([v["estado"] for v in r.values()], ["sin_comprobar"] * 2)
+
+    def test_parte_en_lotes(self):
+        vistos = []
+
+        def falso(trozo, **kw):
+            vistos.append(len(trozo))
+            return {p: _resumen(p, "10.1/" + p) for p in trozo}
+
+        with mock.patch.object(refcheck, "consulta_pmids", side_effect=falso):
+            refcheck.resuelve_pmids([str(i) for i in range(1, 251)])
+        self.assertEqual(vistos, [refcheck.LOTE_PMID, refcheck.LOTE_PMID, 50])
+
+    def test_un_lote_muerto_no_se_lleva_a_los_demas(self):
+        def falso(trozo, **kw):
+            if trozo[0] == "1":
+                raise ConnectionError("boom")
+            return {p: _resumen(p, "10.1/" + p) for p in trozo}
+
+        with mock.patch.object(refcheck, "consulta_pmids", side_effect=falso), \
+             mock.patch.object(refcheck, "LOTE_PMID", 1):
+            r = refcheck.resuelve_pmids(["1", "2"])
+        self.assertEqual(r["1"]["estado"], "sin_comprobar")
+        self.assertEqual(r["2"]["estado"], "ok")
+
+    def test_el_lote_pide_permiso_antes_de_llamar(self):
+        """NCBI allows 3/s without a key. Same discipline as with Crossref."""
+        vistos = []
+        ritmo = refcheck.Ritmo()
+        ritmo.espera = lambda: vistos.append("waited")
+        cuerpo = json.dumps({"result": {"uids": ["1"],
+                                        "1": _resumen("1", "10.1/A")}}).encode()
+        respuesta = io.BytesIO(cuerpo)
+        respuesta.headers = {"x-ratelimit-limit": "3"}   # NCBI's spelling, no interval
+
+        with mock.patch.object(refcheck, "RITMO_PUBMED", ritmo), \
+             mock.patch("urllib.request.urlopen") as u:
+            u.return_value.__enter__.return_value = respuesta
+            salida = refcheck.consulta_pmids(["1"])
+
+        self.assertEqual(vistos, ["waited"])
+        self.assertIn("1", salida)
+        self.assertAlmostEqual(ritmo.hueco, 1 / 3, places=4)
+
+    def test_error_dentro_de_la_respuesta_no_es_registro(self):
+        cuerpo = json.dumps({"result": {"uids": ["9"],
+                                        "9": {"uid": "9", "error": "cannot get document summary"}}}).encode()
+        respuesta = io.BytesIO(cuerpo)
+        respuesta.headers = {}
+        with mock.patch("urllib.request.urlopen") as u:
+            u.return_value.__enter__.return_value = respuesta
+            self.assertEqual(refcheck.consulta_pmids(["9"]), {})
+
+
+class Referencias(unittest.TestCase):
+    def test_doi_y_pmid_del_mismo_articulo_son_una_referencia(self):
+        texto = "Zhu N, et al. doi:10.1056/NEJMoa2001017. PMID: 31978945."
+        with mock.patch.object(refcheck, "resuelve_pmids", return_value={
+                "31978945": {"estado": "ok", "doi": "10.1056/nejmoa2001017"}}):
+            dois, origen, sueltos = refcheck.referencias_de(texto)
+        self.assertEqual(dois, ["10.1056/nejmoa2001017"])
+        self.assertEqual(origen["10.1056/nejmoa2001017"], "31978945")
+        self.assertEqual(sueltos, [])
+
+    def test_pmid_sin_doi_llega_al_informe_como_no_comprobado(self):
+        with mock.patch.object(refcheck, "resuelve_pmids", return_value={
+                "759788": {"estado": "sin_doi", "titulo": "Old paper", "fecha": "1979 Jan"}}):
+            dois, _, sueltos = refcheck.referencias_de("PMID: 759788")
+        self.assertEqual(dois, [])
+        self.assertEqual(sueltos[0]["estado"], "pmid_sin_doi")
+        texto = refcheck.informe(sueltos)
+        self.assertIn("no DOI", texto)
+        self.assertNotIn("Nothing found", texto)
+
+    def test_no_pubmed_no_toca_ncbi(self):
+        with mock.patch.object(refcheck, "resuelve_pmids") as r:
+            dois, origen, sueltos = refcheck.referencias_de("PMID: 31978945",
+                                                            usar_pubmed=False)
+        r.assert_not_called()
+        self.assertEqual((dois, origen, sueltos), ([], {}, []))
+
+    def test_sin_pmids_no_se_llama_a_ncbi(self):
+        with mock.patch.object(refcheck, "resuelve_pmids") as r:
+            refcheck.referencias_de("10.1038/nature12373")
+        r.assert_not_called()
+
+    def test_el_recuento_no_cuenta_lo_que_no_se_pudo_comprobar(self):
+        resultados = [
+            refcheck.ficha("10.1/a", {"updated-by": []}),
+            {"doi": "", "pmid": "1", "estado": "pmid_sin_doi", "titulo": "", "fecha": "", "avisos": []},
+            {"doi": "", "pmid": "2", "estado": "pmid_desconocido", "avisos": []}]
+        texto = refcheck.informe(resultados)
+        self.assertIn("1 reference(s) checked", texto)
+        self.assertIn("1 PMID(s) have no DOI", texto)
+        self.assertIn("1 PMID(s) do not exist", texto)
+
+    def test_el_nombre_devuelve_el_identificador_que_escribio_quien_cita(self):
+        self.assertEqual(refcheck.nombre({"doi": "10.1/a"}), "10.1/a")
+        self.assertEqual(refcheck.nombre({"doi": "10.1/a", "pmid": "7"}), "10.1/a (PMID 7)")
+        self.assertEqual(refcheck.nombre({"doi": "", "pmid": "7"}), "PMID 7")
+
+    @unittest.skipUnless(os.environ.get("REFCHECK_RED") == "1", "necesita red: REFCHECK_RED=1")
+    def test_contra_pubmed_real(self):
+        """Three live records: one with a DOI, one from 1979 without, one that
+        does not exist. If NCBI changes its answer shape, this goes red."""
+        r = refcheck.resuelve_pmids(["31978945", "759788", "999999999"])
+        self.assertEqual(r["31978945"]["estado"], "ok")
+        self.assertEqual(r["31978945"]["doi"], "10.1056/nejmoa2001017")
+        self.assertEqual(r["759788"]["estado"], "sin_doi")
+        self.assertEqual(r["999999999"]["estado"], "desconocido")
 
 
 if __name__ == "__main__":

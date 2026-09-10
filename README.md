@@ -51,20 +51,22 @@ published change notice, what kind, and where to read it.
 Paste your reference list, press one button. No account, no upload, no terminal.
 
 There is no server behind that page: your text stays in the browser and only the
-DOIs found in it are sent, straight from your machine to Crossref. Save the page
+identifiers found in it are sent — DOIs straight from your machine to Crossref,
+PMIDs to NCBI to be turned into DOIs. Nothing passes through me. Save the page
 and it keeps working from your own disk — it is one HTML file with no
 dependencies, no cookies and no analytics.
 
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 41-check battery in a real headless browser against the real API.
+is driven by a 55-check battery in a real headless browser against the real API.
 
 ## Use it from the command line
 
 ```
 python3 refcheck.py refs.bib          # a BibTeX file
 python3 refcheck.py dois.txt          # one DOI per line, or a pasted bibliography
+python3 refcheck.py pubmed.txt        # PMIDs work too — see below
 python3 refcheck.py refs.bib --json   # machine-readable, for pipelines
 echo 10.1371/journal.pone.0161231 | python3 refcheck.py -
 ```
@@ -125,6 +127,54 @@ to be kind to a public service the code was leaning on.
 The browser version paces to 1/s too, hardcoded, because Crossref's CORS policy
 exposes only the `Link` header and JavaScript cannot read the limit back.
 
+## PMIDs work, and here is exactly how far they get you
+
+Half of biomedicine does not cite by DOI. It cites `PMID: 9500320`, or pastes a
+`pubmed.ncbi.nlm.nih.gov/9500320` link, and until now this tool answered that
+with "No DOIs found in that file" — which is a useless thing to say to somebody
+holding a perfectly good reference list. Paste PMIDs and they now get looked up:
+
+```
+$ python3 refcheck.py pubmed.txt
+  3 reference(s) checked · 2 carry a change notice
+  1 PMID(s) have no DOI in PubMed — nothing to ask Crossref about, so NOT checked
+  1 PMID(s) do not exist in PubMed — check the citation
+
+  RETRACTED — do not cite this as evidence
+    RETRACTED: Ileal-lymphoid-nodular hyperplasia, non-specific colitis, and p
+    10.1016/s0140-6736(97)11096-0 (PMID 9500320)
+      → Retraction (2010-02-06): https://doi.org/10.1016/s0140-6736(10)60175-4
+```
+
+The reference is named back to you the way *you* cited it, PMID and all, so you
+can find the line in your own document. Mixed lists are fine, and a paper cited
+twice — once by DOI, once by PMID — is one reference, not two.
+
+**Crossref is indexed by DOI, so a PMID has to be translated first**, through
+NCBI's public E-utilities. That translation has a hole in it, and the size of the
+hole decides how the tool has to behave, so I measured it instead of guessing:
+1,600 random PMIDs across four eras, `research/measure_pmid_doi.py`, run
+2026-09-10.
+
+| PMID range | roughly | records that exist | of those, with a DOI |
+|---|---|---:|---:|
+| 1–5M | pre-1990 | 397 | **48.6%** |
+| 5–15M | 1990–2005 | 390 | 59.0% |
+| 15–28M | 2005–2017 | 378 | 87.6% |
+| 28–40M | 2017–today | 393 | **95.7%** |
+| all four | | 1,558 | 72.5% |
+
+So a 2024 paper is nearly always reachable and a 1979 paper is a coin flip. **A
+PMID with no DOI is reported as `not checked`, by name, never silently dropped** —
+that is the whole reason the number matters. Silence in a tool like this reads as
+"clean", and a 1979 paper that nobody checked is not a clean 1979 paper. Same for
+a PMID that does not exist in PubMed at all: you are told, because a citation
+pointing at nothing is worth knowing about before a reviewer finds it.
+
+NCBI states 3 requests/second without an API key. refcheck starts at 1/s and
+looks up 100 PMIDs per request. `--no-pubmed` skips NCBI entirely if you would
+rather not talk to them.
+
 ## What else is out there
 
 This space is crowded, and I would rather send you to a better tool than keep you
@@ -173,9 +223,10 @@ it and one command.
   [Crossref](https://www.crossref.org/) — which now also includes the Retraction
   Watch data — and shows you the answer. All credit for the data is theirs.
 - **Not complete.** It only sees what publishers registered. A correction that
-  was never deposited is invisible here, and so is anything without a DOI.
-  Preprints, books and chapters are frequently outside the checked set — the tool
-  says so instead of pretending they came back clean.
+  was never deposited is invisible here, and so is anything that never got a DOI —
+  including 51% of pre-1990 PubMed records, measured above. Preprints, books and
+  chapters are frequently outside the checked set too. The tool says so instead of
+  pretending they came back clean.
 - **Not a citation checker.** It does not tell you whether the paper says what
   you claim it says. Nothing does that for you yet.
 
@@ -238,17 +289,20 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 35 tests, offline
-REFCHECK_RED=1 python3 test_refcheck.py   # 39, adding the live-API cases
+python3 test_refcheck.py                  # 61 tests, offline
+REFCHECK_RED=1 python3 test_refcheck.py   # 66, adding the live-API cases
 ```
 
 One of those live tests asserts that `10.1148/85.3.474` still arrives
 contradictory. If Crossref fixes CR-2746 the test goes red — which is exactly
-how I want to find out.
+how I want to find out. Another asks NCBI for three real records — one with a
+DOI, one from 1979 without, one that does not exist — so a change in the shape of
+their answer surfaces as a failure rather than as a wrong report to a reader.
 
-The browser version has its own battery — 41 checks driving the real page in
+The browser version has its own battery — 55 checks driving the real page in
 headless chromium against the real Crossref API, including forced network
-failures, because the interesting bugs live there:
+failures and a PubMed outage that must not take Crossref down with it, because
+the interesting bugs live there:
 
 ```
 node /path/to/accesible_cdp.js --url file://$PWD/docs/index.html \
