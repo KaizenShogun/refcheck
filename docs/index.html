@@ -137,10 +137,23 @@
     reading what changed is your job.
   </p>
   <p>
-    It only sees what publishers registered with <a href="https://www.crossref.org/">Crossref</a>.
-    A correction that was never deposited is invisible here, and so is anything without a DOI —
-    preprints, books and chapters often come back &ldquo;not found&rdquo;, and this page says so
-    instead of pretending they came back clean.
+    <strong>It asks two registers, because one is not enough.</strong>
+    <a href="https://www.crossref.org/">Crossref</a> only holds what a publisher deposited, so a
+    correction nobody registered is invisible there. <a href="https://pubmed.ncbi.nlm.nih.gov/">PubMed</a>
+    keeps the same information separately, compiled by NLM indexers rather than by the publisher,
+    and the gap between them is not small. Sampling 400 records per category on 11 September 2026:
+    of the papers PubMed says carry a notice, Crossref&rsquo;s data would let you find
+    <strong>78.8% of the corrections</strong>, 91.8% of the expressions of concern and 93.7% of the
+    retractions. <strong>One corrected paper in five would have come back clean here</strong> if this
+    page asked Crossref alone. Anything found only in PubMed is labelled
+    <em>per PubMed</em> so you can see which register spoke.
+  </p>
+  <p>
+    That number measures Crossref against PubMed, not against the truth — PubMed will have its own
+    holes, and this page does not know their size. It also only covers biomedicine, because PubMed
+    only covers biomedicine. Two registers beat one; two registers are still not all of them.
+    Anything without a DOI stays invisible to both, so preprints, books and chapters often come back
+    &ldquo;not found&rdquo; — and this page says so instead of pretending they came back clean.
   </p>
   <p>
     <strong>PMIDs have a hole in them, and it is measured.</strong> A PubMed id is translated
@@ -154,10 +167,12 @@
   <h2>Your bibliography is not uploaded anywhere</h2>
   <p>
     There is no server behind this page. Your text stays in your browser; only the identifiers
-    found in it leave it — the DOIs go straight to <a href="https://api.crossref.org">Crossref&rsquo;s
-    public API</a>, and any PMIDs go to <a href="https://www.ncbi.nlm.nih.gov/books/NBK25501/">NCBI&rsquo;s
-    public E-utilities</a> to be turned into DOIs. Both are public services with their own privacy
-    policies; nothing goes through me. No account, no cookies, no analytics, nothing logged by me.
+    found in it leave it — and since 11 September 2026 they leave it <em>twice</em>, because both
+    registers get asked: every DOI and PMID goes to <a href="https://api.crossref.org">Crossref&rsquo;s
+    public API</a> and to <a href="https://www.ncbi.nlm.nih.gov/books/NBK25501/">NCBI&rsquo;s public
+    E-utilities</a>. It used to be that only your PMIDs reached NCBI; that is no longer true, and
+    saying so plainly matters more than the sentence looking tidy. Both are public services with
+    their own privacy policies; nothing goes through me. No account, no cookies, no analytics, nothing logged by me.
     You can save this page and run it offline from your own disk — it is one HTML file with no
     dependencies.
   </p>
@@ -327,6 +342,177 @@
     }, Promise.resolve()).then(function () {
       return { dois: dois, origen: origen, sueltos: sueltos };
     });
+  }
+
+  // ---- the second register ------------------------------------------------
+  // Crossref's `updated-by` only holds what somebody deposited. PubMed keeps the
+  // same information independently, built by NLM indexers, and measured on
+  // 2026-09-11 against 400 records per population it holds notices Crossref
+  // does not: 21.2% of corrected papers, 8.2% of expressions of concern and
+  // 6.3% of retractions. A blind spot in this page reads to you as "clean", so
+  // both registers get asked and the answer says which one spoke.
+  var ESEARCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
+  var EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
+  var AID_BATCH = 50;
+  // Only the RefTypes that are a verdict on the record. CommentIn is a letter
+  // to the editor, UpdateIn is versioning: neither says the paper changed, and
+  // the 1998 Lancet paper alone carries 22 CommentIn links.
+  var REFTYPE = {
+    RetractionIn: "retraction",
+    PartialRetractionIn: "partial_retraction",
+    ExpressionOfConcernIn: "expression_of_concern",
+    ErratumIn: "erratum",
+    CorrectedandRepublishedIn: "correction"
+  };
+  var RS_DOI = /\bdoi:\s*(10\.\d{4,9}\/\S+?)\.?\s*$/i;
+  var RS_YEAR = /\b(?:1[89]|20)\d{2}\b/;
+
+  function postNcbi(url, fields, attempt) {
+    attempt = attempt || 0;
+    var body = Object.keys(fields).map(function (k) {
+      return encodeURIComponent(k) + "=" + encodeURIComponent(fields[k]);
+    }).join("&");
+    // POST, not GET: a batch of 50 DOIs outgrows what a URL can carry. Sent as
+    // form-encoded so it stays a CORS "simple request" with no preflight.
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body
+    }).then(function (r) {
+      if (!r.ok) throw new Error("PubMed replied " + r.status);
+      return r.text();
+    }).catch(function (e) {
+      if (attempt >= RETRIES) throw e;
+      return sleep(700 * Math.pow(2, attempt)).then(function () {
+        return postNcbi(url, fields, attempt + 1);
+      });
+    });
+  }
+
+  function parseNcbiXml(text) {
+    var doc = new DOMParser().parseFromString(text, "application/xml");
+    if (doc.getElementsByTagName("parsererror").length) return {};
+    var out = Object.create(null);
+    var arts = doc.getElementsByTagName("PubmedArticle");
+    for (var i = 0; i < arts.length; i++) {
+      var art = arts[i];
+      var cita = art.getElementsByTagName("MedlineCitation")[0];
+      if (!cita) continue;
+      // Scoped on purpose. A record with no DOI of its own sits next to a
+      // <ReferenceList> full of other people's DOIs, and picking one of those
+      // would report a change notice against a paper you never cited.
+      var doi = "";
+      var ids = art.getElementsByTagName("PubmedData")[0];
+      ids = ids ? ids.getElementsByTagName("ArticleIdList")[0] : null;
+      ids = ids ? ids.getElementsByTagName("ArticleId") : [];
+      for (var j = 0; j < ids.length; j++) {
+        if (ids[j].getAttribute("IdType") === "doi" && ids[j].textContent.trim()) {
+          doi = ids[j].textContent.trim().toLowerCase();
+          break;
+        }
+      }
+      if (!doi) {
+        var els = cita.getElementsByTagName("ELocationID");
+        for (var k = 0; k < els.length; k++) {
+          if (els[k].getAttribute("EIdType") === "doi" && els[k].textContent.trim()) {
+            doi = els[k].textContent.trim().toLowerCase();
+            break;
+          }
+        }
+      }
+      if (!doi) continue;
+      var notices = [];
+      var lista = cita.getElementsByTagName("CommentsCorrectionsList")[0];
+      var ccs = lista ? lista.getElementsByTagName("CommentsCorrections") : [];
+      for (var m = 0; m < ccs.length; m++) {
+        var tipo = REFTYPE[ccs[m].getAttribute("RefType")];
+        if (!tipo) continue;
+        var src = ccs[m].getElementsByTagName("RefSource")[0];
+        src = src ? src.textContent.trim() : "";
+        var pm = ccs[m].getElementsByTagName("PMID")[0];
+        var hit = RS_DOI.exec(src), year = RS_YEAR.exec(src);
+        notices.push({
+          tipo: tipo,
+          gravedad: Object.prototype.hasOwnProperty.call(GRAVEDAD, tipo) ? GRAVEDAD[tipo] : 1,
+          fecha: year ? year[0] : "",
+          doi: hit ? hit[1].replace(/\.$/, "").toLowerCase() : "",
+          // Not every notice in PubMed has a DOI. Without this the report
+          // prints a bare https://doi.org/ and sends you nowhere.
+          pmid_aviso: pm ? pm.textContent.trim() : "",
+          etiqueta: tipo.replace(/_/g, " ").replace(/\b\w/g, function (c) {
+            return c.toUpperCase();
+          }),
+          fuente: "pubmed",
+          contradice: []
+        });
+      }
+      var t = cita.getElementsByTagName("ArticleTitle")[0];
+      out[doi] = {
+        pmid: (cita.getElementsByTagName("PMID")[0] || {}).textContent || "",
+        titulo: t ? t.textContent.trim() : "",
+        notices: notices
+      };
+    }
+    return out;
+  }
+
+  function pubmedNotices(dois) {
+    var out = Object.create(null), batches = chunk(dois, AID_BATCH), first = true;
+    return batches.reduce(function (chain, b) {
+      return chain.then(function () {
+        var wait = first ? 0 : PUBMED_GAP_MS;
+        first = false;
+        return sleep(wait);
+      }).then(function () {
+        var term = b.map(function (d) { return '"' + d + '"[aid]'; }).join(" OR ");
+        return postNcbi(ESEARCH, { db: "pubmed", retmode: "json",
+                                   retmax: String(b.length * 3), term: term });
+      }).then(function (txt) {
+        var ids = [];
+        try { ids = (JSON.parse(txt).esearchresult || {}).idlist || []; } catch (e) { ids = []; }
+        if (!ids.length) return null;
+        return sleep(PUBMED_GAP_MS).then(function () {
+          return postNcbi(EFETCH, { db: "pubmed", retmode: "xml", id: ids.join(",") });
+        });
+      }).then(function (xml) {
+        if (!xml) return;
+        var got = parseNcbiXml(xml), want = Object.create(null);
+        b.forEach(function (d) { want[d.toLowerCase()] = 1; });
+        Object.keys(got).forEach(function (d) {
+          // An `[aid]` search can answer with a neighbouring record; only the
+          // DOIs actually asked about are kept.
+          if (want[d]) out[d] = got[d];
+        });
+      });
+    }, Promise.resolve()).then(function () { return out; });
+  }
+
+  // Merge, keyed on (severity, notice DOI). Both halves of that key are
+  // deliberate: not the DOI alone, because the registers sometimes file one
+  // notice at different severities and dropping either would throw away a
+  // verdict on a coin flip; and not the type, because `correction` and
+  // `erratum` are one word in two vocabularies and two lines for one notice is
+  // noise. Returns the notice DOIs the two registers grade differently.
+  function mergeNotices(existing, incoming) {
+    var seenKey = Object.create(null), seenSev = Object.create(null);
+    var byDoi = Object.create(null), clash = [];
+    existing.forEach(function (a) {
+      seenKey[a.gravedad + "|" + (a.doi || "").toLowerCase()] = 1;
+      seenSev[a.gravedad] = 1;
+      if (a.doi) byDoi[a.doi.toLowerCase()] = 1;
+    });
+    incoming.forEach(function (a) {
+      var nuevo = a.doi
+        ? !seenKey[a.gravedad + "|" + a.doi.toLowerCase()]
+        : !seenSev[a.gravedad];
+      if (!nuevo) return;
+      existing.push(a);
+      if (a.doi && byDoi[a.doi.toLowerCase()]) clash.push(a.doi.toLowerCase());
+    });
+    existing.sort(function (x, y) {
+      return (y.gravedad - x.gravedad) || String(x.fecha).localeCompare(String(y.fecha));
+    });
+    return clash;
   }
 
   function chunk(arr, n) {
@@ -522,9 +708,22 @@
       found.forEach(function (r) {
         var worst = r.notices[0].gravedad;
         var choca = isContradictory(r.notices);
+        // A disagreement between the two registers only takes the headline when
+        // settling it would change the verdict. On the 1998 Lancet paper both
+        // list the 2010 retraction and differ only over a 2004 notice: calling
+        // that "registers disagree" would bury the fact nobody disputes.
+        var clash = r.clash || [];
+        var firme = -1;
+        r.notices.forEach(function (n) {
+          var disputada = n.fuente === "pubmed" && clash.indexOf(
+            (n.doi || "").toLowerCase()) >= 0;
+          if (!disputada && n.gravedad > firme) firme = n.gravedad;
+        });
+        var discrepa = !choca && clash.length > 0 && firme < worst;
+        var titular = choca ? CONFLICTO : (discrepa ? DISCREPANCIA : ETIQUETA[worst]);
         var li = el("li");
-        var sev = el("span", choca ? "sev conflict" : "sev s" + worst,
-                     choca ? CONFLICTO : ETIQUETA[worst]);
+        var sev = el("span", (choca || discrepa) ? "sev conflict" : "sev s" + worst,
+                     titular);
         li.appendChild(sev);
         if (r.titulo) li.appendChild(el("p", "title", r.titulo));
         var meta = el("p", "meta");
@@ -539,23 +738,36 @@
 
         var ul = el("ul", "notices");
         lines.push("");
-        lines.push(choca ? CONFLICTO : ETIQUETA[worst]);
+        lines.push(titular);
         if (r.titulo) lines.push("  " + r.titulo);
         lines.push("  https://doi.org/" + r.doi + (r.pmid ? "  (PMID " + r.pmid + ")" : ""));
         r.notices.forEach(function (n) {
           var item = el("li");
           item.appendChild(document.createTextNode(
             n.etiqueta + (n.fecha ? " (" + n.fecha + ")" : "") + ": "));
-          var na = el("a", null, "read the notice");
-          na.href = "https://doi.org/" + n.doi;
-          item.appendChild(na);
+          // Not every notice has a DOI; PubMed always has a PMID for it.
+          var href = n.doi ? "https://doi.org/" + n.doi
+                   : (n.pmid_aviso ? "https://pubmed.ncbi.nlm.nih.gov/" + n.pmid_aviso + "/" : "");
+          if (href) {
+            var na = el("a", null, "read the notice");
+            na.href = href;
+            item.appendChild(na);
+          } else {
+            item.appendChild(document.createTextNode("no link published"));
+          }
+          if (n.fuente === "pubmed") {
+            // Say which register spoke, so a silent Crossref is visible as a
+            // silent Crossref rather than as agreement.
+            item.appendChild(el("span", "meta", " — per PubMed"));
+          }
           if (n.contradice && n.contradice.length) {
             item.appendChild(el("span", "clash",
               " — contradicts: " + n.contradice.join(", ")));
           }
           ul.appendChild(item);
           lines.push("    -> " + n.etiqueta + (n.fecha ? " (" + n.fecha + ")" : "") +
-                     ": https://doi.org/" + n.doi +
+                     ": " + (href || "(no link published)") +
+                     (n.fuente === "pubmed" ? "  [per PubMed]" : "") +
                      (n.contradice && n.contradice.length
                         ? "  [contradicts: " + n.contradice.join(", ") + "]" : ""));
         });
@@ -572,6 +784,15 @@
           nota.appendChild(document.createTextNode("."));
           li.appendChild(nota);
           lines.push("    (contradictory: check retractiondatabase.org by hand)");
+        } else if (clash.length) {
+          // The links all read "read the notice", so without this you cannot
+          // see that two of the lines are the same document graded differently.
+          clash.forEach(function (d) {
+            var texto = "Two of the lines above are the same notice (" + d +
+                        "), filed at different severities. Read it and judge for yourself.";
+            li.appendChild(el("p", "hint", texto));
+            lines.push("    (" + texto + ")");
+          });
         }
         ol.appendChild(li);
       });
@@ -742,6 +963,39 @@
         });
       });
     }, Promise.resolve())
+      .then(function () {
+        // Now ask the other register. Measured 2026-09-11: one corrected paper
+        // in five is invisible to Crossref, so skipping this would hand back a
+        // clean bill of health that is not clean.
+        status.textContent = "Asking PubMed too…";
+        return pubmedNotices(dois).then(function (pm) {
+          var byDoi = Object.create(null);
+          found.forEach(function (f) { byDoi[f.doi] = f; });
+          dois.forEach(function (d) {
+            var rec = pm[d];
+            if (!rec || !rec.notices.length) return;
+            var entry = byDoi[d];
+            if (!entry) {
+              // Crossref had nothing — no record, or a failed batch — and
+              // PubMed does. That reference HAS been checked now; filing it
+              // under "not found" would bury a live notice.
+              entry = { doi: d, pmid: origen[d] || rec.pmid, titulo: rec.titulo,
+                        revista: "", notices: [], rescued: true };
+              byDoi[d] = entry;
+              found.push(entry);
+              seen[d] = 1;
+              var at = unchecked.indexOf(d);
+              if (at >= 0) unchecked.splice(at, 1);
+            }
+            if (!entry.titulo) entry.titulo = rec.titulo;
+            if (!entry.pmid) entry.pmid = rec.pmid;
+            entry.clash = mergeNotices(entry.notices, rec.notices);
+          });
+        }).catch(function (e) {
+          // PubMed being unreachable must not cost the Crossref answer we have.
+          lastError = lastError || e.message;
+        });
+      })
       .then(function () {
         var pending = Object.create(null);
         unchecked.forEach(function (d) { pending[d] = 1; });

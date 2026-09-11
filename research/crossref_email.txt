@@ -1,0 +1,82 @@
+Hello,
+
+Retraction Watch sent me here. I wrote to them about six of their records
+reaching consumers through the REST API carrying two contradictory verdicts at
+once; Alison Abritis replied that the concern belongs with Crossref. She is
+right — I had checked their CSV first and the problem is not in it.
+
+This is CR-2746, opened in May after the report on 10.1148/85.3.474 at
+community.crossref.org/t/15831, where the cause was already identified: when a
+Retraction Watch record changes nature, the API adds a second assertion with the
+same record-id instead of replacing the first. What I think is worth adding is
+the exhaustive count, because it turns an unbounded-looking problem into a list
+of six.
+
+WHAT I MEASURED
+
+Paged the REST API by cursor over every update-type that returns anything
+(retraction, correction, erratum, corrigendum, expression of concern,
+withdrawal, removal, partial retraction) with select=DOI,update-to, grouped each
+work's assertions by (source, record-id), and flagged any group holding more
+than one distinct type. Assertions with no record-id are skipped: without one
+there is no evidence two entries share an origin, and a work can legitimately be
+corrected and later retracted.
+
+2026-09-09: 417,618 update records scanned, 6 works affected, all six
+source: retraction-watch. I then settled each against the Retraction Watch CSV
+as you publish it at gitlab.com/crossref/retraction-watch-data, which holds one
+row per record id, so the stale half is identifiable. Re-verified against the
+live API this morning, 2026-09-11 — all six still serve both halves:
+
+  work                        record  the API serves                CSV says    stale half
+  10.1148/85.3.474             19937  retraction + expr_of_concern  Expr. conc. retraction
+  10.1109/bibe.2018.00052      45015  retraction + expr_of_concern  Expr. conc. retraction
+  10.1051/ocl/2024009          63890  retraction + expr_of_concern  Expr. conc. retraction
+  10.1007/s12275-015-0740-4    37343  retraction + correction       Correction  retraction
+  10.1038/s41598-022-06705-7   37754  retraction + correction       Correction  retraction
+  10.3892/etm.2024.12720       69356  retraction + "68818"          Retraction  "68818"
+
+In all five genuine cases the stale half is the retraction, which is also the
+loudest one. Six in 417,618 is rare, which seems worth knowing when prioritising.
+
+THE LAST ROW LOOKS LIKE A DIFFERENT BUG
+
+On 10.3892/etm.2024.12720, record 69356 carries a second assertion whose type
+AND label are both the literal string "68818":
+
+  { "DOI": "10.3892/etm.2018.6349", "type": "68818", "label": "68818",
+    "source": "retraction-watch", "record-id": "69356",
+    "updated": { "date-time": "2024-09-18T00:00:00Z" } }
+
+68818 is itself a live Retraction Watch record id — a retraction of a different
+paper, 10.3892/etm.2017.5600. So a record id from one record appears to have
+landed in the type field of another. The CSV side is clean: 72,450 rows, exactly
+five distinct RetractionNature values, and record 69356's is plain Retraction.
+That is not the duplicate-assertion behaviour, so it may want its own ticket.
+
+WHY IT BITES DOWNSTREAM
+
+Both halves carry the same record-id, the same source and the same timestamp, so
+a consumer reading only the API has nothing to order them by. The obvious
+implementation — take the most severe assertion — then reports a paper as
+retracted when the current upstream verdict is an expression of concern. I know
+it is the obvious implementation because I wrote a reference checker that did
+exactly that on 10.1148/85.3.474 until this measurement made me look. Telling a
+reader to drop a citation that was never retracted is a worse failure than
+saying nothing, so the tool now refuses to pick a side and sends the reader to
+the source. Once CR-2746 lands, that guesswork goes away for everyone.
+
+The script is standard library only, no key, MIT, and --csv does the arbitration
+in the table above. It may be useful as a regression check afterwards:
+github.com/KaizenShogun/refcheck/blob/main/research/measure_conflicts.py
+
+One last thing, offered rather than asked. This belongs in the forum thread and
+I could not put it there: registration at community.crossref.org returns
+success, then no activation mail ever arrives — nor does the password-reset one
+— and 24 hours later the account has removed itself and the username is free
+again. Twice, three days apart, to an address that receives mail from everyone
+else. I am not asking anyone to fix my account; I mention it because if the
+activation mail is failing generally, other people are bouncing off the same
+door and you would not hear about it from them either.
+
+Thanks for reading this far.

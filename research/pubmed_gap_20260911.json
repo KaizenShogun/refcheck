@@ -1,0 +1,234 @@
+{
+  "seed": 20260911,
+  "n": 400,
+  "results": [
+    {
+      "population": "retraction",
+      "term": "\"retracted publication\"[pt]",
+      "pubmed_total": 39318,
+      "sampled": 400,
+      "resolved_to_article": 400,
+      "no_doi": 6,
+      "with_doi": 394,
+      "crossref_flags": 369,
+      "crossref_silent": 15,
+      "crossref_missing_work": 10,
+      "by_era": {
+        "2020-": {
+          "n": 250,
+          "flagged": 236
+        },
+        "\u20261999": {
+          "n": 26,
+          "flagged": 22
+        },
+        "2015-19": {
+          "n": 61,
+          "flagged": 57
+        },
+        "2000-09": {
+          "n": 17,
+          "flagged": 16
+        },
+        "2010-14": {
+          "n": 40,
+          "flagged": 38
+        }
+      },
+      "examples": [
+        [
+          "10.2147/cmar.s269128",
+          "33177875",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.2174/1381612825666190110145151",
+          "30636578",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.26355/eurrev_202002_20388",
+          "32141578",
+          "not in Crossref at all"
+        ],
+        [
+          "10.26355/eurrev_202002_20371",
+          "32141562",
+          "not in Crossref at all"
+        ],
+        [
+          "10.26355/eurrev_202002_20365",
+          "32141556",
+          "not in Crossref at all"
+        ],
+        [
+          "10.26355/eurrev_202002_20360",
+          "32141551",
+          "not in Crossref at all"
+        ],
+        [
+          "10.26355/eurrev_202002_20358",
+          "32141549",
+          "not in Crossref at all"
+        ],
+        [
+          "10.26355/eurrev_202002_20352",
+          "32141543",
+          "not in Crossref at all"
+        ]
+      ]
+    },
+    {
+      "population": "erratum",
+      "term": "\"published erratum\"[pt]",
+      "pubmed_total": 260790,
+      "sampled": 400,
+      "resolved_to_article": 391,
+      "no_doi": 0,
+      "with_doi": 391,
+      "crossref_flags": 308,
+      "crossref_silent": 82,
+      "crossref_missing_work": 1,
+      "by_era": {
+        "2020-": {
+          "n": 271,
+          "flagged": 227
+        },
+        "2010-14": {
+          "n": 30,
+          "flagged": 18
+        },
+        "2015-19": {
+          "n": 88,
+          "flagged": 61
+        },
+        "2000-09": {
+          "n": 1,
+          "flagged": 1
+        },
+        "\u20261999": {
+          "n": 1,
+          "flagged": 1
+        }
+      },
+      "examples": [
+        [
+          "10.1172/jci.insight.183213",
+          "39589852",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.3389/frhs.2024.1436375",
+          "39309468",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1093/braincomms/fcae432",
+          "39816189",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1021/cb300233y",
+          "22803826",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1136/bmjopen-2012-001728",
+          "23148344",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1016/j.str.2011.11.001",
+          "22244759",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1136/bmjopen-2012-001424",
+          "23242481",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1021/bi101334j",
+          "20919740",
+          "in Crossref, no updated-by"
+        ]
+      ]
+    },
+    {
+      "population": "concern",
+      "term": "\"expression of concern\"[pt]",
+      "pubmed_total": 3898,
+      "sampled": 373,
+      "resolved_to_article": 372,
+      "no_doi": 6,
+      "with_doi": 366,
+      "crossref_flags": 336,
+      "crossref_silent": 30,
+      "crossref_missing_work": 0,
+      "by_era": {
+        "2010-14": {
+          "n": 80,
+          "flagged": 74
+        },
+        "2000-09": {
+          "n": 56,
+          "flagged": 53
+        },
+        "2015-19": {
+          "n": 125,
+          "flagged": 116
+        },
+        "2020-": {
+          "n": 99,
+          "flagged": 88
+        },
+        "\u20261999": {
+          "n": 6,
+          "flagged": 5
+        }
+      },
+      "examples": [
+        [
+          "10.1093/jnci/djr419",
+          "22010178",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1055/s-0043-112346",
+          "28679142",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1055/s-0043-107242",
+          "28679140",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1186/1471-2334-14-17",
+          "24405790",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1055/s-0035-1548790",
+          "25868059",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1055/s-0034-1376990",
+          "24956415",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.1093/eurheartj/ehz754",
+          "31641769",
+          "in Crossref, no updated-by"
+        ],
+        [
+          "10.3892/ol.2018.9836",
+          "30675306",
+          "in Crossref, no updated-by"
+        ]
+      ]
+    }
+  ]
+}

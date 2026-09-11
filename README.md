@@ -51,15 +51,17 @@ published change notice, what kind, and where to read it.
 Paste your reference list, press one button. No account, no upload, no terminal.
 
 There is no server behind that page: your text stays in the browser and only the
-identifiers found in it are sent — DOIs straight from your machine to Crossref,
-PMIDs to NCBI to be turned into DOIs. Nothing passes through me. Save the page
-and it keeps working from your own disk — it is one HTML file with no
-dependencies, no cookies and no analytics.
+identifiers found in it are sent — straight from your machine to Crossref and to
+NCBI, both of which are asked about every reference. (Until 2026-09-11 only your
+PMIDs reached NCBI. That changed when the tool started asking both registers, and
+it is better said plainly than left as a tidier old sentence.) Nothing passes
+through me. Save the page and it keeps working from your own disk — it is one
+HTML file with no dependencies, no cookies and no analytics.
 
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 55-check battery in a real headless browser against the real API.
+is driven by a 62-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -79,14 +81,27 @@ Real output:
 
   RETRACTED — do not cite this as evidence
     RETRACTED: LRRK2 kinase activity mediates toxic interactions between genet
-    10.1016/j.nbd.2012.05.020
+    10.1016/j.nbd.2012.05.020 (PMID 22668778)
       → Retraction (2012-09-01): https://doi.org/10.1016/j.nbd.2012.05.020
+      → Retraction (2025): https://doi.org/10.1016/j.nbd.2025.106930  [per PubMed]
+      → Erratum (2025-06-15): https://doi.org/10.1016/j.nbd.2025.106930
+      Two of the lines above are the same notice (10.1016/j.nbd.2025.106930),
+      filed at different severities. Read it and judge for yourself.
+
+  EXPRESSION OF CONCERN — the journal itself is unsure
+    Delta-Like Ligand 4–Notch Blockade and Tumor Radiation Response
+    10.1093/jnci/djr419 (PMID 22010178)
+      → Expression Of Concern (2024): https://doi.org/10.1093/jnci/djae263  [per PubMed]
+      → Erratum (2025): https://doi.org/10.1093/jnci/djae337  [per PubMed]
 
   CORRECTED — check the number you are quoting is still there
     Virus-Like Nanoparticle Vaccine Confers Protection against Toxoplasma gond
-    10.1371/journal.pone.0161231
+    10.1371/journal.pone.0161231 (PMID 27548677)
       → Correction (2024-03-21): https://doi.org/10.1371/journal.pone.0301214
 ```
+
+The middle one is the whole point of asking two registers: Crossref's record for
+`10.1093/jnci/djr419` is empty, and this tool used to call that reference clean.
 
 Exit codes, so it can gate a CI job — a journal checking submissions, a lab
 checking a manuscript before it goes out, a systematic review checking its own
@@ -207,6 +222,62 @@ time. This does both at once, and it does it without an account, an install, or 
 server that sees your reading list. That is the whole claim — if one of the tools
 above already suits you, use it.
 
+## One register was not enough, and here is the size of the hole
+
+Crossref's `updated-by` field only holds what somebody deposited. PubMed keeps
+the same information separately, compiled by NLM indexers rather than by the
+publisher's pipeline. I assumed the two roughly agreed. They do not.
+
+`research/measure_pubmed_gap.py` samples PubMed by publication type — retracted
+articles, erratum notices followed back to the article they correct, expressions
+of concern likewise — and asks Crossref about each one. Sampling is stratified
+over publication *date*, split down to single days where needed, because NCBI's
+history server refuses `retstart` past 9,998: without the split, the sample would
+only ever have come from the last three years of deposit practice.
+
+**2026-09-11, 400 records per category.** Of the papers PubMed says carry a
+notice, the share Crossref's data would let a DOI-only checker find:
+
+| PubMed says | in the sample | Crossref flags it | Crossref silent | not in Crossref at all |
+|---|---:|---:|---:|---:|
+| retracted | 394 | **93.7%** | 3.8% | 2.5% |
+| expression of concern | 366 | **91.8%** | 8.2% | 0% |
+| **corrected / erratum** | 391 | **78.8%** | 21.0% | 0.3% |
+
+And corrections are worse the older the paper: 83.8% for papers from 2020 on,
+69.3% for 2015–19, **60.0% for 2010–14**.
+
+**One corrected paper in five used to come back from this tool clean.** So it
+now asks both, and prints where each notice came from:
+
+```
+  EXPRESSION OF CONCERN — the journal itself is unsure
+    Delta-Like Ligand 4–Notch Blockade and Tumor Radiation Response
+    10.1093/jnci/djr419 (PMID 22010178)
+      → Expression Of Concern (2024): https://doi.org/10.1093/jnci/djae263  [per PubMed]
+      → Erratum (2025): https://doi.org/10.1093/jnci/djae337  [per PubMed]
+```
+
+That paper has an expression of concern from its own journal and an erratum, and
+Crossref's record for it is empty: no `updated-by`, no `update-to`, no
+`relation`. Checked by hand on 2026-09-11.
+
+<sub>Two things this number is not. It measures Crossref's recall **against
+PubMed**, not against the truth: PubMed will have holes of its own and this does
+not know their size. And it only covers biomedicine, because PubMed only covers
+biomedicine. The honest claim is "the union beats either alone", not "now it is
+complete".</sub>
+
+**When the two disagree, you are told rather than picked for.** On the 1998
+Lancet paper, notice `10.1016/s0140-6736(04)15715-2` is a *correction* to
+Crossref and a *retraction* to PubMed. Both lines are printed with their source.
+Merging is keyed on (severity, notice DOI), so `correction` and `erratum` — one
+word in two vocabularies — collapse into one line, while a genuine severity
+disagreement never silently loses the graver verdict.
+
+`--no-pubmed` turns all of this off, along with PMID translation, if you would
+rather not talk to NCBI.
+
 ## Who this is for
 
 Anyone whose argument rests on somebody else's numbers: people writing a thesis,
@@ -221,12 +292,13 @@ it and one command.
   tool tells you *something changed*; reading what changed is your job.
 - **Not a retraction database.** It carries no list of its own. It asks
   [Crossref](https://www.crossref.org/) — which now also includes the Retraction
-  Watch data — and shows you the answer. All credit for the data is theirs.
-- **Not complete.** It only sees what publishers registered. A correction that
-  was never deposited is invisible here, and so is anything that never got a DOI —
-  including 51% of pre-1990 PubMed records, measured above. Preprints, books and
-  chapters are frequently outside the checked set too. The tool says so instead of
-  pretending they came back clean.
+  Watch data — and [PubMed](https://pubmed.ncbi.nlm.nih.gov/), and shows you the
+  answer. All credit for the data is theirs.
+- **Not complete.** Two registers beat one; two registers are still not all of
+  them. Anything that never got a DOI is invisible to both — including 51% of
+  pre-1990 PubMed records, measured above — and preprints, books and chapters are
+  frequently outside the checked set. PubMed only covers biomedicine. The tool
+  says so instead of pretending they came back clean.
 - **Not a citation checker.** It does not tell you whether the paper says what
   you claim it says. Nothing does that for you yet.
 
@@ -289,20 +361,22 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 61 tests, offline
-REFCHECK_RED=1 python3 test_refcheck.py   # 66, adding the live-API cases
+python3 test_refcheck.py                  # 71 tests, offline
+REFCHECK_RED=1 python3 test_refcheck.py   # 77, adding the live-API cases
 ```
 
 One of those live tests asserts that `10.1148/85.3.474` still arrives
 contradictory. If Crossref fixes CR-2746 the test goes red — which is exactly
 how I want to find out. Another asks NCBI for three real records — one with a
 DOI, one from 1979 without, one that does not exist — so a change in the shape of
-their answer surfaces as a failure rather than as a wrong report to a reader.
+their answer surfaces as a failure rather than as a wrong report to a reader. A
+third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
+and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 55 checks driving the real page in
-headless chromium against the real Crossref API, including forced network
-failures and a PubMed outage that must not take Crossref down with it, because
-the interesting bugs live there:
+The browser version has its own battery — 62 checks driving the real page in
+headless chromium against the real APIs, including forced network failures and a
+PubMed outage that must not take Crossref down with it, because the interesting
+bugs live there:
 
 ```
 node /path/to/accesible_cdp.js --url file://$PWD/docs/index.html \

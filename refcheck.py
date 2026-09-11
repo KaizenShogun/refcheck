@@ -21,6 +21,22 @@ paper is still perfectly valid, which is exactly why nobody looks.
 This reads a list of DOIs (or a .bib file) and tells you which of your references
 carry a published change notice, what kind, and where to read it.
 
+It asks two registers, because one is not enough. Crossref only holds what a
+publisher deposited; PubMed keeps the same information separately, compiled by
+NLM indexers. Measured on 2026-09-11 over 400 records per category
+(research/measure_pubmed_gap.py reproduces it): of the papers PubMed says carry
+a notice, Crossref's data would let a DOI-only checker find
+
+    retractions ............................ 93.7%
+    expressions of concern ................. 91.8%
+    corrections and errata ................. 78.8%   (60% for 2010-14 papers)
+
+One corrected paper in five used to come back from this tool clean. Anything
+only one register knows about is printed with its source next to it. That is
+Crossref's recall against PubMed, not against the truth — PubMed has holes of
+its own, this does not know their size, and both together only cover what got
+deposited somewhere. Two registers beat one; two are still not all of them.
+
 Biomedical bibliographies often cite by PMID and carry no DOI at all, so PMIDs
 are translated through PubMed first. That translation has a hole, and the hole
 is measured, not guessed: of 1,558 random PubMed records sampled on 2026-09-09,
@@ -37,7 +53,7 @@ Usage:
     refcheck.py dois.txt
     echo 10.1371/journal.pone.0161231 | refcheck.py -
     refcheck.py refs.bib --json          machine-readable, for pipelines
-    refcheck.py refs.txt --no-pubmed     DOIs only; never contact NCBI
+    refcheck.py refs.txt --no-pubmed     Crossref only; never contact NCBI
 
 Exit codes: 0 nothing found · 1 something found · 2 bad usage, or a reference
 that could not be looked up. A failed lookup is not a clean reference, so it
@@ -58,6 +74,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
 
 API = "https://api.crossref.org/works/"
 LOTE = 40   # DOIs per request. Measured safe against the API on 2026-09-08 (75 also
@@ -139,6 +156,13 @@ ETIQUETA = {
 # Said in the loudest place because it is the one answer this tool cannot give you.
 CONFLICTO = ("CONTRADICTORY NOTICES — check this one by hand, Crossref disagrees "
              "with itself")
+# A different animal from CONFLICTO, and worth keeping apart. There, one source
+# said two things at once and there is no way to order them. Here, two
+# independent registers catalogue the same notice under different names — which
+# is ordinary, both are telling the truth as they file it, and the reader mainly
+# needs to know that the milder label is not the only label.
+DISCREPANCIA = ("REGISTERS DISAGREE — Crossref and PubMed file the same notice "
+                "under different names")
 
 DOI_RE = re.compile(r"10\.\d{4,9}/[-._;()/:A-Za-z0-9<>\[\]]+")
 
@@ -160,7 +184,10 @@ PMID_RE = re.compile(
 PMID_MAX = 99_999_999
 
 PUBMED = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+ESEARCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 LOTE_PMID = 100   # ids per esummary request; keeps the GET URL under ~1 kB
+LOTE_AID = 50     # DOIs per `[aid]` search; sent by POST, so length is not the limit
 # NCBI states 3 requests/second for callers without an API key, and says so in
 # `x-ratelimit-limit` on every reply. Same discipline as with Crossref: start at
 # the conservative rate and only speed up if the server itself allows it.
@@ -228,6 +255,123 @@ def consulta_pmids(pmids, reintentos=3):
             if intento < reintentos - 1:
                 time.sleep(2 ** intento)
     raise ConnectionError(f"PubMed lookup failed: {ultimo}")
+
+
+# PubMed keeps the same information as Crossref's `updated-by`, in
+# CommentsCorrectionsList, and keeps it independently: NLM indexers build it,
+# not the publisher's deposit pipeline. Measured on 2026-09-11, the two
+# disagree often enough to matter — see research/measure_pubmed_gap.py.
+#
+# Only the RefTypes that are a verdict on the record are taken. `CommentIn` is
+# a letter to the editor, `UpdateIn` is versioning, `SummaryForPatientsIn` is a
+# plain-language summary: none of them says the paper changed, and printing
+# them would be exactly the noise a reference manager is right to leave out.
+REFTYPE = {
+    "RetractionIn": "retraction",
+    "PartialRetractionIn": "partial_retraction",
+    "ExpressionOfConcernIn": "expression_of_concern",
+    "ErratumIn": "erratum",
+    "CorrectedandRepublishedIn": "correction",
+}
+# "J Natl Cancer Inst. 2024 Dec 1;116(12):2044. doi: 10.1093/jnci/djae263."
+RS_DOI = re.compile(r"\bdoi:\s*(10\.\d{4,9}/\S+?)\.?\s*$", re.I)
+RS_ANNO = re.compile(r"\b(1[89]|20)\d{2}\b")
+
+
+def _pide_ncbi(url, campos, reintentos=3):
+    """POST to E-utilities. POST because a batch of DOIs outgrows a GET URL."""
+    datos = urllib.parse.urlencode(campos).encode()
+    ultimo = None
+    for intento in range(reintentos):
+        try:
+            req = urllib.request.Request(url, data=datos, headers={"User-Agent": UA})
+            RITMO_PUBMED.espera()
+            with urllib.request.urlopen(req, timeout=60) as r:
+                RITMO_PUBMED.aprende(r.headers)
+                return r.read()
+        except Exception as e:
+            ultimo = e
+            if intento < reintentos - 1:
+                time.sleep(2 ** intento)
+    raise ConnectionError(f"PubMed lookup failed: {ultimo}")
+
+
+def _avisos_de_xml(xml):
+    """{doi: {"pmid", "titulo", "avisos"}} from a PubMed efetch reply."""
+    salida = {}
+    for art in ET.fromstring(xml).iter("PubmedArticle"):
+        cita = art.find("MedlineCitation")
+        if cita is None or cita.find("PMID") is None:
+            continue
+        # Every lookup is scoped to the element that owns it. A bare iter() over
+        # the article would return a DOI out of <ReferenceList> — somebody
+        # else's paper — for any record that has no DOI of its own.
+        doi = ""
+        for aid in art.findall("./PubmedData/ArticleIdList/ArticleId"):
+            if aid.get("IdType") == "doi" and (aid.text or "").strip():
+                doi = aid.text.strip().lower()
+                break
+        if not doi:
+            for el in cita.findall("./Article/ELocationID"):
+                if el.get("EIdType") == "doi" and (el.text or "").strip():
+                    doi = el.text.strip().lower()
+                    break
+        if not doi:
+            continue
+        avisos = []
+        for cc in cita.findall("./CommentsCorrectionsList/CommentsCorrections"):
+            tipo = REFTYPE.get(cc.get("RefType", ""))
+            if not tipo:
+                continue
+            ref = cc.find("RefSource")
+            ref = (ref.text or "").strip() if ref is not None else ""
+            pm = cc.find("PMID")
+            m = RS_DOI.search(ref)
+            anno = RS_ANNO.search(ref)
+            avisos.append({
+                "tipo": tipo,
+                "gravedad": GRAVEDAD.get(tipo, 1),
+                "fecha": anno.group(0) if anno else "",
+                "doi_aviso": m.group(1).rstrip(".").lower() if m else "",
+                # Not every notice in PubMed has a DOI. Without this the report
+                # would print a bare "https://doi.org/" and send the reader nowhere.
+                "pmid_aviso": (pm.text or "").strip() if pm is not None else "",
+                "etiqueta": tipo.replace("_", " ").title(),
+                "fuente": "pubmed",
+                "registro": None,
+                "contradice": [],
+            })
+        titulo = cita.find("./Article/ArticleTitle")
+        salida[doi] = {
+            "pmid": (cita.find("PMID").text or "").strip(),
+            "titulo": "".join(titulo.itertext()).strip() if titulo is not None else "",
+            "avisos": avisos,
+        }
+    return salida
+
+
+def avisos_pubmed(dois):
+    """Ask PubMed what IT knows about these DOIs. Raises if the lookup fails.
+
+    Two requests per batch and no way around it: `[aid]` search answers with a
+    list of PMIDs and never says which DOI matched which, so the records have
+    to be fetched to be matched back by their own DOI.
+    """
+    salida = {}
+    for i in range(0, len(dois), LOTE_AID):
+        trozo = dois[i:i + LOTE_AID]
+        term = " OR ".join(f'"{d}"[aid]' for d in trozo)
+        r = json.loads(_pide_ncbi(ESEARCH, {"db": "pubmed", "retmode": "json",
+                                            "retmax": str(len(trozo) * 3),
+                                            "term": term}))
+        ids = (r.get("esearchresult") or {}).get("idlist") or []
+        if not ids:
+            continue
+        xml = _pide_ncbi(EFETCH, {"db": "pubmed", "retmode": "xml", "id": ",".join(ids)})
+        for doi, rec in _avisos_de_xml(xml).items():
+            if doi in {d.lower() for d in trozo}:
+                salida[doi] = rec
+    return salida
 
 
 def _doi_de_registro(rec):
@@ -446,6 +590,77 @@ def revisa_lote(dois, pausa=None, avisa=None):
     return resultados
 
 
+def fusiona_pubmed(resultados, avisa=None):
+    """Add what PubMed knows and Crossref does not. Mutates `resultados`.
+
+    A notice already reported by Crossref is not repeated. The key is
+    (severity, notice DOI), and both halves of that are deliberate:
+
+      · Not the DOI alone. The two registers sometimes catalogue one notice at
+        different severities — on the 1998 Lancet paper, notice
+        10.1016/s0140-6736(04)15715-2 is a `correction` to Crossref and a
+        `RetractionIn` to PubMed. Keying on the DOI would keep whichever
+        arrived first and drop the other, and half the time the one dropped is
+        the graver. Under-warning quietly is the failure this tool exists to
+        avoid, so both are kept, both are labelled, and the reference is
+        headlined as a disagreement instead of as either verdict.
+
+      · Not the type either. `correction` and `erratum` are one word in two
+        vocabularies, not two events; printing both lines for the same notice
+        DOI would be pure noise, and a "the registers disagree!" banner over a
+        spelling difference trains the reader to ignore the banner.
+
+    When a notice carries no DOI there is nothing to match on but the type, so a
+    same-type notice is treated as the same one. That can hide a second,
+    genuinely different erratum — the safe direction to be wrong in, since the
+    reader is already being sent to look at the paper.
+
+    A DOI Crossref has no record of is NOT skipped. Those are the ones where a
+    second source pays for itself.
+    """
+    dois = [r["doi"] for r in resultados if r.get("doi")]
+    if not dois:
+        return resultados
+    try:
+        conocido = avisos_pubmed(dois)
+    except ConnectionError as e:
+        # PubMed being down must not cost us the Crossref answer we already have.
+        for r in resultados:
+            if r.get("doi"):
+                r["pubmed_error"] = str(e)
+        return resultados
+    if avisa:
+        avisa(len(dois), len(dois))
+
+    for r in resultados:
+        rec = conocido.get((r.get("doi") or "").lower())
+        r["en_pubmed"] = rec is not None
+        if rec is None:
+            continue
+        r.setdefault("pmid", rec["pmid"])
+        if not r.get("titulo"):
+            r["titulo"] = rec["titulo"]
+        ya = {(a["gravedad"], a["doi_aviso"].lower()) for a in r["avisos"]}
+        ya_grav = {a["gravedad"] for a in r["avisos"]}
+        nuevos = [a for a in rec["avisos"]
+                  if ((a["gravedad"], a["doi_aviso"].lower()) not in ya if a["doi_aviso"]
+                      else a["gravedad"] not in ya_grav)]
+        if nuevos:
+            r["avisos"] = sorted(r["avisos"] + nuevos,
+                                 key=lambda a: (-a["gravedad"], a["fecha"]))
+            r["discrepancia"] = sorted(
+                {a["doi_aviso"] for a in nuevos if a["doi_aviso"]}
+                & {a["doi_aviso"].lower() for a in r["avisos"]
+                   if a.get("fuente") != "pubmed" and a.get("doi_aviso")})
+            # Crossref had no record at all, but PubMed does and it has something
+            # to say. The reference HAS been checked — saying "not found" now
+            # would file a real warning under "nothing to report".
+            if r["estado"] in ("desconocido", "sin_comprobar"):
+                r["estado"] = "ok"
+                r["solo_pubmed"] = True
+    return resultados
+
+
 def referencias_de(texto, usar_pubmed=True):
     """Everything the text points at: DOIs, plus PMIDs turned into DOIs.
 
@@ -503,7 +718,22 @@ def informe(resultados, ancho=78):
     for r in sorted(con, key=lambda r: -r["avisos"][0]["gravedad"]):
         peor = r["avisos"][0]
         lineas.append("")
-        lineas.append(f"  {CONFLICTO if r.get('contradictorio') else ETIQUETA[peor['gravedad']]}")
+        # A disagreement only takes the headline when settling it would change
+        # the verdict. On the 1998 Lancet paper the registers differ over a 2004
+        # notice, but both list the 2010 retraction, so the paper is retracted
+        # either way and "registers disagree" would bury the undisputed fact.
+        disputado = set(r.get("discrepancia") or [])
+        firme = [a for a in r["avisos"]
+                 if not (a.get("fuente") == "pubmed" and a.get("doi_aviso") in disputado)]
+        discute_lo_peor = bool(disputado) and (
+            max((a["gravedad"] for a in firme), default=-1) < peor["gravedad"])
+        if r.get("contradictorio"):
+            titular = CONFLICTO
+        elif discute_lo_peor:
+            titular = DISCREPANCIA
+        else:
+            titular = ETIQUETA[peor["gravedad"]]
+        lineas.append(f"  {titular}")
         t = r.get("titulo", "")
         lineas.append(f"    {t[:ancho - 4]}" if t else "")
         lineas.append(f"    {nombre(r)}")
@@ -512,10 +742,24 @@ def informe(resultados, ancho=78):
             # .get: a report loaded from an older --json run has no such key.
             choca = a.get("contradice") or []
             choque = f"  [contradicts: {', '.join(choca)}]" if choca else ""
-            lineas.append(f"      → {a['etiqueta']}{fecha}: https://doi.org/{a['doi_aviso']}{choque}")
+            if a.get("doi_aviso"):
+                enlace = f"https://doi.org/{a['doi_aviso']}"
+            elif a.get("pmid_aviso"):
+                enlace = f"https://pubmed.ncbi.nlm.nih.gov/{a['pmid_aviso']}/"
+            else:
+                enlace = "(no link published)"
+            # Say where it came from when Crossref did not have it, so the reader
+            # knows which register to argue with — and so a silent Crossref is
+            # visible as a silent Crossref rather than as agreement.
+            via = "  [per PubMed]" if a.get("fuente") == "pubmed" else ""
+            lineas.append(f"      → {a['etiqueta']}{fecha}: {enlace}{choque}{via}")
         if r.get("contradictorio"):
             lineas.append("      Same upstream record, two different verdicts, same date — the API")
             lineas.append("      does not say which is current. Look it up: retractiondatabase.org")
+        elif r.get("discrepancia"):
+            for d in r["discrepancia"]:
+                lineas.append(f"      Two of the lines above are the same notice ({d}),")
+                lineas.append("      filed at different severities. Read it and judge for yourself.")
     comprobadas = len(resultados) - len(sinc) - len(sin_doi) - len(pmid_desc)
     cab = [f"  {comprobadas} reference(s) checked · {len(con)} carry a change notice"]
     if chocan:
@@ -555,7 +799,9 @@ def main():
                    help="extra seconds between API calls, on top of the rate the "
                         "server declares (public pool 1/s, polite pool 3/s)")
     p.add_argument("--no-pubmed", action="store_true",
-                   help="do not translate PMIDs through NCBI; DOIs only")
+                   help="never contact NCBI: no PMID translation and no second "
+                        "opinion. Faster and quieter, but measured on 2026-09-11 "
+                        "it misses about one corrected paper in five")
     a = p.parse_args()
 
     texto = sys.stdin.read() if a.fichero == "-" else open(a.fichero, encoding="utf-8", errors="replace").read()
@@ -575,6 +821,10 @@ def main():
             print(f"\r  checking {hechos}/{total}…", end="", file=sys.stderr, flush=True)
 
     resultados = revisa_lote(dois, pausa=a.pausa, avisa=avisa)
+    if not a.no_pubmed:
+        if ruidoso:
+            print("\r  asking PubMed too…            ", end="", file=sys.stderr, flush=True)
+        fusiona_pubmed(resultados)
     for r in resultados:
         if r["doi"] in origen:
             r["pmid"] = origen[r["doi"]]      # cited as a PMID: say so back

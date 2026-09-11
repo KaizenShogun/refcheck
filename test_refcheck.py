@@ -570,5 +570,167 @@ class Referencias(unittest.TestCase):
         self.assertEqual(r["999999999"]["estado"], "desconocido")
 
 
+def _xml(*articulos):
+    """A minimal efetch reply. Each article is (pmid, doi, [(RefType, RefSource)])."""
+    trozos = []
+    for pmid, doi, ccs in articulos:
+        cc = "".join(
+            f'<CommentsCorrections RefType="{t}"><RefSource>{s}</RefSource>'
+            f'<PMID Version="1">99{i}</PMID></CommentsCorrections>'
+            for i, (t, s) in enumerate(ccs))
+        trozos.append(
+            f'<PubmedArticle><MedlineCitation><PMID Version="1">{pmid}</PMID>'
+            f'<Article><ArticleTitle>Un titulo</ArticleTitle></Article>'
+            f'<CommentsCorrectionsList>{cc}</CommentsCorrectionsList></MedlineCitation>'
+            f'<PubmedData><ArticleIdList>'
+            f'<ArticleId IdType="pubmed">{pmid}</ArticleId>'
+            f'<ArticleId IdType="doi">{doi}</ArticleId>'
+            f'</ArticleIdList></PubmedData></PubmedArticle>')
+    return f"<PubmedArticleSet>{''.join(trozos)}</PubmedArticleSet>".encode()
+
+
+class AvisosPubmed(unittest.TestCase):
+    """PubMed's CommentsCorrections, which is the half Crossref does not have."""
+
+    def test_lee_los_tipos_que_son_un_veredicto(self):
+        x = _xml(("7", "10.1/a", [
+            ("RetractionIn", "Lancet. 2010 Feb 6;375(9713):445. doi: 10.1016/x."),
+            ("ErratumIn", "J. 2025 Feb 1;117(2):380. doi: 10.1093/y."),
+            ("ExpressionOfConcernIn", "J. 2024 Dec 1;116(12):2044. doi: 10.1093/z."),
+        ]))
+        avisos = refcheck._avisos_de_xml(x)["10.1/a"]["avisos"]
+        self.assertEqual([a["tipo"] for a in avisos],
+                         ["retraction", "erratum", "expression_of_concern"])
+        self.assertEqual([a["fecha"] for a in avisos], ["2010", "2025", "2024"])
+        self.assertEqual(avisos[0]["doi_aviso"], "10.1016/x")
+        self.assertTrue(all(a["fuente"] == "pubmed" for a in avisos))
+
+    def test_ignora_lo_que_no_es_un_aviso_de_cambio(self):
+        """A letter to the editor is a conversation, not a verdict. The 1998
+        Lancet paper carries 22 of them; printing those would drown the two
+        that matter and teach the reader to skip the whole block."""
+        x = _xml(("7", "10.1/a", [
+            ("CommentIn", "Lancet. 1998;351:611. doi: 10.1016/c."),
+            ("UpdateIn", "Cochrane. 2020. doi: 10.1002/u."),
+            ("SummaryForPatientsIn", "Ann Intern Med. 2015. doi: 10.7326/s."),
+            ("RetractionIn", "Lancet. 2010;375:445. doi: 10.1016/r."),
+        ]))
+        avisos = refcheck._avisos_de_xml(x)["10.1/a"]["avisos"]
+        self.assertEqual([a["tipo"] for a in avisos], ["retraction"])
+
+    def test_un_aviso_sin_doi_conserva_su_pmid(self):
+        """Otherwise the report prints a bare https://doi.org/ and the reader
+        is sent nowhere at all."""
+        x = _xml(("7", "10.1/a", [("ErratumIn", "Lancet. 1998 Mar 21;351(9106):905.")]))
+        a = refcheck._avisos_de_xml(x)["10.1/a"]["avisos"][0]
+        self.assertEqual(a["doi_aviso"], "")
+        self.assertEqual(a["pmid_aviso"], "990")
+        self.assertIn("pubmed.ncbi.nlm.nih.gov/990/", refcheck.informe(
+            [{"doi": "10.1/a", "estado": "ok", "titulo": "", "avisos": [a]}]))
+
+    def test_no_coge_el_doi_de_una_referencia_ajena(self):
+        """A record with no DOI of its own sits next to a reference list full of
+        other people's DOIs. Grabbing one of those would report a change notice
+        against a paper the reader never cited."""
+        x = (b'<PubmedArticleSet><PubmedArticle><MedlineCitation>'
+             b'<PMID Version="1">7</PMID><Article><ArticleTitle>T</ArticleTitle></Article>'
+             b'</MedlineCitation><PubmedData><ArticleIdList>'
+             b'<ArticleId IdType="pubmed">7</ArticleId></ArticleIdList>'
+             b'<ReferenceList><Reference><ArticleIdList>'
+             b'<ArticleId IdType="doi">10.9/ajena</ArticleId>'
+             b'</ArticleIdList></Reference></ReferenceList>'
+             b'</PubmedData></PubmedArticle></PubmedArticleSet>')
+        self.assertEqual(refcheck._avisos_de_xml(x), {})
+
+
+class FusionDeRegistros(unittest.TestCase):
+    """Merging the two registers, which is where the honesty lives."""
+
+    def _fusiona(self, resultados, xml):
+        with mock.patch.object(refcheck, "_pide_ncbi") as p:
+            p.side_effect = [json.dumps({"esearchresult": {"idlist": ["7"]}}).encode(), xml]
+            return refcheck.fusiona_pubmed(resultados)
+
+    def test_anade_lo_que_crossref_calla(self):
+        r = [{"doi": "10.1/a", "estado": "ok", "titulo": "", "avisos": []}]
+        self._fusiona(r, _xml(("7", "10.1/a",
+                               [("ExpressionOfConcernIn", "J. 2024. doi: 10.1016/eoc.")])))
+        self.assertEqual(len(r[0]["avisos"]), 1)
+        self.assertEqual(r[0]["avisos"][0]["fuente"], "pubmed")
+        self.assertIn("per PubMed", refcheck.informe(r))
+
+    def test_no_repite_el_mismo_aviso_con_otro_nombre(self):
+        """`correction` and `erratum` are one word in two vocabularies. Two
+        lines for one notice is noise, and a disagreement banner over a
+        vocabulary difference teaches the reader to ignore the banner."""
+        crossref = {"tipo": "correction", "gravedad": 1, "fecha": "2024-03-21",
+                    "doi_aviso": "10.1016/fix", "etiqueta": "Correction",
+                    "fuente": "crossref", "registro": None, "contradice": []}
+        r = [{"doi": "10.1/a", "estado": "ok", "titulo": "", "avisos": [crossref]}]
+        self._fusiona(r, _xml(("7", "10.1/a", [("ErratumIn", "J. 2024. doi: 10.1016/fix.")])))
+        self.assertEqual(len(r[0]["avisos"]), 1)
+        self.assertFalse(r[0].get("discrepancia"))
+
+    def test_conserva_las_dos_cuando_difieren_en_GRAVEDAD(self):
+        """Crossref files 10.1016/s0140-6736(04)15715-2 as a correction and
+        PubMed as a retraction. Keeping only one drops a severity-3 verdict on
+        a coin flip, which is the exact failure this tool exists to avoid."""
+        crossref = {"tipo": "correction", "gravedad": 1, "fecha": "2004-03-06",
+                    "doi_aviso": "10.1016/same", "etiqueta": "Correction",
+                    "fuente": "crossref", "registro": None, "contradice": []}
+        r = [{"doi": "10.1/a", "estado": "ok", "titulo": "", "avisos": [crossref]}]
+        self._fusiona(r, _xml(("7", "10.1/a", [("RetractionIn", "J. 2004. doi: 10.1016/same.")])))
+        self.assertEqual(len(r[0]["avisos"]), 2)
+        self.assertEqual(r[0]["discrepancia"], ["10.1016/same"])
+        self.assertIn("REGISTERS DISAGREE", refcheck.informe(r))
+
+    def test_la_discrepancia_no_tapa_lo_que_ambos_confirman(self):
+        """Both registers list the 2010 retraction of the 1998 Lancet paper and
+        differ only over a 2004 notice. The headline must stay RETRACTED."""
+        firme = {"tipo": "retraction", "gravedad": 3, "fecha": "2010-02-06",
+                 "doi_aviso": "10.1016/ret", "etiqueta": "Retraction",
+                 "fuente": "crossref", "registro": None, "contradice": []}
+        blando = {"tipo": "correction", "gravedad": 1, "fecha": "2004-03-06",
+                  "doi_aviso": "10.1016/same", "etiqueta": "Correction",
+                  "fuente": "crossref", "registro": None, "contradice": []}
+        r = [{"doi": "10.1/a", "estado": "ok", "titulo": "", "avisos": [firme, blando]}]
+        self._fusiona(r, _xml(("7", "10.1/a", [("RetractionIn", "J. 2004. doi: 10.1016/same.")])))
+        texto = refcheck.informe(r)
+        self.assertIn("RETRACTED", texto)
+        self.assertNotIn("REGISTERS DISAGREE", texto)
+
+    def test_rescata_un_doi_que_crossref_no_tiene(self):
+        """2.5% of retracted papers are not in Crossref at all — a whole
+        publisher, eurrev, turned up in the sample. Leaving those as 'not
+        found' files a live retraction under 'nothing to report'."""
+        r = [{"doi": "10.1/a", "estado": "desconocido", "avisos": []}]
+        self._fusiona(r, _xml(("7", "10.1/a", [("RetractionIn", "J. 2020. doi: 10.1016/r.")])))
+        self.assertEqual(r[0]["estado"], "ok")
+        self.assertTrue(r[0]["solo_pubmed"])
+        self.assertEqual(r[0]["titulo"], "Un titulo")
+
+    def test_si_pubmed_falla_no_se_pierde_la_respuesta_de_crossref(self):
+        r = [{"doi": "10.1/a", "estado": "ok", "titulo": "T", "avisos": []}]
+        with mock.patch.object(refcheck, "_pide_ncbi",
+                               side_effect=ConnectionError("NCBI down")):
+            refcheck.fusiona_pubmed(r)
+        self.assertEqual(r[0]["estado"], "ok")
+        self.assertIn("NCBI down", r[0]["pubmed_error"])
+
+    @unittest.skipUnless(os.environ.get("REFCHECK_RED") == "1", "necesita red: REFCHECK_RED=1")
+    def test_contra_la_realidad_el_hueco_sigue_ahi(self):
+        """10.1093/jnci/djr419 carries an expression of concern (2024) and an
+        erratum (2025) in PubMed, and Crossref's record is empty. Measured
+        2026-09-11. If Crossref ever deposits them, this goes red — which is
+        how I want to find out."""
+        rec = refcheck.avisos_pubmed(["10.1093/jnci/djr419"])["10.1093/jnci/djr419"]
+        self.assertEqual(rec["pmid"], "22010178")
+        tipos = {a["tipo"] for a in rec["avisos"]}
+        self.assertIn("expression_of_concern", tipos)
+        self.assertIn("erratum", tipos)
+        obra = refcheck.consulta("10.1093/jnci/djr419")
+        self.assertEqual(refcheck.avisos_de(obra), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

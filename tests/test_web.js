@@ -213,5 +213,46 @@
 
   window.fetch = realFetch;
 
+  // ---- 7. the second register --------------------------------------------
+  // Measured 2026-09-11: 21.2% of the papers PubMed says were corrected carry
+  // nothing at all in Crossref's `updated-by`. These cases are live on purpose;
+  // if Crossref ever deposits them the assertions go red, which is how I want
+  // to hear about it.
+  s = await check("Liu SK et al. J Natl Cancer Inst 2011. doi:10.1093/jnci/djr419");
+  ok("a paper Crossref calls clean is not called clean",
+     /EXPRESSION OF CONCERN/.test(txt()), txt().split("\n").slice(0, 6).join(" | "));
+  ok("the notice says which register knows about it",
+     /per PubMed/.test(txt()), txt());
+  ok("both PubMed notices come through",
+     /Expression Of Concern/.test(txt()) && /Erratum/.test(txt()), txt());
+
+  // The 2004 notice on the 1998 Lancet paper: a correction to Crossref, a
+  // RetractionIn to PubMed. Both must survive, and the headline must stay
+  // RETRACTED, because both registers list the undisputed 2010 retraction.
+  s = await check("Wakefield AJ et al. Lancet 1998. doi:10.1016/S0140-6736(97)11096-0");
+  ok("a severity disagreement keeps both verdicts",
+     (txt().match(/Retraction/g) || []).length >= 2, txt());
+  ok("a disagreement does not bury what both registers confirm",
+     /RETRACTED — do not cite/.test(txt()) && !/REGISTERS DISAGREE/.test(txt()), txt());
+
+  // correction/erratum is one word in two vocabularies. If this ever starts
+  // printing two lines for 10.1371/journal.pone.0301214, the merge key broke.
+  s = await check("doi:10.1371/journal.pone.0161231");
+  ok("the same notice under two names is printed once",
+     (txt().match(/journal\.pone\.0301214/g) || []).length <= 1 &&
+     !/REGISTERS DISAGREE/.test(txt()), txt());
+
+  // 7b. NCBI down must cost only the second opinion, never the first.
+  window.fetch = function (u, o) {
+    if (/eutils\.ncbi\.nlm\.nih\.gov/.test(String(u))) {
+      return Promise.reject(new TypeError("Failed to fetch"));
+    }
+    return realFetch(u, o);
+  };
+  s = await check("doi:10.1371/journal.pone.0161231");
+  ok("Crossref's answer survives PubMed being unreachable",
+     /CORRECTED — check the number/.test(txt()), txt());
+  window.fetch = realFetch;
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()
