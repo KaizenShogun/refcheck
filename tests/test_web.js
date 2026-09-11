@@ -254,5 +254,47 @@
      /CORRECTED — check the number/.test(txt()), txt());
   window.fetch = realFetch;
 
+  // 7c. The disagreement headline, on canned answers. It has to be canned: the
+  // branch only fires when the graver verdict exists ONLY in PubMed, and there
+  // is no live DOI I can pin that to for as long as this test should last.
+  // This branch shipped once with an undefined variable in it precisely because
+  // no live case in the battery ever reached it.
+  var fakeWork = {
+    message: { items: [{ DOI: "10.1234/test", title: ["A canned paper"],
+      "container-title": ["Journal of Fixtures"],
+      "updated-by": [{ type: "correction", DOI: "10.1234/notice",
+                       updated: { "date-parts": [[2020, 1, 1]] } }] }] }
+  };
+  var fakeXml =
+    '<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID Version="1">1</PMID>' +
+    '<Article><ArticleTitle>A canned paper</ArticleTitle></Article>' +
+    '<CommentsCorrectionsList><CommentsCorrections RefType="RetractionIn">' +
+    '<RefSource>J Fixtures. 2021. doi: 10.1234/notice.</RefSource>' +
+    '<PMID Version="1">2</PMID></CommentsCorrections></CommentsCorrectionsList>' +
+    '</MedlineCitation><PubmedData><ArticleIdList>' +
+    '<ArticleId IdType="pubmed">1</ArticleId>' +
+    '<ArticleId IdType="doi">10.1234/test</ArticleId>' +
+    '</ArticleIdList></PubmedData></PubmedArticle></PubmedArticleSet>';
+  var reply = function (body) {
+    return Promise.resolve({ ok: true, status: 200,
+      json: function () { return Promise.resolve(body); },
+      text: function () { return Promise.resolve(typeof body === "string" ? body : JSON.stringify(body)); } });
+  };
+  window.fetch = function (u, o) {
+    var url = String(u);
+    if (/api\.crossref\.org/.test(url)) return reply(fakeWork);
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: ["1"] } });
+    if (/efetch\.fcgi/.test(url)) return reply(fakeXml);
+    return realFetch(u, o);
+  };
+  s = await check("doi:10.1234/test");
+  ok("a severity disagreement over the worst notice takes the headline",
+     /REGISTERS DISAGREE/.test(txt()), txt());
+  ok("and the graver verdict is not the one dropped",
+     /Retraction/.test(txt()) && /Correction/.test(txt()), txt());
+  ok("the reader is told which two lines are one notice",
+     /same notice \(10\.1234\/notice\)/.test(txt()), txt());
+  window.fetch = realFetch;
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()

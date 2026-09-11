@@ -219,6 +219,10 @@
     0: "UPDATED — additional material published"
   };
   var CONFLICTO = "CONTRADICTORY NOTICES — check this one by hand, Crossref disagrees with itself";
+  // A different animal from CONFLICTO. There, one source said two things at once
+  // and nothing orders them. Here, two independent registers file the same
+  // notice under different names — both telling the truth as they catalogue it.
+  var DISCREPANCIA = "REGISTERS DISAGREE — Crossref and PubMed file the same notice under different names";
 
   var $ = function (id) { return document.getElementById(id); };
   var input = $("input"), status = $("status"), out = $("out"),
