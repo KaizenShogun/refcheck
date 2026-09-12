@@ -61,7 +61,7 @@ HTML file with no dependencies, no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 62-check battery in a real headless browser against the real APIs.
+is driven by a 67-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -262,11 +262,46 @@ That paper has an expression of concern from its own journal and an erratum, and
 Crossref's record for it is empty: no `updated-by`, no `update-to`, no
 `relation`. Checked by hand on 2026-09-11.
 
-<sub>Two things this number is not. It measures Crossref's recall **against
-PubMed**, not against the truth: PubMed will have holes of its own and this does
-not know their size. And it only covers biomedicine, because PubMed only covers
-biomedicine. The honest claim is "the union beats either alone", not "now it is
-complete".</sub>
+<sub>What this number is not: it measures Crossref's recall **against PubMed**,
+not against the truth, and only inside biomedicine, because that is all PubMed
+covers. The honest claim is "the union beats either alone", not "now it is
+complete". For a while it also did not know the size of PubMed's own holes —
+that is the next section.</sub>
+
+### And the mirror: what PubMed alone would miss
+
+A tool that asks two registers should know the shape of both blind spots, or
+"we ask PubMed too" is a claim rather than a measured improvement. So
+`research/measure_crossref_gap.py` runs the same measurement backwards: take the
+change notices Crossref holds, follow each one back to the article it is about,
+and ask PubMed whether it says anything. Sampling is Crossref's own `sample=`,
+which draws at random from the filtered set — the price is that it takes no
+seed, so every sampled DOI is written to `--json` and a run can be audited even
+though it cannot be repeated exactly.
+
+**2026-09-12, 400 articles per category:**
+
+| Crossref says | not in PubMed at all | PubMed says the same | different kind | **PubMed silent** |
+|---|---:|---:|---:|---:|
+| retraction | 44.5% | 94.6% | 0.5% | **5.0%** |
+| expression of concern | 26.8% | 92.8% | 3.8% | **3.4%** |
+| correction | 39.5% | 92.1% | 0.8% | **7.0%** |
+| **erratum** | 46.2% | 79.5% | 5.1% | **15.3%** |
+
+The last three columns are shares of the articles PubMed actually holds. The
+first column is not a failure: PubMed indexes biomedicine and nothing else, so a
+correction on a paper about concrete or Kant is simply outside its remit. It is
+still the reason the practical figure is blunt — **asking PubMed alone would
+have missed between 29% and 55% of what Crossref knows**, and most of that is
+scope, not error.
+
+**Errata are the weak spot of both registers, in both directions.** Crossref is
+silent for 21% of the ones PubMed knows; PubMed is silent for 15% of the ones
+Crossref knows, inside its own subject area. Of every kind of change notice, the
+one nobody warns you about is also the one neither register holds reliably.
+
+Neither register is a superset of the other, which is the whole case for asking
+both — and it is now measured in both directions rather than assumed in one.
 
 **When the two disagree, you are told rather than picked for.** On the 1998
 Lancet paper, notice `10.1016/s0140-6736(04)15715-2` is a *correction* to
@@ -361,8 +396,8 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 71 tests, offline
-REFCHECK_RED=1 python3 test_refcheck.py   # 77, adding the live-API cases
+python3 test_refcheck.py                  # 75 tests, offline
+REFCHECK_RED=1 python3 test_refcheck.py   # 81, adding the live-API cases
 ```
 
 One of those live tests asserts that `10.1148/85.3.474` still arrives
@@ -373,7 +408,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 62 checks driving the real page in
+The browser version has its own battery — 67 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:

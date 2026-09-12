@@ -532,6 +532,27 @@
     }).join("-");
   }
 
+  // The earliest of two Crossref dates, preferring the precise one. Dates come
+  // as "2019", "2019-03" or "2019-03-19" depending on what the depositor filled
+  // in, and a plain string compare would pick "2019" over "2019-03-19" and drop
+  // the day for nothing. So the year decides first and precision breaks the tie.
+  function earliestDate() {
+    var live = [].slice.call(arguments).filter(Boolean);
+    if (!live.length) return "";
+    var year = Math.min.apply(null, live.map(function (f) {
+      var y = parseInt(String(f).split("-")[0], 10);
+      return isNaN(y) ? 9999 : y;
+    }));
+    var same = live.filter(function (f) {
+      var y = parseInt(String(f).split("-")[0], 10);
+      return (isNaN(y) ? 9999 : y) === year;
+    });
+    same.sort(function (a, b) {
+      return (b.length - a.length) || (a < b ? -1 : a > b ? 1 : 0);
+    });
+    return same[0];
+  }
+
   // Crossref does not overwrite a Retraction Watch assertion when the upstream
   // record changes its nature: it appends a second one with the SAME record-id,
   // same source and same timestamp, and a different type. So 10.1148/85.3.474
@@ -583,16 +604,24 @@
     });
     // The same notice often arrives twice, once from the publisher and once
     // from Retraction Watch: 10.1038/nature12968 carries its retraction listed
-    // two identical times. Same type, DOI and date is the same event whoever
-    // reported it, so the source is deliberately not part of the key.
+    // two identical times. Same type and DOI is the same event whoever reported
+    // it, so the source is deliberately not part of the key.
+    // The date is not part of it either: 10.1016/j.engfailanal.2019.01.024 is a
+    // withdrawn paper carrying its own retraction on 2019-03-19 and again on
+    // 2019-04-01, and two lines make one withdrawal read as two. When the copies
+    // disagree, the earliest date shows — a re-deposit is not a second event.
+    // A notice with no DOI keeps its date in the key, as there is nothing else
+    // to tell two of them apart by.
     // Which copy survives is not arbitrary, though: only the Retraction Watch
     // one carries a `record-id`, and that id is the whole basis of the
     // contradiction check below. Keeping the anonymous copy would disarm it.
     var at = Object.create(null), deduped = [];
     list.forEach(function (n) {
-      var k = [n.tipo, n.doi, n.fecha].join("|");
-      if (!(k in at)) { at[k] = deduped.length; deduped.push(n); }
-      else if (n.registro != null && deduped[at[k]].registro == null) { deduped[at[k]] = n; }
+      var k = n.doi ? [n.tipo, n.doi].join("|") : [n.tipo, "", n.fecha].join("|");
+      if (!(k in at)) { at[k] = deduped.length; deduped.push(n); return; }
+      var pronto = earliestDate(deduped[at[k]].fecha, n.fecha);
+      if (n.registro != null && deduped[at[k]].registro == null) { deduped[at[k]] = n; }
+      deduped[at[k]].fecha = pronto;
     });
     list = deduped;
     flagContradictions(list);

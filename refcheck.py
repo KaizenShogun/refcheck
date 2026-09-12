@@ -477,6 +477,25 @@ def marca_contradicciones(avisos):
     return avisos
 
 
+def fecha_mas_temprana(*fechas):
+    """The earliest of several Crossref dates, preferring the precise one.
+
+    Dates arrive as "2019", "2019-03" or "2019-03-19" depending on what the
+    depositor filled in. A plain string min() would pick "2019" over
+    "2019-03-19" and throw away the day for nothing, so the year decides first
+    and precision breaks the tie.
+    """
+    vivas = [f for f in fechas if f]
+    if not vivas:
+        return ""
+    anno = min(int(f.split("-")[0]) if f.split("-")[0].isdigit() else 9999
+               for f in vivas)
+    candidatas = [f for f in vivas
+                  if (f.split("-")[0].isdigit() and int(f.split("-")[0]) == anno)
+                  or anno == 9999]
+    return sorted(candidatas, key=lambda f: (-len(f), f))[0]
+
+
 def avisos_de(obra):
     """Change notices attached to one work record, worst first."""
     avisos = []
@@ -504,14 +523,30 @@ def avisos_de(obra):
     # a `record-id`, and that id is the only evidence that two assertions come
     # from one upstream record — which is what the contradiction check runs on.
     # Keeping the publisher's anonymous copy instead would silently disarm it.
+    #
+    # The date is deliberately NOT part of the key. One notice deposited twice
+    # with two dates is still one notice: `10.1016/j.engfailanal.2019.01.024` is
+    # a withdrawn paper that carries its own retraction on 2019-03-19 and again
+    # on 2019-04-01, and printing both makes a single withdrawal read as two.
+    # Found on 2026-09-12 while measuring, not by a user, which is the cheap way
+    # round. When the copies disagree on the date, the earliest is shown: a
+    # re-deposit is not a second event, and the first date is the one closest to
+    # when the notice actually appeared.
     unicos, indice = [], {}
     for a in avisos:
-        clave = (a["tipo"], a["doi_aviso"], a["fecha"])
+        # A notice with no DOI of its own cannot be told apart from another of
+        # the same type except by its date, so there the date stays in the key.
+        clave = (a["tipo"], a["doi_aviso"]) if a["doi_aviso"] else \
+                (a["tipo"], "", a["fecha"])
         if clave not in indice:
             indice[clave] = len(unicos)
             unicos.append(a)
-        elif a["registro"] is not None and unicos[indice[clave]]["registro"] is None:
+            continue
+        previo = unicos[indice[clave]]
+        pronto = fecha_mas_temprana(previo["fecha"], a["fecha"])
+        if a["registro"] is not None and previo["registro"] is None:
             unicos[indice[clave]] = a
+        unicos[indice[clave]]["fecha"] = pronto
     avisos = unicos
     marca_contradicciones(avisos)
     avisos.sort(key=lambda a: (-a["gravedad"], a["fecha"]))

@@ -318,6 +318,51 @@ class Contradicciones(unittest.TestCase):
         self.assertEqual(len(f["avisos"]), 1)
         self.assertEqual(refcheck.informe([f]).count("nature13598"), 1)
 
+    def test_el_mismo_aviso_con_dos_fechas_es_uno_solo(self):
+        """`10.1016/j.engfailanal.2019.01.024` is a withdrawn paper whose own DOI
+        carries the retraction twice, deposited 2019-03-19 and again 2019-04-01.
+
+        One withdrawal printed as two reads like a paper that was retracted, and
+        then retracted again. The earliest date survives, because a re-deposit is
+        not a second event.
+        """
+        uno = {"type": "retraction", "DOI": "10.1016/j.engfailanal.2019.01.024",
+               "updated": {"date-parts": [[2019, 3, 19]]}}
+        dos = dict(uno, updated={"date-parts": [[2019, 4, 1]]})
+        f = refcheck.ficha("10.1016/j.engfailanal.2019.01.024",
+                           {"updated-by": [dos, uno]})
+        self.assertEqual(len(f["avisos"]), 1)
+        self.assertEqual(f["avisos"][0]["fecha"], "2019-03-19")
+
+    def test_dos_avisos_distintos_del_mismo_tipo_siguen_siendo_dos(self):
+        """Collapsing by (type, DOI) must not swallow a second, real notice.
+
+        A paper corrected in 2019 and corrected again in 2021 has two notices
+        with two DOIs, and hiding one of them would be a worse bug than the
+        duplicate it fixes.
+        """
+        a = {"type": "correction", "DOI": "10.1/c1",
+             "updated": {"date-parts": [[2019, 1, 1]]}}
+        b = {"type": "correction", "DOI": "10.1/c2",
+             "updated": {"date-parts": [[2021, 5, 5]]}}
+        f = refcheck.ficha("10.1/x", {"updated-by": [a, b]})
+        self.assertEqual(len(f["avisos"]), 2)
+
+    def test_avisos_sin_doi_se_separan_por_fecha(self):
+        """With no notice DOI there is nothing else to tell two apart by."""
+        a = {"type": "correction", "DOI": "", "updated": {"date-parts": [[2019, 1, 1]]}}
+        b = {"type": "correction", "DOI": "", "updated": {"date-parts": [[2021, 5, 5]]}}
+        f = refcheck.ficha("10.1/x", {"updated-by": [a, b]})
+        self.assertEqual(len(f["avisos"]), 2)
+
+    def test_fecha_vaga_no_borra_la_precisa(self):
+        """min() over the raw strings would pick "2019" and lose the day."""
+        self.assertEqual(refcheck.fecha_mas_temprana("2019", "2019-03-19"),
+                         "2019-03-19")
+        self.assertEqual(refcheck.fecha_mas_temprana("2020-01-02", "2019"), "2019")
+        self.assertEqual(refcheck.fecha_mas_temprana("", "2019-03-19"), "2019-03-19")
+        self.assertEqual(refcheck.fecha_mas_temprana("", ""), "")
+
     def test_al_deduplicar_sobrevive_la_copia_con_record_id(self):
         """Otherwise the contradiction check loses the evidence it runs on.
 

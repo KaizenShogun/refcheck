@@ -242,6 +242,16 @@
      (txt().match(/journal\.pone\.0301214/g) || []).length <= 1 &&
      !/REGISTERS DISAGREE/.test(txt()), txt());
 
+  // A withdrawn paper whose own DOI carries the retraction twice, deposited
+  // 2019-03-19 and again 2019-04-01. One withdrawal, so one line, dated the
+  // first time it appeared. If this starts printing two, the date crept back
+  // into the merge key.
+  s = await check("doi:10.1016/j.engfailanal.2019.01.024");
+  ok("one notice deposited twice is printed once",
+     (txt().match(/Retraction \(/g) || []).length === 1, txt());
+  ok("the earliest of the two deposit dates is the one shown",
+     /2019-03-19/.test(txt()) && !/2019-04-01/.test(txt()), txt());
+
   // 7b. NCBI down must cost only the second opinion, never the first.
   window.fetch = function (u, o) {
     if (/eutils\.ncbi\.nlm\.nih\.gov/.test(String(u))) {
