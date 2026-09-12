@@ -194,6 +194,121 @@ LOTE_AID = 50     # DOIs per `[aid]` search; sent by POST, so length is not the 
 RITMO_PUBMED = Ritmo(limite=1, intervalo=1.0)
 
 
+# MEDLINE — the `.nbib` that PubMed's own "Send to → Citation manager" button
+# produces, and the file a systematic reviewer or a librarian actually has on
+# disk. Read as loose text it is a trap, because a MEDLINE record carries the
+# identifiers of OTHER papers: the commentaries written about it (CIN), the
+# notice that retracted it (RIN), the article whose erratum it is (EFR). Each
+# sits on its own tagged line with a DOI and a `PMID: ` that the forgiving
+# regexes above cannot tell from the article's own. And the article's own id is
+# written `PMID- 31978945`, with a hyphen, which PMID_RE does not accept.
+#
+# Measured 2026-09-12 on a 200-record export of a real PubMed search: 15 foreign
+# DOIs pulled in, and 200 of the 200 real PMIDs missed — the only 8 ids returned
+# belonged to strangers. So MEDLINE is parsed as the record format it is, and
+# only the tags that identify THIS article are read.
+MEDLINE_ETIQUETA = re.compile(r"^([A-Z][A-Z0-9]{1,5})\s*-\s?(.*)$")
+# A whitelist, not a blacklist of the cross-reference tags. PubMed can add a new
+# kind of cross-reference next year — it has before — and a blacklist would let
+# the new one through silently, which is the failure mode this tool exists to
+# catch in other people. These four are the only tags that speak about the
+# record they sit in.
+MEDLINE_ID = {"PMID", "AID", "LID", "SO"}
+
+
+# RIS looks superficially the same — `TY  - JOUR`, `DO  - 10.x/y` — and a RIS
+# file must keep going through the forgiving path, where its DOIs are found
+# perfectly well. So detection asks for a tag that only MEDLINE has, rather than
+# trusting that no RIS file will ever contain the letters PMID at a line start.
+MEDLINE_PROPIAS = {"AID", "LID", "SO", "OWN", "STAT", "JT", "MH", "PT", "PST", "BTI"}
+
+
+def es_medline(texto):
+    """Does this look like a MEDLINE/`.nbib` export rather than prose?
+
+    Three conditions, all necessary: enough tagged lines that it cannot be a
+    bibliography that happens to start a line with capitals, at least one
+    `PMID- ` record header, and at least one tag that exists in MEDLINE and
+    nowhere else. A BibTeX file has none of the three; a RIS file has none.
+    """
+    etiquetadas = cabeceras = 0
+    propias = False
+    for linea in texto.splitlines():
+        m = MEDLINE_ETIQUETA.match(linea)
+        if m:
+            etiquetadas += 1
+            if m.group(1) == "PMID":
+                cabeceras += 1
+            elif m.group(1) in MEDLINE_PROPIAS:
+                propias = True
+    return cabeceras >= 1 and propias and etiquetadas >= 5
+
+
+def registros_medline(texto):
+    """The articles in a MEDLINE export, in file order, with nothing borrowed.
+
+    Each entry is {'pmid', 'doi', 'titulo', 'fecha'}; doi may be empty, which is
+    a fact to report and not a reason to drop the reference. A new record starts
+    at every `PMID-` line, which is where MEDLINE starts one.
+    """
+    registros, actual, etiqueta = [], None, None
+    valores = {}
+
+    def cierra():
+        if actual is None:
+            return
+        doi = ""
+        for tag in ("AID", "LID"):
+            for v in valores.get(tag, []):
+                if v.lower().endswith("[doi]"):
+                    hallado = DOI_RE.search(v)
+                    if hallado:
+                        doi = _limpia_doi(hallado.group(0))
+                        break
+            if doi:
+                break
+        if not doi:
+            # No [doi] tag. The source line carries it for plenty of records —
+            # `SO  - N Engl J Med. 2020;382(8):727-733. doi: 10.1056/NEJMoa2001017.`
+            # — and SO describes this article, so it is safe to read.
+            for v in valores.get("SO", []):
+                hallado = DOI_RE.search(v)
+                if hallado:
+                    doi = _limpia_doi(hallado.group(0))
+                    break
+        actual["doi"] = doi
+        actual["titulo"] = " ".join(valores.get("TI", []))[:300]
+        actual["fecha"] = (valores.get("DP", [""])[0] or "")[:4]
+        registros.append(actual)
+
+    for linea in texto.splitlines():
+        m = MEDLINE_ETIQUETA.match(linea)
+        if m:
+            etiqueta, valor = m.group(1), m.group(2).strip()
+            if etiqueta == "PMID":
+                cierra()
+                crudo = valor.strip()
+                actual = {"pmid": str(int(crudo)) if crudo.isdigit() else "",
+                          "doi": "", "titulo": "", "fecha": ""}
+                valores = {}
+                continue
+            if actual is not None and etiqueta in MEDLINE_ID | {"TI", "DP"}:
+                valores.setdefault(etiqueta, []).append(valor)
+            continue
+        if linea.startswith(" ") and actual is not None and etiqueta:
+            # Continuation of the previous tag — long titles and source lines
+            # wrap. Only folded into tags we read; a wrapped CIN line stays
+            # unread, which is the whole point.
+            if etiqueta in MEDLINE_ID | {"TI", "DP"} and valores.get(etiqueta):
+                valores[etiqueta][-1] += " " + linea.strip()
+    cierra()
+    return [r for r in registros if r["pmid"] or r["doi"]]
+
+
+def _limpia_doi(bruto):
+    return bruto.rstrip(".,;)}\"'").rstrip("}").lower()
+
+
 def dois_de(texto):
     """Pull DOIs out of anything: a plain list, a .bib, a pasted bibliography.
 
@@ -202,9 +317,8 @@ def dois_de(texto):
     """
     vistos, salida = set(), []
     for bruto in DOI_RE.findall(texto):
-        d = bruto.rstrip(".,;)}\"'").lower()
-        # .bib entries often wrap the DOI: doi = {10.xxxx/yyy},
-        d = d.rstrip("}")
+        # _limpia_doi also drops the closing brace of a BibTeX  doi = {10.x/y},
+        d = _limpia_doi(bruto)
         if d not in vistos:
             vistos.add(d)
             salida.append(d)
@@ -708,6 +822,9 @@ def referencias_de(texto, usar_pubmed=True):
     A paper cited with both its DOI and its PMID resolves to one entry, not two:
     the point is to check references, not identifiers.
     """
+    if es_medline(texto):
+        return _referencias_medline(texto)
+
     dois = dois_de(texto)
     origen, sueltos = {}, []
     pmids = pmids_de(texto) if usar_pubmed else []
@@ -732,6 +849,30 @@ def referencias_de(texto, usar_pubmed=True):
         else:
             sueltos.append({"doi": "", "pmid": pmid, "estado": "sin_comprobar",
                             "error": r.get("error", ""), "avisos": []})
+    return dois, origen, sueltos
+
+
+def _referencias_medline(texto):
+    """Same three lists as referencias_de, from a MEDLINE export, with no lookup.
+
+    The file already states each article's own DOI and PMID, so the round trip
+    to NCBI that a loose bibliography needs is not needed here — and neither is
+    the guessing. A record with no DOI keeps its title and year from the file
+    itself, so it can be named in the report instead of being dropped.
+    """
+    dois, origen, sueltos, vistos = [], {}, [], set()
+    for r in registros_medline(texto):
+        doi, pmid = r["doi"], r["pmid"]
+        if doi:
+            if pmid:
+                origen.setdefault(doi, pmid)
+            if doi not in vistos:
+                vistos.add(doi)
+                dois.append(doi)
+        elif pmid:
+            sueltos.append({"doi": "", "pmid": pmid, "estado": "pmid_sin_doi",
+                            "titulo": r["titulo"], "fecha": r["fecha"],
+                            "avisos": []})
     return dois, origen, sueltos
 
 

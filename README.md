@@ -48,7 +48,13 @@ published change notice, what kind, and where to read it.
 
 **→ [kaizenshogun.github.io/refcheck](https://kaizenshogun.github.io/refcheck/)**
 
-Paste your reference list, press one button. No account, no upload, no terminal.
+Paste your reference list, or open the file you already have — a `.nbib`
+straight from PubMed's **Send to → Citation manager**, a `.ris`, a `.bib`, a
+`.txt`. Drag it onto the box or use the file button. Press one button. No
+account, no upload, no terminal.
+
+The file is read *inside your browser* by the same page, and its bytes never
+leave your machine; only the identifiers found in it are sent.
 
 There is no server behind that page: your text stays in the browser and only the
 identifiers found in it are sent — straight from your machine to Crossref and to
@@ -61,7 +67,7 @@ HTML file with no dependencies, no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 67-check battery in a real headless browser against the real APIs.
+is driven by an 80-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -69,6 +75,7 @@ is driven by a 67-check battery in a real headless browser against the real APIs
 python3 refcheck.py refs.bib          # a BibTeX file
 python3 refcheck.py dois.txt          # one DOI per line, or a pasted bibliography
 python3 refcheck.py pubmed.txt        # PMIDs work too — see below
+python3 refcheck.py export.nbib       # PubMed's "Send to → Citation manager" file
 python3 refcheck.py refs.bib --json   # machine-readable, for pipelines
 echo 10.1371/journal.pone.0161231 | python3 refcheck.py -
 ```
@@ -189,6 +196,58 @@ pointing at nothing is worth knowing about before a reviewer finds it.
 NCBI states 3 requests/second without an API key. refcheck starts at 1/s and
 looks up 100 PMIDs per request. `--no-pubmed` skips NCBI entirely if you would
 rather not talk to them.
+
+## The file PubMed gives you is a trap, and it was making this tool lie
+
+If you are running a systematic review, you do not type your references. You tick
+the results of a search, press **Send to → Citation manager**, and PubMed hands
+you a `.nbib`. That is the MEDLINE format, and it is not a bibliography: it is a
+record format, where every record also carries **the identifiers of other
+people's papers**.
+
+```
+PMID- 31978945                                     ← the article you exported
+LID - 10.1056/NEJMoa2001017 [doi]                  ← its DOI
+CIN - N Engl J Med. 2020;382(8):760-762. doi: 10.1056/NEJMe2001126. PMID:
+      31978944                                     ← a commentary ABOUT it
+RIN - Neurobiol Dis. 2025;210:106930. doi: 10.1016/j.nbd.2025.106930. PMID:
+      40320298                                     ← the notice that RETRACTED it
+```
+
+Read that as loose text — which is what refcheck did until today — and three
+things go wrong at once. The commentaries get checked as if you had cited them.
+The retraction notice gets checked as if it were one of your references. And the
+article's own id, written `PMID- 31978945` with a hyphen, does not match a
+pattern that expects `PMID:`, so it is missed entirely.
+
+I measured it on 2026-09-12 rather than estimate it: a real PubMed search
+exported at 200 records, put through the old code and checked against what NCBI
+says each record's identifiers actually are.
+
+| | old (read as text) | now (parsed as MEDLINE) |
+|---|---:|---:|
+| DOIs reported | 212 | **197** |
+| of those, belonging to papers you never cited | **15** | **0** |
+| real PMIDs found, of 200 | **0** | **200** |
+| PMIDs reported that were strangers' | **8 of 8** | 0 |
+| records with no DOI, named in the report | 0 of 3 | **3 of 3** |
+
+The last row is the one that would have cost somebody something. Three of those
+200 records have no DOI — old book chapters, mostly — and with their own PMID
+invisible they were checked by neither identifier and appeared nowhere in the
+output. Not as a warning, not as `not checked`. Gone, in a report whose silence
+means "clean".
+
+So a MEDLINE export is now parsed as the record format it is, and only the four
+tags that speak about the record they sit in are read (`PMID`, `AID`, `LID`,
+`SO`). That is a whitelist on purpose: PubMed can add a new kind of
+cross-reference next year, and a blacklist of the ones I happen to know about
+would let the new one through in silence.
+
+One good side effect — the file already states every article's own DOI *and*
+PMID, so a `.nbib` needs **no lookup at all** to work out what you are asking
+about. No round trip to NCBI, and the references with no DOI keep their title and
+year straight from your file, so they can be named back to you offline.
 
 ## What else is out there
 
@@ -396,8 +455,8 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 75 tests, offline
-REFCHECK_RED=1 python3 test_refcheck.py   # 81, adding the live-API cases
+python3 test_refcheck.py                  # 89 tests, offline
+REFCHECK_RED=1 python3 test_refcheck.py   # 95, adding the live-API cases
 ```
 
 One of those live tests asserts that `10.1148/85.3.474` still arrives
@@ -408,7 +467,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 67 checks driving the real page in
+The browser version has its own battery — 80 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:
@@ -422,6 +481,11 @@ That runner is a small dependency-free CDP driver of mine that is not in this
 repo; any headless-browser harness will do. What the battery defends is worth
 saying plainly, because the first version failed it: when a lookup fails, the
 result must be reported as **unknown**, never merged into the clean pile.
+
+The MEDLINE checks in there do not read the report. They record **every request
+the page makes** and then assert that a stranger's DOI was never asked about at
+all — a report that looks right while quietly checking the wrong papers is the
+failure that started this, so the test is written one level below the words.
 
 ## Licence
 

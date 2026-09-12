@@ -306,5 +306,107 @@
      /same notice \(10\.1234\/notice\)/.test(txt()), txt());
   window.fetch = realFetch;
 
+  // ---- MEDLINE (.nbib), the file PubMed itself hands you ----------------
+  // Read as loose text a MEDLINE record answers about the wrong papers: the
+  // commentaries written about yours (CIN), the notice that retracted it (RIN).
+  // Measured 2026-09-12 on a 200-record export: 15 foreign DOIs pulled in and
+  // 200 of the 200 real PMIDs missed. Real records, trimmed, wraps intact.
+  var NBIB = [
+    "PMID- 31978945",
+    "DP  - 2020 Feb 20",
+    "TI  - A Novel Coronavirus from Patients with Pneumonia in China, 2019.",
+    "LID - 10.1056/NEJMoa2001017 [doi]",
+    "CIN - N Engl J Med. 2020;382(8):760-762. doi: 10.1056/NEJMe2001126. PMID:",
+    "      31978944",
+    "CIN - J Med Virol. 2020;92(5):461-463. doi: 10.1002/jmv.25711. PMID: 32073161",
+    "AID - NJ202002203820808 [pii]",
+    "AID - 10.1056/NEJMoa2001017 [doi]",
+    "SO  - N Engl J Med. 2020 Feb 20;382(8):727-733. doi: 10.1056/NEJMoa2001017.",
+    "",
+    "PMID- 22668778",
+    "DP  - 2012 Sep",
+    "TI  - LRRK2 kinase activity mediates toxic interactions between genetic mutation",
+    "      and oxidative stress in a Drosophila model: suppression by curcumin.",
+    "LID - 10.1016/j.nbd.2012.05.020 [doi]",
+    "RIN - Neurobiol Dis. 2025 Jun 15;210:106930. doi: 10.1016/j.nbd.2025.106930. PMID:",
+    "      40320298",
+    "SO  - Neurobiol Dis. 2012 Sep;47(3):385-92. doi: 10.1016/j.nbd.2012.05.020.",
+    "",
+    "PMID- 25905182",
+    "DP  - 2000",
+    "TI  - Role of Glucose and Lipids in the Atherosclerotic Cardiovascular Disease in",
+    "      Patients with Diabetes.",
+    "BTI - Endotext",
+    "AID - NBK278947 [bookaccession]",
+    ""
+  ].join("\n");
+
+  ok("there is a file input, and it takes .nbib",
+     !!$("#file") && /\.nbib/.test($("#file").getAttribute("accept") || ""));
+  ok("the file input has a real label", !!document.querySelector('label[for="file"]'));
+
+  // Opening a file is the whole point of today's change, so drive it instead of
+  // trusting that the element exists.
+  const drop = async (name, body, type) => {
+    const dt = new DataTransfer();
+    dt.items.add(new File([body], name, { type: type || "text/plain" }));
+    $("#file").files = dt.files;
+    $("#file").dispatchEvent(new Event("change"));
+    await new Promise((r) => setTimeout(r, 400));
+  };
+  await drop("export.nbib", NBIB);
+  ok("opening a .nbib puts it in the box", /PMID- 31978945/.test($("#input").value),
+     $("#input").value.slice(0, 120));
+  ok("and the file it loaded is named back", /export\.nbib/.test($("#status").textContent),
+     $("#status").textContent);
+  // A thesis is a PDF, and reading one as text gives mojibake that would check
+  // nothing while looking like it worked. Say so instead.
+  await drop("thesis.pdf", "%PDF-1.4\n%âãÏÓ binary", "application/pdf");
+  ok("a PDF is refused with an explanation, not checked as mojibake",
+     /PDF or a Word/.test($("#status").textContent) && $("#input").value === "",
+     $("#status").textContent);
+  await drop("refs.docx", "PK zip container", "application/octet-stream");
+  ok("a .docx is refused too", /PDF or a Word/.test($("#status").textContent),
+     $("#status").textContent);
+
+  // Watch every request the page makes: the strongest statement is not what the
+  // report says, it is that a stranger's DOI was never asked about at all.
+  var asked = [];
+  window.fetch = function (u, o) {
+    var url = String(u);
+    asked.push(url + " " + ((o && o.body) ? String(o.body) : ""));
+    if (/api\.crossref\.org/.test(url)) return reply({ message: { items: [] } });
+    if (/esummary\.fcgi/.test(url)) return reply({ result: {} });
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+    return reply({});
+  };
+  s = await check(NBIB);
+  // Decoded, because the DOIs travel percent-encoded (doi:10.1056%2Fnejmoa…)
+  // and a raw substring search would find nothing and quietly pass every
+  // "is absent" assertion below.
+  var sent = decodeURIComponent(asked.join(" ")).toLowerCase();
+  ok("the two real DOIs are the ones asked about",
+     sent.indexOf("10.1056/nejmoa2001017") >= 0 &&
+     sent.indexOf("10.1016/j.nbd.2012.05.020") >= 0, sent.slice(0, 400));
+  ok("a commentary written about your paper is never asked about",
+     sent.indexOf("10.1056/nejme2001126") < 0 &&
+     sent.indexOf("10.1002/jmv.25711") < 0, sent.slice(0, 400));
+  ok("the notice that retracted your paper is not treated as a reference",
+     sent.indexOf("10.1016/j.nbd.2025.106930") < 0, sent.slice(0, 400));
+  ok("no stranger's PMID is looked up",
+     sent.indexOf("31978944") < 0 && sent.indexOf("40320298") < 0, sent.slice(0, 400));
+  ok("the export needs no PMID lookup at all — the file already says",
+     !/esummary\.fcgi/.test(asked.join(" ")), asked.join(" ").slice(0, 300));
+  // textContent, not innerText: the named list sits inside a collapsed
+  // <details>, which is exactly where it should be — present, not shouting.
+  var deep = document.getElementById("out").textContent;
+  ok("the book chapter with no DOI is named, not dropped",
+     /25905182/.test(deep) && /Atherosclerotic/.test(deep) && /2000/.test(deep),
+     deep.slice(0, 600));
+  ok("the summary counts the two it could check, not the three records",
+     /2 references checked/.test(txt()), txt().slice(0, 300));
+  window.fetch = realFetch;
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()

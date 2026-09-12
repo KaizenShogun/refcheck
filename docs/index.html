@@ -105,6 +105,18 @@
       <strong>PMID</strong> work too: those are looked up in PubMed first. Nothing
       else in your text is read.
     </p>
+    <p class="hint">
+      Or open the file you already have — a <code>.nbib</code> straight from
+      PubMed’s “Send to → Citation manager”, a <code>.bib</code>, a <code>.ris</code>,
+      a <code>.txt</code>. You can also drag it onto the box below.
+      <strong>The file is read inside your browser and is never uploaded</strong>;
+      only the identifiers found in it are sent, to Crossref and PubMed.
+    </p>
+    <p class="hint">
+      <label for="file">Open a file</label>
+      <input type="file" id="file"
+             accept=".nbib,.bib,.ris,.txt,.text,.med,.medline,.csv,.tsv,.md,text/plain">
+    </p>
     <textarea id="input" aria-describedby="hint" spellcheck="false"
       placeholder="Smith, J. et al. (2016). A paper. PLoS ONE 11(8): e0161231. https://doi.org/10.1371/journal.pone.0161231&#10;Zhu, N. et al. N Engl J Med. 2020;382(8):727-733. PMID: 31978945."></textarea>
     <div class="row">
@@ -239,6 +251,123 @@
       if (d && !seen[d]) { seen[d] = 1; list.push(d); }
     }
     return list;
+  }
+
+  // MEDLINE — the .nbib that PubMed's own "Send to → Citation manager" button
+  // gives you, and the file a librarian or a systematic reviewer actually has.
+  // Read as loose text it is a trap: a MEDLINE record also carries the ids of
+  // OTHER papers — the commentaries about it (CIN), the notice that retracted
+  // it (RIN), the article it corrects (EFR) — and the article's own id is
+  // written "PMID- 31978945", with a hyphen the PMID pattern does not accept.
+  // Measured 2026-09-12 on a 200-record export: 15 foreign DOIs pulled in and
+  // all 200 real PMIDs missed. So it gets parsed as the record format it is.
+  var MEDLINE_TAG = /^([A-Z][A-Z0-9]{1,5})\s*-\s?(.*)$/;
+  // A whitelist, not a blacklist of cross-reference tags: PubMed can add a new
+  // kind of cross-reference, and a blacklist would let it through in silence.
+  var MEDLINE_ID = { PMID: 1, AID: 1, LID: 1, SO: 1, TI: 1, DP: 1 };
+
+  // RIS looks superficially the same — "TY  - JOUR", "DO  - 10.x/y" — and must
+  // keep going through the forgiving path, where its DOIs are found perfectly
+  // well. So detection asks for a tag that exists in MEDLINE and nowhere else,
+  // rather than trusting that no RIS file ever starts a line with PMID.
+  var MEDLINE_OWN = { AID: 1, LID: 1, SO: 1, OWN: 1, STAT: 1, JT: 1, MH: 1,
+                      PT: 1, PST: 1, BTI: 1 };
+
+  function isMedline(text) {
+    var lines = text.split(/\r?\n/), tagged = 0, headers = 0, own = false, m;
+    for (var i = 0; i < lines.length; i++) {
+      m = MEDLINE_TAG.exec(lines[i]);
+      if (m) {
+        tagged++;
+        if (m[1] === "PMID") headers++;
+        else if (MEDLINE_OWN[m[1]]) own = true;
+      }
+    }
+    return headers >= 1 && own && tagged >= 5;
+  }
+
+  function cleanDoi(raw) {
+    return raw.replace(/[.,;:'"\)\]}]+$/, "").replace(/}+$/, "").toLowerCase();
+  }
+
+  function medlineRecords(text) {
+    var lines = text.split(/\r?\n/), recs = [], cur = null, tag = null, vals = {};
+
+    function close() {
+      if (!cur) return;
+      var doi = "", i, v, hit;
+      var order = ["AID", "LID"];
+      for (var t = 0; t < order.length && !doi; t++) {
+        var list = vals[order[t]] || [];
+        for (i = 0; i < list.length; i++) {
+          if (/\[doi\]\s*$/i.test(list[i])) {
+            DOI_RE.lastIndex = 0;
+            hit = DOI_RE.exec(list[i]);
+            if (hit) { doi = cleanDoi(hit[0]); break; }
+          }
+        }
+      }
+      if (!doi) {
+        // No [doi] tag; the source line carries it for plenty of records, and
+        // SO describes this article, so it is safe to read.
+        v = vals.SO || [];
+        for (i = 0; i < v.length && !doi; i++) {
+          DOI_RE.lastIndex = 0;
+          hit = DOI_RE.exec(v[i]);
+          if (hit) doi = cleanDoi(hit[0]);
+        }
+      }
+      cur.doi = doi;
+      cur.titulo = (vals.TI || []).join(" ").slice(0, 300);
+      cur.fecha = ((vals.DP || [""])[0] || "").slice(0, 4);
+      if (cur.pmid || cur.doi) recs.push(cur);
+    }
+
+    for (var n = 0; n < lines.length; n++) {
+      var line = lines[n], m = MEDLINE_TAG.exec(line);
+      if (m) {
+        tag = m[1];
+        var value = m[2].trim();
+        if (tag === "PMID") {
+          close();
+          cur = { pmid: /^\d+$/.test(value) ? String(parseInt(value, 10)) : "",
+                  doi: "", titulo: "", fecha: "" };
+          vals = {};
+          continue;
+        }
+        if (cur && MEDLINE_ID[tag]) {
+          if (!vals[tag]) vals[tag] = [];
+          vals[tag].push(value);
+        }
+        continue;
+      }
+      // Continuation of the previous tag. Folded only into tags we read, so a
+      // wrapped CIN line stays unread, which is the whole point.
+      if (/^\s/.test(line) && cur && tag && MEDLINE_ID[tag] && vals[tag] && vals[tag].length) {
+        vals[tag][vals[tag].length - 1] += " " + line.trim();
+      }
+    }
+    close();
+    return recs;
+  }
+
+  // The same three lists resolvePmids builds, but straight from the file and
+  // with no lookup at all: a MEDLINE export already states each article's own
+  // DOI and PMID. A record with no DOI keeps its title and year from the file,
+  // so it gets named in the report instead of vanishing.
+  function medlineRefs(text) {
+    var dois = [], origen = Object.create(null), sueltos = [],
+        seen = Object.create(null), recs = medlineRecords(text);
+    recs.forEach(function (r) {
+      if (r.doi) {
+        if (r.pmid && !origen[r.doi]) origen[r.doi] = r.pmid;
+        if (!seen[r.doi]) { seen[r.doi] = 1; dois.push(r.doi); }
+      } else if (r.pmid) {
+        sueltos.push({ pmid: r.pmid, estado: "pmid_no_doi",
+                       titulo: r.titulo, fecha: r.fecha });
+      }
+    });
+    return { dois: dois, origen: origen, sueltos: sueltos };
   }
 
   function extractPmids(text) {
@@ -910,6 +1039,29 @@
   }
 
   function run(text) {
+    if (isMedline(text)) {
+      var refs = medlineRefs(text);
+      if (!refs.dois.length && !refs.sueltos.length) {
+        status.textContent = "That looks like a PubMed export, but no records " +
+          "could be read out of it.";
+        out.textContent = "";
+        copyBtn.hidden = true;
+        return;
+      }
+      go.disabled = true;
+      copyBtn.hidden = true;
+      out.textContent = "";
+      lastError = "";
+      if (!refs.dois.length) {
+        status.textContent = "Done. Nothing could be checked against Crossref.";
+        render([], [], [], 0, refs.sueltos);
+        go.disabled = false;
+        return;
+      }
+      check(refs.dois, refs.origen, refs.sueltos);
+      return;
+    }
+
     var dois = extractDois(text);
     var pmids = extractPmids(text);
     if (!dois.length && !pmids.length) {
@@ -1053,6 +1205,58 @@
   $("form").addEventListener("submit", function (e) {
     e.preventDefault();
     run(input.value);
+  });
+
+  // Opening a file, because that is the shape the references arrive in: PubMed
+  // hands you a .nbib, a reference manager hands you a .ris or a .bib. Telling
+  // someone to open it in a text editor and paste is a step that loses people
+  // who have no reason to own a text editor. FileReader keeps it local — the
+  // bytes never leave the machine, which is the same promise as the rest.
+  var MAX_BYTES = 8 * 1024 * 1024;
+
+  function loadFile(f) {
+    if (!f) return;
+    if (f.size > MAX_BYTES) {
+      status.textContent = "That file is " + Math.round(f.size / 1048576) +
+        " MB. The limit here is 8 MB — a bibliography that big is probably a " +
+        "PDF or a database dump rather than a reference list.";
+      return;
+    }
+    var reader = new FileReader();
+    reader.onerror = function () {
+      status.textContent = "That file could not be read.";
+    };
+    reader.onload = function () {
+      var text = String(reader.result || "");
+      // A PDF or a .docx is a binary container, not text, and reading one as
+      // text yields mojibake that would silently check nothing. Say so.
+      if (text.slice(0, 5) === "%PDF-" || text.slice(0, 2) === "PK") {
+        input.value = "";
+        status.textContent = "That is a PDF or a Word/Zip file, and this page " +
+          "reads plain text. Export your references as .nbib, .ris or .bib, or " +
+          "copy the reference list and paste it into the box.";
+        return;
+      }
+      input.value = text;
+      status.textContent = "Loaded " + f.name + ". Press “Check references”.";
+      out.textContent = "";
+      copyBtn.hidden = true;
+    };
+    reader.readAsText(f);
+  }
+
+  $("file").addEventListener("change", function (e) {
+    loadFile(e.target.files && e.target.files[0]);
+  });
+
+  ["dragover", "dragenter"].forEach(function (ev) {
+    input.addEventListener(ev, function (e) { e.preventDefault(); });
+  });
+  input.addEventListener("drop", function (e) {
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!f) return;          // a dragged text selection: let the browser paste it
+    e.preventDefault();
+    loadFile(f);
   });
 
   demo.addEventListener("click", function () {

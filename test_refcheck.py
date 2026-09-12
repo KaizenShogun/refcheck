@@ -557,6 +557,152 @@ class ResolucionPmid(unittest.TestCase):
             self.assertEqual(refcheck.consulta_pmids(["9"]), {})
 
 
+# A real MEDLINE export, trimmed to the tags that matter but not otherwise
+# touched: the wrapped continuation lines, the `AID … [pii]` decoys and the
+# cross-references are exactly as PubMed serves them on 2026-09-12. Four
+# records, and between them every trap: thirteen CIN commentaries about the
+# first paper, a RIN pointing at the notice that retracted the second, a title
+# that wraps, and a book chapter whose only AID is a bookaccession, not a DOI.
+NBIB = """PMID- 31978945
+DP  - 2020 Feb 20
+TI  - A Novel Coronavirus from Patients with Pneumonia in China, 2019.
+LID - 10.1056/NEJMoa2001017 [doi]
+JT  - The New England journal of medicine
+CIN - N Engl J Med. 2020 Feb 20;382(8):760-762. doi: 10.1056/NEJMe2001126. PMID:
+      31978944
+CIN - Lancet. 2020 Feb 8;395(10222):391-393. doi: 10.1016/S0140-6736(20)30300-7. PMID:
+      32035533
+CIN - J Med Virol. 2020 May;92(5):461-463. doi: 10.1002/jmv.25711. PMID: 32073161
+AID - NJ202002203820808 [pii]
+AID - 10.1056/NEJMoa2001017 [doi]
+SO  - N Engl J Med. 2020 Feb 20;382(8):727-733. doi: 10.1056/NEJMoa2001017. Epub 2020
+      Jan 24.
+
+PMID- 22668778
+DP  - 2012 Sep
+TI  - LRRK2 kinase activity mediates toxic interactions between genetic mutation and
+      oxidative stress in a Drosophila model: suppression by curcumin.
+LID - 10.1016/j.nbd.2012.05.020 [doi]
+JT  - Neurobiology of disease
+RIN - Neurobiol Dis. 2025 Jun 15;210:106930. doi: 10.1016/j.nbd.2025.106930. PMID:
+      40320298
+AID - S0969-9961(12)00206-9 [pii]
+AID - 10.1016/j.nbd.2012.05.020 [doi]
+SO  - Neurobiol Dis. 2012 Sep;47(3):385-92. doi: 10.1016/j.nbd.2012.05.020. Epub 2012
+      Jun 2.
+
+PMID- 5432876
+DP  - 1970 Jun 10
+TI  - Tryptophan metabolism in the magnesium deficient rat.
+JT  - The Journal of vitaminology
+AID - 10.5925/jnsv1954.16.140 [doi]
+SO  - J Vitaminol (Kyoto). 1970 Jun 10;16(2):140-3. doi: 10.5925/jnsv1954.16.140.
+
+PMID- 25905182
+DP  - 2000
+TI  - Role of Glucose and Lipids in the Atherosclerotic Cardiovascular Disease in
+      Patients with Diabetes.
+BTI - Endotext
+AID - NBK278947 [bookaccession]
+"""
+
+
+class Medline(unittest.TestCase):
+    """The `.nbib` PubMed hands you is a record format, not loose text.
+
+    Read as text it answers about the wrong papers — measured 2026-09-12 on a
+    200-record export: 15 foreign DOIs in, 200 of 200 real PMIDs out.
+    """
+
+    def test_se_reconoce(self):
+        self.assertTrue(refcheck.es_medline(NBIB))
+
+    def test_una_bibliografia_normal_no_se_confunde(self):
+        self.assertFalse(refcheck.es_medline(
+            "Zhu N, et al. N Engl J Med. 2020;382(8):727-733. PMID: 31978945.\n"
+            "Lee BD, et al. doi:10.1016/j.nbd.2012.05.020\n"))
+
+    def test_un_ris_no_se_confunde(self):
+        # RIS has the same `XX  - value` shape, and must keep going through the
+        # forgiving path, where its DOIs are found perfectly well.
+        ris = ("TY  - JOUR\nAU  - Zhu, Na\nTI  - A Novel Coronavirus\n"
+               "DO  - 10.1056/NEJMoa2001017\nN1  - PMID: 31978945\nER  -\n")
+        self.assertFalse(refcheck.es_medline(ris))
+        self.assertEqual(refcheck.dois_de(ris), ["10.1056/nejmoa2001017"])
+        self.assertEqual(refcheck.pmids_de(ris), ["31978945"])
+
+    def test_un_bibtex_no_se_confunde(self):
+        self.assertFalse(refcheck.es_medline(
+            "@article{zhu2020,\n  title = {A Novel Coronavirus},\n"
+            "  doi = {10.1056/NEJMoa2001017},\n  pmid = {31978945},\n}\n"))
+
+    def test_cada_registro_trae_su_propio_par(self):
+        regs = refcheck.registros_medline(NBIB)
+        self.assertEqual([(r["pmid"], r["doi"]) for r in regs], [
+            ("31978945", "10.1056/nejmoa2001017"),
+            ("22668778", "10.1016/j.nbd.2012.05.020"),
+            ("5432876", "10.5925/jnsv1954.16.140"),
+            ("25905182", ""),
+        ])
+
+    def test_los_comentarios_ajenos_no_entran(self):
+        # CIN is "Comment in": someone else's paper about yours. Reading it as a
+        # reference reports on a paper the user never cited.
+        dois, _, _ = refcheck.referencias_de(NBIB)
+        for ajeno in ("10.1056/nejme2001126", "10.1016/s0140-6736(20)30300-7",
+                      "10.1002/jmv.25711"):
+            self.assertNotIn(ajeno, dois)
+
+    def test_la_nota_de_retractacion_no_es_una_referencia(self):
+        # RIN points at the notice that retracted this paper. It belongs in the
+        # verdict, not in the list of things being checked.
+        dois, _, _ = refcheck.referencias_de(NBIB)
+        self.assertNotIn("10.1016/j.nbd.2025.106930", dois)
+
+    def test_los_pmid_ajenos_no_entran(self):
+        _, origen, sueltos = refcheck.referencias_de(NBIB)
+        pmids = set(origen.values()) | {s["pmid"] for s in sueltos}
+        self.assertEqual(pmids, {"31978945", "22668778", "5432876", "25905182"})
+
+    def test_el_articulo_sin_doi_se_nombra_en_vez_de_desaparecer(self):
+        _, _, sueltos = refcheck.referencias_de(NBIB)
+        self.assertEqual(len(sueltos), 1)
+        s = sueltos[0]
+        self.assertEqual(s["pmid"], "25905182")
+        self.assertEqual(s["estado"], "pmid_sin_doi")
+        self.assertEqual(s["fecha"], "2000")
+        self.assertIn("Atherosclerotic", s["titulo"])
+
+    def test_un_titulo_partido_en_dos_lineas_se_recompone(self):
+        regs = refcheck.registros_medline(NBIB)
+        self.assertIn("oxidative stress in a Drosophila model", regs[1]["titulo"])
+
+    def test_un_pii_no_se_confunde_con_un_doi(self):
+        regs = refcheck.registros_medline(NBIB)
+        self.assertEqual(regs[0]["doi"], "10.1056/nejmoa2001017")
+
+    def test_no_hace_falta_preguntarle_a_nadie(self):
+        # The file already states every identifier, so the round trip to NCBI a
+        # loose bibliography needs is not just unnecessary here — making it would
+        # be asking a public service for something already in hand.
+        with mock.patch.object(refcheck, "resuelve_pmids",
+                               side_effect=AssertionError("no debería consultar")):
+            dois, origen, sueltos = refcheck.referencias_de(NBIB)
+        self.assertEqual(len(dois), 3)
+        self.assertEqual(origen["10.1016/j.nbd.2012.05.020"], "22668778")
+
+    def test_un_fichero_vacio_o_sin_registros_no_revienta(self):
+        self.assertEqual(refcheck.registros_medline(""), [])
+        self.assertFalse(refcheck.es_medline(""))
+        self.assertEqual(refcheck.registros_medline("PMID- \nTI  - nada\n"), [])
+
+    def test_saltos_de_linea_de_windows(self):
+        # A file downloaded on Windows and opened on Linux, which is most of them.
+        regs = refcheck.registros_medline(NBIB.replace("\n", "\r\n"))
+        self.assertEqual([r["pmid"] for r in regs],
+                         ["31978945", "22668778", "5432876", "25905182"])
+
+
 class Referencias(unittest.TestCase):
     def test_doi_y_pmid_del_mismo_articulo_son_una_referencia(self):
         texto = "Zhu N, et al. doi:10.1056/NEJMoa2001017. PMID: 31978945."
