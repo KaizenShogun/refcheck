@@ -86,6 +86,15 @@
            color: var(--muted); font-size: .92rem; }
   .vh { position: absolute; width: 1px; height: 1px; overflow: hidden;
         clip: rect(0 0 0 0); white-space: nowrap; }
+  /* A big export is held outside the textarea, so it has to be visible some
+     other way: you must be able to see what is loaded and get rid of it. */
+  .loaded {
+    display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+    margin: .1rem 0 .6rem; padding: .55rem .8rem;
+    background: var(--box); border: 2px solid var(--line); border-radius: 6px;
+    font-size: .92rem;
+  }
+  .loaded button { padding: .3rem .8rem; font-size: .88rem; }
 </style>
 </head>
 <body>
@@ -116,6 +125,10 @@
       <label for="file">Open a file</label>
       <input type="file" id="file"
              accept=".nbib,.bib,.ris,.txt,.text,.med,.medline,.csv,.tsv,.md,text/plain">
+    </p>
+    <p class="loaded" id="loaded" hidden>
+      <span id="loadedText"></span>
+      <button type="button" class="secondary" id="unload">Remove this file</button>
     </p>
     <textarea id="input" aria-describedby="hint" spellcheck="false"
       placeholder="Smith, J. et al. (2016). A paper. PLoS ONE 11(8): e0161231. https://doi.org/10.1371/journal.pone.0161231&#10;Zhu, N. et al. N Engl J Med. 2020;382(8):727-733. PMID: 31978945."></textarea>
@@ -238,7 +251,8 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var input = $("input"), status = $("status"), out = $("out"),
-      go = $("go"), demo = $("demo"), copyBtn = $("copy");
+      go = $("go"), demo = $("demo"), copyBtn = $("copy"),
+      loadedBox = $("loaded"), loadedText = $("loadedText");
   var lastReport = "", lastError = "";
 
   function extractDois(text) {
@@ -288,6 +302,26 @@
 
   function cleanDoi(raw) {
     return raw.replace(/[.,;:'"\)\]}]+$/, "").replace(/}+$/, "").toLowerCase();
+  }
+
+  // Crossref serves titles with the publisher's JATS inline markup still in
+  // them and with the line breaks of the original XML. Measured 2026-09-13 on a
+  // 1,000-record run: two of the 24 flagged papers printed a literal "<i>vs</i>"
+  // and "<scp>HbA1c</scp>". Only these tag names go; a title that really says
+  // "a < b" keeps its "<".
+  var JATS = /<\/?(?:i|b|em|strong|u|sub|sup|scp|sc|italic|bold|roman|monospace|sans-serif|overline|underline|strike|break|br|p|inline-formula|alternatives|tex-math|mml:[a-z]+)(?:\s[^<>]*)?\/?>/gi;
+  var ENTITY = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"',
+                 "&apos;": "'", "&#39;": "'", "&#38;": "&" };
+
+  function cleanTitle(raw) {
+    if (!raw) return "";
+    return String(raw).replace(JATS, "")
+      .replace(/&(?:amp|lt|gt|quot|apos|#39|#38);/g, function (m) { return ENTITY[m]; })
+      .split(/\s+/).join(" ").trim()
+      // Taking out an <i>vs</i> leaves the line break that followed it and the
+      // period lands adrift: "blockade vs . sequential". Only . and , are
+      // joined back; a space before ; : ? ! is correct French typography.
+      .replace(/\s+([.,])/g, "$1");
   }
 
   function medlineRecords(text) {
@@ -413,8 +447,8 @@
             }
           });
           out[String(uid)] = doi
-            ? { estado: "ok", doi: doi, titulo: rec.title || "" }
-            : { estado: "no_doi", titulo: rec.title || "", fecha: rec.pubdate || "" };
+            ? { estado: "ok", doi: doi, titulo: cleanTitle(rec.title) }
+            : { estado: "no_doi", titulo: cleanTitle(rec.title), fecha: rec.pubdate || "" };
         });
         return out;
       })
@@ -582,7 +616,7 @@
       var t = cita.getElementsByTagName("ArticleTitle")[0];
       out[doi] = {
         pmid: (cita.getElementsByTagName("PMID")[0] || {}).textContent || "",
-        titulo: t ? t.textContent.trim() : "",
+        titulo: t ? cleanTitle(t.textContent) : "",
         notices: notices
       };
     }
@@ -1100,8 +1134,18 @@
     var batches = chunk(dois, BATCH);
     var found = [], seen = Object.create(null), unchecked = [], done = 0;
 
+    // A thousand references is minutes, not seconds, and a progress counter that
+    // starts at 0 of 1000 with no idea of the total wait reads as a hang. The
+    // arithmetic is not a guess: one Crossref batch of 40 per second, plus the
+    // PubMed passes, both paced to what those services ask for.
+    var secs = batches.length + Math.ceil(dois.length / AID_BATCH) * 2 + 3;
+    var eta = secs < 20 ? "" :
+      secs < 90 ? " About " + (Math.ceil(secs / 10) * 10) + " seconds — " :
+                  " About " + Math.round(secs / 60) + " minute" +
+                  (Math.round(secs / 60) === 1 ? "" : "s") + " — ";
     status.textContent = "Checking " + dois.length + " reference" +
-      (dois.length === 1 ? "" : "s") + "…";
+      (dois.length === 1 ? "" : "s") + "…" + eta +
+      (eta ? "the free registers allow one request a second, and this waits its turn." : "");
 
     // Sequential on purpose: one public API, shared by everyone, funded by nobody.
     // And spaced, not just serialised. Measured 2026-09-09 from the response
@@ -1128,8 +1172,8 @@
               found.push({
                 doi: d,
                 pmid: origen[d] || "",
-                titulo: (w.title || [""])[0] || "",
-                revista: (w["container-title"] || [""])[0] || "",
+                titulo: cleanTitle((w.title || [""])[0]),
+                revista: cleanTitle((w["container-title"] || [""])[0]),
                 notices: n
               });
             }
@@ -1204,7 +1248,7 @@
 
   $("form").addEventListener("submit", function (e) {
     e.preventDefault();
-    run(input.value);
+    run(currentText());
   });
 
   // Opening a file, because that is the shape the references arrive in: PubMed
@@ -1212,16 +1256,57 @@
   // someone to open it in a text editor and paste is a step that loses people
   // who have no reason to own a text editor. FileReader keeps it local — the
   // bytes never leave the machine, which is the same promise as the rest.
-  var MAX_BYTES = 8 * 1024 * 1024;
+  // Measured on a real PubMed export, 2026-09-13: a MEDLINE record runs about
+  // 7.3 kB, so the old 8 MB ceiling turned away any search over ~1,070 hits —
+  // and told the person their reference list was "probably a PDF or a database
+  // dump". A systematic review screens thousands. The file is never uploaded
+  // and never put in the DOM, so the real cost of a big one is reading it:
+  // 58 ms for 7.3 MB.
+  var MAX_BYTES = 64 * 1024 * 1024;
+
+  // Above this, the text is held in a variable instead of being poured into the
+  // textarea. Measured the same day, cold: assigning 7.3 MB to the textarea
+  // froze the page for 12 s in a warm run and 26 s from a fresh load, while
+  // scanning the same string end to end cost 1 ms. The box is not the work; it
+  // is just where small inputs are convenient to see and edit.
+  var INLINE_BYTES = 256 * 1024;   // 337 kB already costs ~200 ms; 157 kB, ~4 ms
+  var held = null;                 // { name: …, text: … } when a big file is loaded
+
+  function showHeld() {
+    if (!held) {
+      loadedBox.hidden = true;
+      loadedText.textContent = "";
+      return;
+    }
+    var mb = held.text.length >= 1048576
+      ? (held.text.length / 1048576).toFixed(1) + " MB"
+      : Math.round(held.text.length / 1024) + " kB";
+    loadedText.textContent = held.name + " — " + mb + ", " + held.records +
+      (held.records === 1 ? " record" : " records") +
+      ". Too big to show here, so it is kept aside and checked as it is.";
+    loadedBox.hidden = false;
+  }
+
+  function release(why) {
+    if (!held) return;
+    held = null;
+    showHeld();
+    if (why) status.textContent = why;
+  }
+
+  // What actually gets checked: the held file if there is one, else the box.
+  function currentText() { return held ? held.text : input.value; }
 
   function loadFile(f) {
     if (!f) return;
     if (f.size > MAX_BYTES) {
-      status.textContent = "That file is " + Math.round(f.size / 1048576) +
-        " MB. The limit here is 8 MB — a bibliography that big is probably a " +
-        "PDF or a database dump rather than a reference list.";
+      status.textContent = "That file is " + (f.size / 1048576).toFixed(1) +
+        " MB, over this page’s 64 MB limit — roughly 8,500 PubMed records. " +
+        "Export it in two halves and check them one after the other.";
       return;
     }
+    release(null);
+    status.textContent = "Reading " + f.name + "…";
     var reader = new FileReader();
     reader.onerror = function () {
       status.textContent = "That file could not be read.";
@@ -1237,16 +1322,40 @@
           "copy the reference list and paste it into the box.";
         return;
       }
-      input.value = text;
-      status.textContent = "Loaded " + f.name + ". Press “Check references”.";
       out.textContent = "";
       copyBtn.hidden = true;
+      if (text.length > INLINE_BYTES) {
+        // Counting the records here, not at check time, so the chip can say
+        // what is in there before anything is sent anywhere.
+        var n = isMedline(text) ? medlineRecords(text).length
+                                : extractDois(text).length;
+        held = { name: f.name, text: text, records: n };
+        input.value = "";
+        showHeld();
+        status.textContent = "Loaded " + f.name + ". Press “Check references”.";
+        return;
+      }
+      input.value = text;
+      status.textContent = "Loaded " + f.name + ". Press “Check references”.";
     };
     reader.readAsText(f);
   }
 
   $("file").addEventListener("change", function (e) {
     loadFile(e.target.files && e.target.files[0]);
+  });
+
+  $("unload").addEventListener("click", function () {
+    release("Removed. The box is empty again.");
+    input.focus();
+  });
+
+  // Typing while a file is held would mean the box shows one thing and the
+  // check reads another. Whatever you type wins, and it says so.
+  input.addEventListener("input", function () {
+    if (held && input.value.trim()) {
+      release("Using what you typed. “" + held.name + "” was set aside.");
+    }
   });
 
   ["dragover", "dragenter"].forEach(function (ev) {
@@ -1260,6 +1369,7 @@
   });
 
   demo.addEventListener("click", function () {
+    release(null);
     input.value = [
       "Zhang, X. et al. Virus-Like Nanoparticle Vaccine Confers Protection against",
       "  Toxoplasma gondii. PLoS ONE (2016). doi:10.1371/journal.pone.0161231",

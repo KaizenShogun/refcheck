@@ -67,7 +67,7 @@ HTML file with no dependencies, no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by an 80-check battery in a real headless browser against the real APIs.
+is driven by a 100-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -148,6 +148,61 @@ to be kind to a public service the code was leaning on.
 
 The browser version paces to 1/s too, hardcoded, because Crossref's CORS policy
 exposes only the `Link` header and JavaScript cannot read the limit back.
+
+## A thousand references, which is what a systematic review actually has
+
+Twelve references is the demo. The people this is for screen a search: they tick
+the results in PubMed, hit **Send to → Citation manager**, and end up with a
+`.nbib` holding hundreds or thousands of records. I took a real 1,000-record
+export — 7.3 MB, because a MEDLINE record with its abstract and MeSH terms runs
+about 7.3 kB — and ran it through both versions on 2026-09-13. Neither survived
+it well, and the browser version failed in the two ways that make someone give
+up and close the tab:
+
+| | before | now |
+|---|---|---|
+| a 1,000-record file (7.3 MB) | refused: "probably a PDF or a database dump" — the ceiling was 8 MB, about 1,070 records | opened; the ceiling is 64 MB, about 8,500 records |
+| putting it in the textarea | froze the page 12 s warm, **26 s from a fresh load** | never goes in the box: held aside, 123 ms, and a line tells you the name, size and record count |
+| pressing Check | "Checking 1000 references…" and a minute of apparent nothing | says *about a minute*, and why: the free registers allow one request a second |
+
+The textarea was the whole problem, and it was there for my convenience rather
+than anyone's need: scanning that same 7.3 MB string end to end costs 1 ms, and
+*displaying* it costs 26 seconds. So a big file is now kept in memory and checked
+as it is, with a visible chip and a **Remove this file** button — because
+something held invisibly is worse than something slow. Type in the box while a
+file is loaded and what you typed wins, and it says so out loud rather than
+quietly checking the other thing.
+
+### The cache, and what it refuses to remember
+
+On the command line, the same file took **65 s** the first time and **1 s** the
+second, and the two reports are byte-identical apart from one added line saying
+where the answer came from. Somebody screening a review re-runs that file every
+time they add a batch, and there is no honest reason to make two free public
+registers answer the same thousand questions again:
+
+```
+python3 refcheck.py review.nbib              # uses the cache
+python3 refcheck.py review.nbib --no-cache   # asks both registers again
+```
+
+It lives in `~/.cache/refcheck/checked.json` (`REFCHECK_CACHE` to move it), keeps
+an answer for 7 days (`REFCHECK_CACHE_DAYS`), and is written with mode `600` —
+it is a list of what you have been reading, and it stays yours. Nothing about it
+is sent anywhere; there is no cache in the browser version at all.
+
+Three things it will not do, which matter more than the speed:
+
+- **A failed lookup is never stored.** A dropped connection stays a dropped
+  connection, so "I could not check this" can never age into a cached clean bill.
+- **It says out loud how much of the answer came off the disk, and how old the
+  oldest of it was** — `998 of those came from the local cache, the oldest 2 days
+  old`. An answer read from disk is an answer about the day it was fetched, and a
+  notice published since then would be invisible. In a tool whose silence gets
+  read as "fine", that has to be on the page, not in the documentation.
+- **It caches answers about DOIs, not the translation of a PMID.** Paste a list
+  of PMIDs and NCBI is still asked to turn them into DOIs each run — 10 requests
+  per 1,000. A `.nbib` needs none of those: the file already carries both.
 
 ## PMIDs work, and here is exactly how far they get you
 
@@ -455,8 +510,8 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 89 tests, offline
-REFCHECK_RED=1 python3 test_refcheck.py   # 95, adding the live-API cases
+python3 test_refcheck.py                  # 118 tests, offline
+REFCHECK_RED=1 python3 test_refcheck.py   # 124, adding the live-API cases
 ```
 
 One of those live tests asserts that `10.1148/85.3.474` still arrives
@@ -467,7 +522,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 80 checks driving the real page in
+The browser version has its own battery — 100 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:

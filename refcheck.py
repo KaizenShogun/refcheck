@@ -66,6 +66,7 @@ is for you.
 Standard library only. No account, no key, no tracking. MIT.
 """
 import argparse
+import copy
 import json
 import os
 import re
@@ -309,6 +310,33 @@ def _limpia_doi(bruto):
     return bruto.rstrip(".,;)}\"'").rstrip("}").lower()
 
 
+# Crossref serves titles with the publisher's JATS inline markup still in them
+# and with the line breaks of the original XML. Printed raw, a real title came
+# out as three lines with a bare "<i>vs</i>" in the middle of them (measured
+# 2026-09-13 on a 1.000-record run). Only these tag names are removed: a title
+# that genuinely contains "a < b" keeps its "<".
+JATS = re.compile(
+    r"</?(?:i|b|em|strong|u|sub|sup|scp|sc|italic|bold|roman|monospace|"
+    r"sans-serif|overline|underline|strike|break|br|p|inline-formula|"
+    r"alternatives|tex-math|mml:[a-z]+)(?:\s[^<>]*)?/?>", re.I)
+ENTIDAD = re.compile(r"&(?:amp|lt|gt|quot|apos|#3[89];?|#x2[67];?);")
+_ENTIDAD = {"&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&apos;": "'",
+            "&#39;": "'", "&#38;": "&", "&#x27;": "'", "&#x26;": "&"}
+
+
+def limpia_titulo(bruto):
+    """A title fit to print: no inline markup, no XML line breaks, one space."""
+    if not bruto:
+        return ""
+    t = JATS.sub("", bruto)
+    t = ENTIDAD.sub(lambda m: _ENTIDAD.get(m.group(0).rstrip(";") + ";", m.group(0)), t)
+    t = " ".join(t.split())
+    # Taking out an <i>vs</i> leaves the line break that followed it, and the
+    # period lands adrift: "blockade vs . sequential". Only . and , are joined
+    # back — a space before ; : ? ! is correct French typography and stays.
+    return re.sub(r"\s+([.,])", r"\1", t)
+
+
 def dois_de(texto):
     """Pull DOIs out of anything: a plain list, a .bib, a pasted bibliography.
 
@@ -458,7 +486,7 @@ def _avisos_de_xml(xml):
         titulo = cita.find("./Article/ArticleTitle")
         salida[doi] = {
             "pmid": (cita.find("PMID").text or "").strip(),
-            "titulo": "".join(titulo.itertext()).strip() if titulo is not None else "",
+            "titulo": limpia_titulo("".join(titulo.itertext())) if titulo is not None else "",
             "avisos": avisos,
         }
     return salida
@@ -531,7 +559,7 @@ def resuelve_pmids(pmids):
                 salida[p] = {"estado": "desconocido"}
                 continue
             doi = _doi_de_registro(rec)
-            titulo = (rec.get("title") or "").strip()
+            titulo = limpia_titulo(rec.get("title") or "")
             if doi:
                 salida[p] = {"estado": "ok", "doi": doi, "titulo": titulo}
             else:
@@ -669,8 +697,9 @@ def avisos_de(obra):
 
 def ficha(doi, obra):
     avisos = avisos_de(obra)
-    return {"doi": doi, "estado": "ok", "titulo": (obra.get("title") or [""])[0],
-            "revista": (obra.get("container-title") or [""])[0],
+    return {"doi": doi, "estado": "ok",
+            "titulo": limpia_titulo((obra.get("title") or [""])[0]),
+            "revista": limpia_titulo((obra.get("container-title") or [""])[0]),
             "contradictorio": any(a["contradice"] for a in avisos),
             "avisos": avisos}
 
@@ -876,6 +905,15 @@ def _referencias_medline(texto):
     return dois, origen, sueltos
 
 
+def edad_legible(segundos):
+    if segundos < 3600:
+        return f"{max(1, round(segundos / 60))} min"
+    if segundos < 86400:
+        return f"{round(segundos / 3600)} h"
+    dias = round(segundos / 86400)
+    return f"{dias} day" if dias == 1 else f"{dias} days"
+
+
 def nombre(r):
     """How to name a reference back to the person who wrote it."""
     if r.get("doi"):
@@ -938,6 +976,13 @@ def informe(resultados, ancho=78):
                 lineas.append("      filed at different severities. Read it and judge for yourself.")
     comprobadas = len(resultados) - len(sinc) - len(sin_doi) - len(pmid_desc)
     cab = [f"  {comprobadas} reference(s) checked · {len(con)} carry a change notice"]
+    # An answer read off the disk is an answer about the day it was fetched, and
+    # a notice published since then is invisible. Say it, do not let it pass as
+    # today's silence.
+    guardadas = [r["de_cache"] for r in resultados if r.get("de_cache") is not None]
+    if guardadas:
+        cab.append(f"  {len(guardadas)} of those came from the local cache, the oldest "
+                   f"{edad_legible(max(guardadas))} old — --no-cache to ask again")
     if chocan:
         cab.append(f"  {len(chocan)} of them carry CONTRADICTORY notices — decide those by hand")
     if sinc:
@@ -965,6 +1010,89 @@ def informe(resultados, ancho=78):
     return "\n".join(cab + lineas)
 
 
+# ---------------------------------------------------------------------------
+# Local cache.
+#
+# Measured 2026-09-13: a real 1,000-record PubMed export takes 65 s to check,
+# nearly all of it spent waiting its turn at two free registers. Someone
+# screening a systematic review runs that file again every time they add a
+# batch, and the honest thing is not to make the public API pay for it twice.
+#
+# What is NOT cached is as important: a lookup that failed stays failed, never
+# stored, so "I could not check this" can never turn into a cached clean bill.
+# And the report says out loud how much of the answer came from disk and how
+# old it was, because in this tool silence gets read as "fine".
+# ---------------------------------------------------------------------------
+CACHE_DIAS = float(os.environ.get("REFCHECK_CACHE_DAYS", "7"))
+CACHE_MAX = 100_000        # entries; a 1.000-record run adds ~1.000
+
+
+def ruta_cache():
+    if os.environ.get("REFCHECK_CACHE"):
+        return os.environ["REFCHECK_CACHE"]
+    base = os.environ.get("XDG_CACHE_HOME") or os.path.join(
+        os.path.expanduser("~"), ".cache")
+    return os.path.join(base, "refcheck", "checked.json")
+
+
+def lee_cache(ruta=None, ahora=None):
+    """{doi: (edad_en_segundos, ficha)} for entries still inside the TTL."""
+    ruta = ruta or ruta_cache()
+    ahora = ahora if ahora is not None else time.time()
+    try:
+        with open(ruta, encoding="utf-8") as f:
+            crudo = json.load(f)
+    except Exception:
+        return {}                      # no cache, unreadable cache: same thing
+    if not isinstance(crudo, dict):
+        return {}
+    tope = CACHE_DIAS * 86400
+    vivos = {}
+    for doi, e in crudo.items():
+        try:
+            edad = ahora - float(e["t"])
+        except Exception:
+            continue
+        if 0 <= edad <= tope and isinstance(e.get("r"), dict):
+            vivos[doi] = (edad, e["r"])
+    return vivos
+
+
+def escribe_cache(fichas, ruta=None, ahora=None):
+    """Add these results to the cache. Failures are never written."""
+    ruta = ruta or ruta_cache()
+    ahora = ahora if ahora is not None else time.time()
+    try:
+        with open(ruta, encoding="utf-8") as f:
+            crudo = json.load(f)
+        if not isinstance(crudo, dict):
+            crudo = {}
+    except Exception:
+        crudo = {}
+    for r in fichas:
+        if r.get("estado") not in ("ok", "desconocido") or not r.get("doi"):
+            continue
+        crudo[r["doi"].lower()] = {"t": ahora, "r": r}
+    tope = CACHE_DIAS * 86400
+    crudo = {d: e for d, e in crudo.items()
+             if isinstance(e, dict) and isinstance(e.get("t"), (int, float))
+             and 0 <= ahora - e["t"] <= tope}
+    if len(crudo) > CACHE_MAX:          # drop the oldest, keep the file bounded
+        for d, _ in sorted(crudo.items(), key=lambda kv: kv[1]["t"])[:len(crudo) - CACHE_MAX]:
+            del crudo[d]
+    try:
+        os.makedirs(os.path.dirname(ruta) or ".", exist_ok=True)
+        tmp = ruta + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(crudo, f, ensure_ascii=False)
+        # It is a list of what someone has been reading. Keep it to them.
+        os.chmod(tmp, 0o600)
+        os.replace(tmp, ruta)
+    except Exception:
+        pass                            # a cache that cannot be written is not an error
+    return crudo
+
+
 def main():
     p = argparse.ArgumentParser(
         description="Check whether the papers you cite carry a published correction, "
@@ -974,13 +1102,22 @@ def main():
     p.add_argument("--pausa", type=float, default=None,
                    help="extra seconds between API calls, on top of the rate the "
                         "server declares (public pool 1/s, polite pool 3/s)")
+    p.add_argument("--no-cache", action="store_true",
+                   help=f"ignore the local cache and ask both registers again. "
+                        f"The cache lives in {ruta_cache()}, keeps an answer for "
+                        f"{CACHE_DIAS:g} days (REFCHECK_CACHE_DAYS), and never "
+                        f"stores a lookup that failed")
     p.add_argument("--no-pubmed", action="store_true",
                    help="never contact NCBI: no PMID translation and no second "
                         "opinion. Faster and quieter, but measured on 2026-09-11 "
                         "it misses about one corrected paper in five")
     a = p.parse_args()
 
-    texto = sys.stdin.read() if a.fichero == "-" else open(a.fichero, encoding="utf-8", errors="replace").read()
+    if a.fichero == "-":
+        texto = sys.stdin.read()
+    else:
+        with open(a.fichero, encoding="utf-8", errors="replace") as f:
+            texto = f.read()
     dois, origen, sueltos = referencias_de(texto, usar_pubmed=not a.no_pubmed)
     if not dois and not sueltos:
         pistas = "No DOIs found in that file."
@@ -989,18 +1126,39 @@ def main():
         print(pistas, file=sys.stderr)
         return 2
 
+    guardada = {} if a.no_cache else lee_cache()
+    # Only what is missing goes over the wire; the order the reader wrote is
+    # rebuilt afterwards, so a cached run and a cold run read identically.
+    nuevos = [d for d in dois if d.lower() not in guardada]
+
     # Only draw progress on a real terminal; piped into a log it is just \r noise.
-    ruidoso = not a.json and len(dois) > LOTE and sys.stderr.isatty()
+    ruidoso = not a.json and len(nuevos) > LOTE and sys.stderr.isatty()
 
     def avisa(hechos, total):
         if ruidoso:
             print(f"\r  checking {hechos}/{total}…", end="", file=sys.stderr, flush=True)
 
-    resultados = revisa_lote(dois, pausa=a.pausa, avisa=avisa)
-    if not a.no_pubmed:
+    frescos = revisa_lote(nuevos, pausa=a.pausa, avisa=avisa) if nuevos else []
+    if frescos and not a.no_pubmed:
         if ruidoso:
             print("\r  asking PubMed too…            ", end="", file=sys.stderr, flush=True)
-        fusiona_pubmed(resultados)
+        fusiona_pubmed(frescos)
+    if frescos and not a.no_cache:
+        escribe_cache(frescos)
+
+    por_doi = {r["doi"].lower(): r for r in frescos}
+    resultados, edades = [], []
+    for d in dois:
+        clave = d.lower()
+        if clave in por_doi:
+            resultados.append(por_doi[clave])
+        else:
+            edad, ficha_guardada = guardada[clave]
+            r = copy.deepcopy(ficha_guardada)
+            r["doi"] = d                  # spelled the way this file spells it
+            r["de_cache"] = round(edad)
+            resultados.append(r)
+            edades.append(edad)
     for r in resultados:
         if r["doi"] in origen:
             r["pmid"] = origen[r["doi"]]      # cited as a PMID: say so back

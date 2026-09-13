@@ -10,12 +10,20 @@ import io
 import json
 import os
 import sys
+import tempfile
 import time
 import unittest
 from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import refcheck
+
+
+def _tmpdir(caso):
+    """A directory that cleans itself up when the test ends."""
+    d = tempfile.TemporaryDirectory()
+    caso.addCleanup(d.cleanup)
+    return d.name
 
 
 class Extraccion(unittest.TestCase):
@@ -921,6 +929,226 @@ class FusionDeRegistros(unittest.TestCase):
         self.assertIn("erratum", tipos)
         obra = refcheck.consulta("10.1093/jnci/djr419")
         self.assertEqual(refcheck.avisos_de(obra), [])
+
+
+class Titulos(unittest.TestCase):
+    """Crossref serves the publisher's JATS markup and the XML's line breaks.
+
+    Measured 2026-09-13 on a 1,000-record export: two of the 24 flagged papers
+    printed a literal `<i>vs</i>` and `<scp>HbA1c</scp>`, and one title came out
+    across three lines. A title the reader cannot read cannot be matched to the
+    line in their document, which is the only job the title has here.
+    """
+
+    def test_quita_el_marcado_jats(self):
+        self.assertEqual(refcheck.limpia_titulo("Effect on <scp>HbA1c</scp> levels"),
+                         "Effect on HbA1c levels")
+        self.assertEqual(refcheck.limpia_titulo("CO<sub>2</sub> and H<sub>2</sub>O"),
+                         "CO2 and H2O")
+
+    def test_junta_las_lineas_del_xml(self):
+        crudo = "Sequential nephron blockade\n      <i>vs</i>\n      . dual blockade"
+        self.assertEqual(refcheck.limpia_titulo(crudo),
+                         "Sequential nephron blockade vs. dual blockade")
+
+    def test_un_menor_que_de_verdad_se_queda(self):
+        """Stripping anything between < and > would eat real mathematics."""
+        self.assertEqual(refcheck.limpia_titulo("When a < b holds for all n"),
+                         "When a < b holds for all n")
+
+    def test_espacio_frances_intacto(self):
+        self.assertEqual(refcheck.limpia_titulo("Une étude : le cas ; oui ?"),
+                         "Une étude : le cas ; oui ?")
+
+    def test_entidades(self):
+        self.assertEqual(refcheck.limpia_titulo("Salt &amp; pressure"), "Salt & pressure")
+
+    def test_vacio_y_nulo(self):
+        self.assertEqual(refcheck.limpia_titulo(""), "")
+        self.assertEqual(refcheck.limpia_titulo(None), "")
+
+    def test_la_ficha_lo_aplica(self):
+        obra = {"DOI": "10.1/a", "title": ["A <i>b</i> c"],
+                "container-title": ["J <scp>Med</scp>"]}
+        f = refcheck.ficha("10.1/a", obra)
+        self.assertEqual(f["titulo"], "A b c")
+        self.assertEqual(f["revista"], "J Med")
+
+
+class Cache(unittest.TestCase):
+    """Measured 2026-09-13: a real 1,000-record PubMed export takes 62 s to
+    check and 0.39 s on the second run. Someone screening a systematic review
+    runs that file again every time they add a batch, and the public registers
+    should not pay for it twice.
+
+    The dangerous half is what must NOT be cached, so that is what most of these
+    are about: in a tool whose silence reads as "clean", a stored failure or a
+    stale answer served without a word is worse than no cache at all.
+    """
+
+    def setUp(self):
+        self.ruta = os.path.join(_tmpdir(self), "checked.json")
+
+    def _ficha(self, doi="10.1/a", estado="ok", avisos=()):
+        return {"doi": doi, "estado": estado, "titulo": "T", "avisos": list(avisos)}
+
+    def test_ida_y_vuelta(self):
+        refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=1000.0)
+        vivos = refcheck.lee_cache(ruta=self.ruta, ahora=1060.0)
+        self.assertIn("10.1/a", vivos)
+        edad, r = vivos["10.1/a"]
+        self.assertEqual(edad, 60.0)
+        self.assertEqual(r["titulo"], "T")
+
+    def test_una_consulta_fallida_NUNCA_se_guarda(self):
+        """This is the whole safety argument. 'I could not reach Crossref' must
+        never come back tomorrow as an answer, let alone as a clean one."""
+        refcheck.escribe_cache([self._ficha(estado="sin_comprobar")],
+                               ruta=self.ruta, ahora=1000.0)
+        self.assertEqual(refcheck.lee_cache(ruta=self.ruta, ahora=1000.0), {})
+
+    def test_desconocido_si_se_guarda(self):
+        """'Crossref has no record under this DOI' is an answer, not a failure."""
+        refcheck.escribe_cache([self._ficha(estado="desconocido")],
+                               ruta=self.ruta, ahora=1000.0)
+        self.assertIn("10.1/a", refcheck.lee_cache(ruta=self.ruta, ahora=1000.0))
+
+    def test_caduca(self):
+        refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=1000.0)
+        viejo = 1000.0 + refcheck.CACHE_DIAS * 86400 + 1
+        self.assertEqual(refcheck.lee_cache(ruta=self.ruta, ahora=viejo), {})
+
+    def test_un_reloj_hacia_atras_no_sirve_del_futuro(self):
+        refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=2000.0)
+        self.assertEqual(refcheck.lee_cache(ruta=self.ruta, ahora=1000.0), {})
+
+    def test_fichero_corrupto_no_revienta(self):
+        with open(self.ruta, "w", encoding="utf-8") as f:
+            f.write("{ this is not json")
+        self.assertEqual(refcheck.lee_cache(ruta=self.ruta), {})
+        refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=1000.0)
+        self.assertIn("10.1/a", refcheck.lee_cache(ruta=self.ruta, ahora=1000.0))
+
+    def test_no_se_puede_escribir_no_es_un_error(self):
+        """A read-only home directory is someone else's problem, not a crash."""
+        imposible = os.path.join(self.ruta, "nope", "checked.json")
+        with open(self.ruta, "w", encoding="utf-8") as f:
+            f.write("{}")          # now self.ruta is a file, so it cannot be a dir
+        refcheck.escribe_cache([self._ficha()], ruta=imposible, ahora=1000.0)
+
+    def test_es_privado(self):
+        """It is a list of what someone has been reading."""
+        refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=1000.0)
+        self.assertEqual(os.stat(self.ruta).st_mode & 0o777, 0o600)
+
+    def test_el_tope_tira_lo_mas_viejo(self):
+        viejos = [{"doi": f"10.1/{i}", "estado": "ok", "titulo": "", "avisos": []}
+                  for i in range(5)]
+        for i, f in enumerate(viejos):
+            refcheck.escribe_cache([f], ruta=self.ruta, ahora=1000.0 + i)
+        with mock.patch.object(refcheck, "CACHE_MAX", 2):
+            refcheck.escribe_cache([], ruta=self.ruta, ahora=1010.0)
+        quedan = set(refcheck.lee_cache(ruta=self.ruta, ahora=1010.0))
+        self.assertEqual(quedan, {"10.1/3", "10.1/4"})
+
+    def test_el_informe_dice_que_viene_de_disco(self):
+        r = [{"doi": "10.1/a", "estado": "ok", "titulo": "T", "avisos": [],
+              "de_cache": 7200}]
+        texto = refcheck.informe(r)
+        self.assertIn("came from the local cache", texto)
+        self.assertIn("2 h old", texto)
+
+    def test_edad_legible(self):
+        self.assertEqual(refcheck.edad_legible(30), "1 min")
+        self.assertEqual(refcheck.edad_legible(3600 * 5), "5 h")
+        self.assertEqual(refcheck.edad_legible(86400), "1 day")
+        self.assertEqual(refcheck.edad_legible(86400 * 3), "3 days")
+
+
+class CacheEnLaCLI(unittest.TestCase):
+    """The end the reader sees: same report, no second trip over the wire."""
+
+    def setUp(self):
+        self.dir = _tmpdir(self)
+        self.ruta = os.path.join(self.dir, "checked.json")
+        self.refs = os.path.join(self.dir, "refs.txt")
+        with open(self.refs, "w", encoding="utf-8") as f:
+            f.write("10.5555/aaa\n10.5555/BBB\n")
+        self.obras = {"10.5555/aaa": {"DOI": "10.5555/aaa", "title": ["Uno"], "updated-by": [
+                          {"type": "retraction", "label": "Retraction",
+                           "DOI": "10.5555/rrr", "updated": {"date-parts": [[2020, 1, 1]]}}]},
+                      "10.5555/bbb": {"DOI": "10.5555/bbb", "title": ["Dos"]}}
+
+    def _corre(self, argv):
+        llamadas = []
+
+        def falso_lote(dois, reintentos=3):
+            llamadas.append(list(dois))
+            return {d.lower(): self.obras[d.lower()] for d in dois
+                    if d.lower() in self.obras}
+
+        salida = io.StringIO()
+        with mock.patch.object(refcheck, "consulta_lote", falso_lote), \
+             mock.patch.object(refcheck, "fusiona_pubmed", lambda r, avisa=None: None), \
+             mock.patch.object(refcheck, "ruta_cache", lambda: self.ruta), \
+             mock.patch.object(sys, "argv", argv), \
+             mock.patch.object(sys, "stdout", salida):
+            codigo = refcheck.main()
+        return codigo, salida.getvalue(), llamadas
+
+    def test_la_segunda_vez_no_se_pregunta_nada(self):
+        c1, t1, ll1 = self._corre(["refcheck.py", self.refs])
+        self.assertEqual(len(ll1), 1)
+        c2, t2, ll2 = self._corre(["refcheck.py", self.refs])
+        self.assertEqual(ll2, [], "asked the API again for what it already had")
+        self.assertEqual(c1, c2)
+        self.assertIn("RETRACTED", t2)
+        self.assertIn("2 of those came from the local cache", t2)
+        # Same report, bar the line that admits where it came from.
+        sin = "\n".join(l for l in t2.splitlines() if "local cache" not in l)
+        self.assertEqual(t1.strip(), sin.strip())
+
+    def test_no_cache_vuelve_a_preguntar(self):
+        self._corre(["refcheck.py", self.refs])
+        _, texto, llamadas = self._corre(["refcheck.py", self.refs, "--no-cache"])
+        self.assertEqual(len(llamadas), 1)
+        self.assertNotIn("local cache", texto)
+
+    def test_solo_se_pregunta_por_lo_que_falta(self):
+        self._corre(["refcheck.py", self.refs])
+        with open(self.refs, "a", encoding="utf-8") as f:
+            f.write("10.5555/ccc\n")
+        self.obras["10.5555/ccc"] = {"DOI": "10.5555/ccc", "title": ["Tres"]}
+        _, texto, llamadas = self._corre(["refcheck.py", self.refs])
+        self.assertEqual(llamadas, [["10.5555/ccc"]])
+        self.assertIn("3 reference(s) checked", texto)
+
+    def test_el_json_cacheado_es_el_mismo_json(self):
+        """A pipeline must not be able to tell the two apart, bar the one field
+        that admits where the answer came from."""
+        _, frio, _ = self._corre(["refcheck.py", self.refs, "--json", "--no-cache"])
+        self._corre(["refcheck.py", self.refs])          # fill the cache
+        _, caliente, llamadas = self._corre(["refcheck.py", self.refs, "--json"])
+        self.assertEqual(llamadas, [])
+        limpio = [{k: v for k, v in r.items() if k != "de_cache"}
+                  for r in json.loads(caliente)]
+        self.assertEqual(json.loads(frio), limpio)
+
+    def test_un_fallo_no_se_queda_pegado(self):
+        """The lookup fails, the run says so — and tomorrow's run asks again
+        instead of serving yesterday's failure."""
+        salida = io.StringIO()
+        with mock.patch.object(refcheck, "consulta_lote",
+                               side_effect=ConnectionError("down")), \
+             mock.patch.object(refcheck, "fusiona_pubmed", lambda r, avisa=None: None), \
+             mock.patch.object(refcheck, "ruta_cache", lambda: self.ruta), \
+             mock.patch.object(sys, "argv", ["refcheck.py", self.refs]), \
+             mock.patch.object(sys, "stdout", salida):
+            self.assertEqual(refcheck.main(), 2)
+        self.assertIn("could NOT be checked", salida.getvalue())
+        _, texto, llamadas = self._corre(["refcheck.py", self.refs])
+        self.assertEqual(len(llamadas), 1, "a failed lookup was cached")
+        self.assertNotIn("local cache", texto)
 
 
 if __name__ == "__main__":

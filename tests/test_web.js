@@ -408,5 +408,135 @@
      /2 references checked/.test(txt()), txt().slice(0, 300));
   window.fetch = realFetch;
 
+  // ---- 9. a systematic review's export: thousands of records, not twelve ----
+  // Measured 2026-09-13 on a real PubMed export: 7.3 kB per MEDLINE record, so
+  // the old 8 MB ceiling refused any search over ~1,070 hits, and pouring the
+  // text into the textarea froze the page for 12-26 s. Both of those are the
+  // normal case for the people this is for, so both get a test.
+  const bigNbib = (n, first) => {
+    const recs = [];
+    for (let i = 0; i < n; i++) {
+      const pmid = 30000000 + i;
+      const doi = i === 0 && first ? first : "10.9999/test." + i;
+      recs.push([
+        "PMID- " + pmid,
+        "TI  - A trial of something, number " + i + ", padded out to the size a real",
+        "      MEDLINE record reaches once it carries an abstract and its MeSH terms: " +
+          "x".repeat(600),
+        // Padded to the 7.5 kB a real MEDLINE record measured at, so "1,200
+        // records" here weighs what 1,200 records weigh on a librarian's disk.
+        "AB  - " + "filler ".repeat(980),
+        "AID - " + doi + " [doi]",
+        "SO  - J Test. 2020;1(1):1-2.",
+      ].join("\n"));
+    }
+    return recs.join("\n\n") + "\n";
+  };
+
+  const waitStatus = (re, ms) => new Promise((res) => {
+    const t0 = Date.now();
+    const poll = setInterval(() => {
+      if (re.test($("#status").textContent) || Date.now() - t0 > (ms || 30000)) {
+        clearInterval(poll); res($("#status").textContent);
+      }
+    }, 100);
+  });
+
+  const openFile = async (name, body) => {
+    const dt = new DataTransfer();
+    dt.items.add(new File([body], name, { type: "text/plain" }));
+    $("#file").files = dt.files;
+    $("#file").dispatchEvent(new Event("change"));
+    return waitStatus(/Loaded|limit|could not be read|PDF or a Word/, 60000);
+  };
+
+  const BIG = bigNbib(400, "10.1016/j.nbd.2012.05.020");   // ~1.4 MB, 400 records
+  ok("the test's own fixture is past the inline threshold", BIG.length > 256 * 1024,
+     BIG.length + " bytes");
+
+  const tOpen = Date.now();
+  s = await openFile("review.nbib", BIG);
+  const openMs = Date.now() - tOpen;
+  // A guard against future regressions, not the proof: the assertion that bites
+  // on the old code is the empty textarea two lines down.
+  ok("a big export loads without freezing the page", openMs < 4000, openMs + " ms");
+  ok("and is named back to the person who opened it", /review\.nbib/.test(s), s);
+  ok("a big export is NOT poured into the textarea", $("#input").value === "",
+     $("#input").value.length + " chars in the box");
+  ok("what is loaded is visible instead of invisible", !$("#loaded").hidden);
+  ok("and it says how many records are in there",
+     /400 records/.test($("#loadedText").textContent), $("#loadedText").textContent);
+  ok("the remove button has a real name",
+     ($("#unload").textContent || "").trim().length > 3, $("#unload").textContent);
+
+  // An empty box plus a held file must check the file, not nothing.
+  var asked2 = [];
+  window.fetch = function (u, o) {
+    var url = String(u);
+    asked2.push(url + " " + ((o && o.body) ? String(o.body) : ""));
+    if (/api\.crossref\.org/.test(url)) {
+      return reply({ message: { items: [{
+        DOI: "10.1016/j.nbd.2012.05.020",
+        title: ["LRRK2 kinase activity\n      mediates <i>toxic</i> interactions " +
+                "with <scp>GTPase</scp> &amp; more"],
+        "updated-by": [{ type: "retraction", label: "Retraction",
+                         DOI: "10.1016/j.nbd.2025.106930",
+                         updated: { "date-parts": [[2025, 5, 1]] } }] }] } });
+    }
+    if (/esummary\.fcgi/.test(url)) return reply({ result: {} });
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+    return reply({});
+  };
+  $("#go").click();
+  s = await waitStatus(/^Done\.|Nothing to look up/, 90000);
+  await new Promise((r) => setTimeout(r, 150));
+  ok("an empty box with a file loaded checks the file", /^Done\./.test(s), s);
+  var sent2 = decodeURIComponent(asked2.join(" ")).toLowerCase();
+  ok("the file's own DOIs are the ones asked about",
+     sent2.indexOf("10.9999/test.7") >= 0, sent2.slice(0, 200));
+  ok("400 records take more than one batch", asked2.length > 5, asked2.length + " requests");
+
+  // Crossref hands back the publisher's JATS markup and the XML's line breaks.
+  ok("a title is printed as a title, not as markup",
+     /toxic interactions with GTPase & more/.test(txt()) && !/<i>|<scp>/.test(txt()),
+     txt().slice(0, 400));
+
+  // Typing while a file is held: whatever you typed wins, and the file is not
+  // silently checked behind it.
+  asked2 = [];
+  $("#input").value = "10.1056/nejmoa2001017";
+  $("#input").dispatchEvent(new Event("input", { bubbles: true }));
+  ok("typing sets the loaded file aside", $("#loaded").hidden,
+     $("#status").textContent);
+  ok("and says so rather than doing it silently",
+     /set aside/i.test($("#status").textContent), $("#status").textContent);
+  $("#go").click();
+  s = await waitStatus(/^Done\.|Nothing to look up/, 30000);
+  sent2 = decodeURIComponent(asked2.join(" ")).toLowerCase();
+  ok("the set-aside file is not checked behind your back",
+     sent2.indexOf("10.9999/test.") < 0 && sent2.indexOf("10.1056/nejmoa2001017") >= 0,
+     sent2.slice(0, 300));
+
+  // Removing it puts the page back where it started.
+  await openFile("review.nbib", BIG);
+  $("#unload").click();
+  ok("removing the file hides the chip", $("#loaded").hidden);
+  s = await check("");
+  ok("and then there is genuinely nothing to check",
+     /Nothing to look up/.test(s), s);
+  window.fetch = realFetch;
+
+  // Past the old 8 MB ceiling — the size a 1,200-record PubMed search reaches.
+  const HUGE = bigNbib(1200);
+  ok("the fixture is past the ceiling this used to refuse", HUGE.length > 8 * 1024 * 1024,
+     HUGE.length + " bytes");
+  s = await openFile("screening.nbib", HUGE);
+  ok("a 1,200-record export is no longer turned away", /Loaded/.test(s), s);
+  ok("and it is not called a PDF or a database dump", !/database dump|PDF/.test(s), s);
+  ok("it counted all 1,200", /1200 records/.test($("#loadedText").textContent),
+     $("#loadedText").textContent);
+  $("#unload").click();
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()
