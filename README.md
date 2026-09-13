@@ -54,7 +54,10 @@ straight from PubMed's **Send to → Citation manager**, a `.ris`, a `.bib`, a
 account, no upload, no terminal.
 
 The file is read *inside your browser* by the same page, and its bytes never
-leave your machine; only the identifiers found in it are sent.
+leave your machine; only the identifiers found in it are sent. A whole search
+export is fine — 1,000 records, 7.3 MB, measured — and a file that big is held
+aside rather than shown, because displaying it is the slow part. See
+[below](#a-thousand-references-which-is-what-a-systematic-review-actually-has).
 
 There is no server behind that page: your text stays in the browser and only the
 identifiers found in it are sent — straight from your machine to Crossref and to
