@@ -492,24 +492,44 @@ def _avisos_de_xml(xml):
     return salida
 
 
-def avisos_pubmed(dois):
-    """Ask PubMed what IT knows about these DOIs. Raises if the lookup fails.
+def avisos_pubmed(dois, fallos=None):
+    """Ask PubMed what IT knows about these DOIs.
 
     Two requests per batch and no way around it: `[aid]` search answers with a
     list of PMIDs and never says which DOI matched which, so the records have
     to be fetched to be matched back by their own DOI.
+
+    `fallos`: pass a dict and a batch that fails costs only its own DOIs, which
+    land there lowercased as {doi: why}. Without it, the first failure raises.
+    That default is the old behaviour and it was wrong for big files: 1,000
+    references are 20 batches and 40 requests, and one transient "connection
+    reset" — measured at roughly one run in three on a home connection — threw
+    away the PubMed half of every other batch as well. Losing 50 second
+    opinions instead of 1,000 is not a nicety; PubMed is the register that
+    holds the 21% of corrections Crossref never heard about.
     """
     salida = {}
     for i in range(0, len(dois), LOTE_AID):
         trozo = dois[i:i + LOTE_AID]
         term = " OR ".join(f'"{d}"[aid]' for d in trozo)
-        r = json.loads(_pide_ncbi(ESEARCH, {"db": "pubmed", "retmode": "json",
-                                            "retmax": str(len(trozo) * 3),
-                                            "term": term}))
-        ids = (r.get("esearchresult") or {}).get("idlist") or []
-        if not ids:
+        try:
+            r = json.loads(_pide_ncbi(ESEARCH, {"db": "pubmed", "retmode": "json",
+                                                "retmax": str(len(trozo) * 3),
+                                                "term": term}))
+            ids = (r.get("esearchresult") or {}).get("idlist") or []
+            if not ids:
+                continue
+            xml = _pide_ncbi(EFETCH, {"db": "pubmed", "retmode": "xml",
+                                      "id": ",".join(ids)})
+        except Exception as e:
+            if fallos is None:
+                raise
+            # Not "no notices": not asked. The caller has to be able to tell
+            # those apart, or silence gets read as a clean bill.
+            porque = str(e) or e.__class__.__name__
+            for d in trozo:
+                fallos[d.lower()] = porque
             continue
-        xml = _pide_ncbi(EFETCH, {"db": "pubmed", "retmode": "xml", "id": ",".join(ids)})
         for doi, rec in _avisos_de_xml(xml).items():
             if doi in {d.lower() for d in trozo}:
                 salida[doi] = rec
@@ -799,20 +819,29 @@ def fusiona_pubmed(resultados, avisa=None):
     dois = [r["doi"] for r in resultados if r.get("doi")]
     if not dois:
         return resultados
+    fallos = {}
     try:
-        conocido = avisos_pubmed(dois)
-    except ConnectionError as e:
-        # PubMed being down must not cost us the Crossref answer we already have.
-        for r in resultados:
-            if r.get("doi"):
-                r["pubmed_error"] = str(e)
-        return resultados
+        conocido = avisos_pubmed(dois, fallos=fallos)
+    except Exception as e:
+        # Something outside the per-batch guard. PubMed being down must not cost
+        # us the Crossref answer we already have — but it must not pass for a
+        # second opinion either, so every DOI is marked as not asked.
+        porque = str(e) or e.__class__.__name__
+        conocido, fallos = {}, {d.lower(): porque for d in dois}
     if avisa:
         avisa(len(dois), len(dois))
 
+    # The DOIs whose batch died are not "PubMed knows nothing about them": they
+    # were never asked. Crossref is silent on 21% of corrected papers (measured
+    # 2026-09-11), so a Crossref-only answer is a partial answer and says so.
     for r in resultados:
-        rec = conocido.get((r.get("doi") or "").lower())
-        r["en_pubmed"] = rec is not None
+        clave = (r.get("doi") or "").lower()
+        if clave and clave in fallos:
+            r["pubmed_error"] = fallos[clave]
+        rec = conocido.get(clave)
+        # None, not False: "PubMed has no record of it" and "PubMed was never
+        # asked" are two different facts and only one of them is an answer.
+        r["en_pubmed"] = None if r.get("pubmed_error") else rec is not None
         if rec is None:
             continue
         r.setdefault("pmid", rec["pmid"])
@@ -927,6 +956,10 @@ def informe(resultados, ancho=78):
     sinc = [r for r in resultados if r["estado"] == "sin_comprobar"]
     sin_doi = [r for r in resultados if r["estado"] == "pmid_sin_doi"]
     pmid_desc = [r for r in resultados if r["estado"] == "pmid_desconocido"]
+    # Checked against one register instead of two. Not a failure, not an answer
+    # either, and until today this tool set the flag and printed nothing.
+    a_medias = [r for r in resultados
+                if r.get("pubmed_error") and r["estado"] != "sin_comprobar"]
     lineas = []
     chocan = [r for r in con if r.get("contradictorio")]
     for r in sorted(con, key=lambda r: -r["avisos"][0]["gravedad"]):
@@ -987,6 +1020,11 @@ def informe(resultados, ancho=78):
         cab.append(f"  {len(chocan)} of them carry CONTRADICTORY notices — decide those by hand")
     if sinc:
         cab.append(f"  {len(sinc)} could NOT be checked — the lookup failed. Not clean: unknown.")
+    if a_medias:
+        fue = "was" if len(a_medias) == 1 else "were"
+        cab.append(f"  {len(a_medias)} {fue} asked of Crossref ONLY — PubMed did not answer.")
+        cab.append("  Crossref is silent on 21% of corrected papers (measured 2026-09-11),")
+        cab.append("  so those are half-checked, not clean.")
     if desc:
         cab.append(f"  {len(desc)} not found in Crossref (preprints, books, bad DOI) — not checked")
     if sin_doi:
@@ -997,8 +1035,14 @@ def informe(resultados, ancho=78):
     if not con and comprobadas > 0:
         cab.append("  Nothing found. That is the expected result most of the time;")
         cab.append("  it is the 1-in-N that this exists for.")
-    if sinc or sin_doi or pmid_desc:
+    if sinc or sin_doi or pmid_desc or a_medias:
         lineas.append("")           # do not let these hang off the last notice
+    # Named so they can be rerun, but capped: a dead batch is 50 DOIs and a
+    # 1,000-reference report that ends in 50 identical lines gets skipped whole.
+    for r in a_medias[:10]:
+        lineas.append(f"      ! Crossref only, PubMed did not answer: {nombre(r)}")
+    if len(a_medias) > 10:
+        lineas.append(f"      ! …and {len(a_medias) - 10} more (--json lists every one)")
     for r in sinc:
         lineas.append(f"      ? not checked: {nombre(r)}")
     for r in sin_doi:
@@ -1022,9 +1066,19 @@ def informe(resultados, ancho=78):
 # stored, so "I could not check this" can never turn into a cached clean bill.
 # And the report says out loud how much of the answer came from disk and how
 # old it was, because in this tool silence gets read as "fine".
+#
+# An entry also records WHICH registers answered, and is only reused by a run
+# that wants no more than those. Found by reading yesterday's code on 14-sep:
+# without that, a run where PubMed was unreachable stored the Crossref-only
+# answer and handed it back for seven days as if both registers had spoken —
+# and PubMed is the one holding the 21% of corrections Crossref never heard
+# about. The v1 entries written before this have no coverage recorded, so they
+# are dropped on read rather than trusted.
 # ---------------------------------------------------------------------------
 CACHE_DIAS = float(os.environ.get("REFCHECK_CACHE_DAYS", "7"))
 CACHE_MAX = 100_000        # entries; a 1.000-record run adds ~1.000
+CACHE_V = 2                # bump when an entry stops meaning what it meant
+REGISTROS = ("crossref", "pubmed")
 
 
 def ruta_cache():
@@ -1035,10 +1089,24 @@ def ruta_cache():
     return os.path.join(base, "refcheck", "checked.json")
 
 
-def lee_cache(ruta=None, ahora=None):
-    """{doi: (edad_en_segundos, ficha)} for entries still inside the TTL."""
+def _cobertura(e):
+    """Which registers an entry's answer actually rests on."""
+    if not isinstance(e, dict) or e.get("v") != CACHE_V:
+        return set()
+    reg = e.get("reg")
+    return set(reg) if isinstance(reg, list) else set()
+
+
+def lee_cache(ruta=None, ahora=None, necesita=REGISTROS):
+    """{doi: (edad_en_segundos, ficha)} for entries still inside the TTL.
+
+    `necesita`: only entries whose answer covers every one of these registers
+    come back. Anything narrower is not this run's answer given cheaply, it is
+    a different, quieter question.
+    """
     ruta = ruta or ruta_cache()
     ahora = ahora if ahora is not None else time.time()
+    quiere = set(necesita or ())
     try:
         with open(ruta, encoding="utf-8") as f:
             crudo = json.load(f)
@@ -1053,15 +1121,23 @@ def lee_cache(ruta=None, ahora=None):
             edad = ahora - float(e["t"])
         except Exception:
             continue
+        if not quiere <= _cobertura(e):
+            continue
         if 0 <= edad <= tope and isinstance(e.get("r"), dict):
             vivos[doi] = (edad, e["r"])
     return vivos
 
 
-def escribe_cache(fichas, ruta=None, ahora=None):
-    """Add these results to the cache. Failures are never written."""
+def escribe_cache(fichas, ruta=None, ahora=None, registros=REGISTROS):
+    """Add these results to the cache. Failures are never written.
+
+    `registros` is which registers this run asked; a record whose PubMed half
+    did not answer is stored as Crossref-only, so tomorrow's full run asks
+    PubMed again instead of inheriting today's blind spot.
+    """
     ruta = ruta or ruta_cache()
     ahora = ahora if ahora is not None else time.time()
+    pedidos = set(registros or ())
     try:
         with open(ruta, encoding="utf-8") as f:
             crudo = json.load(f)
@@ -1072,7 +1148,20 @@ def escribe_cache(fichas, ruta=None, ahora=None):
     for r in fichas:
         if r.get("estado") not in ("ok", "desconocido") or not r.get("doi"):
             continue
-        crudo[r["doi"].lower()] = {"t": ahora, "r": r}
+        cubre = pedidos - ({"pubmed"} if r.get("pubmed_error") else set())
+        if not cubre:
+            continue
+        clave = r["doi"].lower()
+        antigua = crudo.get(clave)
+        # Never trade a two-register answer for a one-register one, even a
+        # fresher one. Fresh and half-blind loses to a day old and complete.
+        if antigua and _cobertura(antigua) - cubre:
+            try:
+                if 0 <= ahora - float(antigua["t"]) <= CACHE_DIAS * 86400:
+                    continue
+            except Exception:
+                pass
+        crudo[clave] = {"t": ahora, "v": CACHE_V, "reg": sorted(cubre), "r": r}
     tope = CACHE_DIAS * 86400
     crudo = {d: e for d, e in crudo.items()
              if isinstance(e, dict) and isinstance(e.get("t"), (int, float))
@@ -1105,8 +1194,9 @@ def main():
     p.add_argument("--no-cache", action="store_true",
                    help=f"ignore the local cache and ask both registers again. "
                         f"The cache lives in {ruta_cache()}, keeps an answer for "
-                        f"{CACHE_DIAS:g} days (REFCHECK_CACHE_DAYS), and never "
-                        f"stores a lookup that failed")
+                        f"{CACHE_DIAS:g} days (REFCHECK_CACHE_DAYS), never stores a "
+                        f"lookup that failed, and never reuses an answer that rests "
+                        f"on fewer registers than this run wants")
     p.add_argument("--no-pubmed", action="store_true",
                    help="never contact NCBI: no PMID translation and no second "
                         "opinion. Faster and quieter, but measured on 2026-09-11 "
@@ -1126,7 +1216,11 @@ def main():
         print(pistas, file=sys.stderr)
         return 2
 
-    guardada = {} if a.no_cache else lee_cache()
+    # A --no-pubmed run may reuse a two-register answer it already has: it costs
+    # nothing and hiding a notice we hold would be under-warning on purpose.
+    # The reverse is what must never happen, and lee_cache is what stops it.
+    quiere = ("crossref",) if a.no_pubmed else REGISTROS
+    guardada = {} if a.no_cache else lee_cache(necesita=quiere)
     # Only what is missing goes over the wire; the order the reader wrote is
     # rebuilt afterwards, so a cached run and a cold run read identically.
     nuevos = [d for d in dois if d.lower() not in guardada]
@@ -1144,7 +1238,7 @@ def main():
             print("\r  asking PubMed too…            ", end="", file=sys.stderr, flush=True)
         fusiona_pubmed(frescos)
     if frescos and not a.no_cache:
-        escribe_cache(frescos)
+        escribe_cache(frescos, registros=quiere)
 
     por_doi = {r["doi"].lower(): r for r in frescos}
     resultados, edades = [], []
@@ -1176,6 +1270,11 @@ def main():
         return 1
     # A reference we could not look up must not let a CI gate go green.
     if any(r["estado"] == "sin_comprobar" for r in resultados):
+        return 2
+    # Nor one that only half of the registers answered about. Before today this
+    # returned 0: a run with NCBI unreachable passed a CI gate as clean while
+    # being blind to the register that holds one correction in five.
+    if not a.no_pubmed and any(r.get("pubmed_error") for r in resultados):
         return 2
     return 0
 

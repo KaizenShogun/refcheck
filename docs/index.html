@@ -63,6 +63,7 @@
     border-left: 5px solid var(--accent); border-radius: 4px;
   }
   .summary p { margin: .25rem 0; }
+  .summary button { padding: .25rem .7rem; font-size: .88rem; }
   ol.results { list-style: none; padding: 0; margin: 1.2rem 0 0; }
   ol.results > li {
     border: 2px solid var(--line); border-radius: 6px;
@@ -82,6 +83,9 @@
   details { margin-top: 1rem; }
   summary { cursor: pointer; font-weight: 600; padding: .2rem 0; }
   code { background: var(--box); padding: .1rem .3rem; border-radius: 3px; font-size: .9em; }
+  /* Inside a muted paragraph, --muted on --box measures 6.89:1: AA, but short of
+     the 7:1 AAA asks for, and a file extension is the bit people squint at. */
+  .hint code, .lede code { color: var(--fg); }
   footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
            color: var(--muted); font-size: .92rem; }
   .vh { position: absolute; width: 1px; height: 1px; overflow: hidden;
@@ -201,6 +205,16 @@
     You can save this page and run it offline from your own disk — it is one HTML file with no
     dependencies.
   </p>
+  <p>
+    Since 14 September 2026 this page does remember, <em>inside the one tab you have open</em>, which
+    identifiers it has already checked, so that running a growing export again does not ask two free
+    public registers the same thousand questions every time. That memory is
+    <code>sessionStorage</code>: it belongs to that tab and is gone when you close it, which is the
+    point — on a shared computer the list of what you have been reading should not outlive your
+    session. Nothing is remembered about a lookup that failed, or one that only Crossref answered.
+    The result says how many answers came from that memory and how old the oldest one was, and there
+    is a button to ask both registers again.
+  </p>
 
   <footer>
     <p>
@@ -254,6 +268,95 @@
       go = $("go"), demo = $("demo"), copyBtn = $("copy"),
       loadedBox = $("loaded"), loadedText = $("loadedText");
   var lastReport = "", lastError = "";
+
+  // ---- the tab's memory ---------------------------------------------------
+  // Someone screening a systematic review runs the same export again every time
+  // they add a batch, and a thousand references is over a minute of waiting its
+  // turn at two free registers. The CLI has had a cache on disk since
+  // 2026-09-13; this is the same idea for the people who have no terminal, who
+  // are most of the ones this page is for.
+  //
+  // sessionStorage and not localStorage, and that is the whole design decision:
+  // the list of what someone has been reading is nobody else's business, and
+  // this page gets opened on shared machines — a library counter, a university
+  // cluster. sessionStorage belongs to one tab and dies with it, so closing the
+  // tab leaves nothing behind for the next person. Nothing is asked, nothing
+  // survives, and the page says so in the privacy note.
+  //
+  // Never stored: a lookup that failed, and an answer only one register gave.
+  // Both would come back later wearing the clothes of a complete answer.
+  var CACHE_KEY = "refcheck.checked.v2";
+  var CACHE_MS = 7 * 86400 * 1000;
+  var bypassCache = false;      // set by the "ask again" button, for one run
+
+  function cacheRead() {
+    try {
+      var raw = sessionStorage.getItem(CACHE_KEY);
+      var o = raw ? JSON.parse(raw) : null;
+      return o && typeof o === "object" ? o : Object.create(null);
+    } catch (e) {
+      return Object.create(null);      // no storage, private mode, full disk
+    }
+  }
+
+  function cacheWrite(store) {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(store));
+      return true;
+    } catch (e) {
+      // Out of room: drop the oldest half and try once. A cache that cannot be
+      // written is not an error, it is just a slower page.
+      var keys = Object.keys(store).sort(function (a, b) {
+        return (store[a].t || 0) - (store[b].t || 0);
+      });
+      keys.slice(0, Math.ceil(keys.length / 2)).forEach(function (k) {
+        delete store[k];
+      });
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(store));
+        return true;
+      } catch (e2) {
+        try { sessionStorage.removeItem(CACHE_KEY); } catch (e3) {}
+        return false;
+      }
+    }
+  }
+
+  // {doi: {age, nf, e}} for the ones still inside the TTL. `nf` means Crossref
+  // had no record; `e` is the merged entry, or null for "checked and clean".
+  function cacheGet(dois, now) {
+    now = now || Date.now();
+    var store = cacheRead(), out = Object.create(null);
+    dois.forEach(function (d) {
+      var e = store[d];
+      if (!e || e.v !== 2 || typeof e.t !== "number") return;
+      var age = now - e.t;
+      if (age < 0 || age > CACHE_MS) return;        // stale, or a clock moved
+      out[d] = { age: age, nf: !!e.nf, e: e.e ? JSON.parse(JSON.stringify(e.e)) : null };
+    });
+    return out;
+  }
+
+  function cachePut(items, now) {
+    now = now || Date.now();
+    var store = cacheRead();
+    Object.keys(store).forEach(function (d) {
+      var e = store[d];
+      if (!e || typeof e.t !== "number" || now - e.t > CACHE_MS) delete store[d];
+    });
+    items.forEach(function (it) {
+      store[it.doi] = { t: now, v: 2, nf: !!it.nf, e: it.e || null };
+    });
+    return cacheWrite(store);
+  }
+
+  function readableAge(ms) {
+    var s = ms / 1000;
+    if (s < 3600) return Math.max(1, Math.round(s / 60)) + " min";
+    if (s < 86400) return Math.round(s / 3600) + " h";
+    var d = Math.round(s / 86400);
+    return d === 1 ? "1 day" : d + " days";
+  }
 
   function extractDois(text) {
     var seen = Object.create(null), list = [], m;
@@ -623,8 +726,17 @@
     return out;
   }
 
+  // Returns {notices: {doi: rec}, missed: {doi: why}}. `missed` is the half that
+  // matters: those DOIs were not asked, which is not the same as PubMed having
+  // nothing on them, and the difference is 21% of corrected papers.
+  //
+  // Per batch, not per pass. Found 2026-09-14 by reading this function: a 1,000
+  // reference file is 20 batches and 40 requests, one transient "Failed to
+  // fetch" rejected the whole chain, and the catch upstream swallowed it into a
+  // variable nothing displayed. One in three runs, measured on 2026-09-08.
   function pubmedNotices(dois) {
-    var out = Object.create(null), batches = chunk(dois, AID_BATCH), first = true;
+    var out = Object.create(null), missed = Object.create(null);
+    var batches = chunk(dois, AID_BATCH), first = true;
     return batches.reduce(function (chain, b) {
       return chain.then(function () {
         var wait = first ? 0 : PUBMED_GAP_MS;
@@ -650,8 +762,12 @@
           // DOIs actually asked about are kept.
           if (want[d]) out[d] = got[d];
         });
+      }).catch(function (e) {
+        b.forEach(function (d) { missed[d.toLowerCase()] = e.message || "PubMed failed"; });
       });
-    }, Promise.resolve()).then(function () { return out; });
+    }, Promise.resolve()).then(function () {
+      return { notices: out, missed: missed };
+    });
   }
 
   // Merge, keyed on (severity, notice DOI). Both halves of that key are
@@ -840,10 +956,12 @@
     return n;
   }
 
-  function render(found, notFound, unchecked, total, sueltos) {
+  function render(found, notFound, unchecked, total, sueltos, half, fromCache) {
     out.textContent = "";
     lastReport = "";
     sueltos = sueltos || [];
+    half = half || [];
+    fromCache = fromCache || { n: 0, oldest: 0 };
     var noDoi = sueltos.filter(function (s) { return s.estado === "pmid_no_doi"; });
     var noPmid = sueltos.filter(function (s) { return s.estado === "pmid_not_found"; });
     var checked = total - unchecked.length;
@@ -857,6 +975,25 @@
     box.appendChild(el("p", null,
       checked + " reference" + (checked === 1 ? "" : "s") + " checked · " +
       found.length + " carr" + (found.length === 1 ? "ies" : "y") + " a change notice"));
+    // An answer read back from this tab is an answer about the moment it was
+    // fetched. A notice published since then is invisible to it, so the age is
+    // on screen: in a tool whose silence reads as "clean", that is not a detail.
+    if (fromCache.n) {
+      var cp = el("p", null,
+        fromCache.n + " of those " + (fromCache.n === 1 ? "was" : "were") +
+        " already checked in this tab, the oldest " + readableAge(fromCache.oldest) +
+        " ago. It is forgotten when you close the tab. ");
+      // A real control, because "reload to ask again" would have been a lie:
+      // sessionStorage survives a reload. This is the page's --no-cache.
+      var again = el("button", "secondary", "Ask both registers again");
+      again.type = "button";
+      again.addEventListener("click", function () {
+        bypassCache = true;
+        run(currentText());
+      });
+      cp.appendChild(again);
+      box.appendChild(cp);
+    }
     if (unchecked.length) {
       box.appendChild(el("p", null,
         unchecked.length + " could NOT be checked — the connection to Crossref failed" +
@@ -867,6 +1004,19 @@
       box.appendChild(el("p", null,
         notFound.length + " not found in Crossref (preprints, books, chapters, or a " +
         "mistyped DOI) — these were not checked, which is not the same as clean."));
+    }
+    // Said out loud, because until 2026-09-14 this page knew it and printed
+    // "Nothing found" anyway. PubMed is the register holding 21% of the
+    // corrections Crossref never heard about (measured 2026-09-11).
+    if (half.length) {
+      var p = el("p", null,
+        half.length + (half.length === 1 ? " reference was" : " references were") +
+        " asked of Crossref ONLY — PubMed did not answer. Crossref alone misses " +
+        "about one corrected paper in five, so " +
+        (half.length === 1 ? "that one is" : "those are") +
+        " half-checked, not clean. Run them again.");
+      p.style.fontWeight = "600";
+      box.appendChild(p);
     }
     if (noDoi.length) {
       box.appendChild(el("p", null,
@@ -883,7 +1033,9 @@
     if (!found.length && checked > 0) {
       box.appendChild(el("p", null,
         "Nothing found. That is the expected result most of the time; it is the " +
-        "one-in-a-hundred that this exists for."));
+        "one-in-a-hundred that this exists for." +
+        (half.length ? " For the half-checked ones above, though, nothing found is" +
+                       " only half of nothing found." : "")));
     }
     out.appendChild(box);
 
@@ -894,6 +1046,12 @@
     if (unchecked.length) {
       lines.push(unchecked.length + " could NOT be checked (connection failed): " +
                  unchecked.join(", "));
+    }
+    // In the copyable report too: this is the version that gets pasted into a
+    // record of what was screened, and the caveat has to travel with it.
+    if (half.length) {
+      lines.push(half.length + " asked of Crossref only, PubMed did not answer " +
+                 "(half-checked, not clean): " + half.join(", "));
     }
 
     if (found.length) {
@@ -1131,21 +1289,49 @@
   }
 
   function check(dois, origen, sueltos) {
-    var batches = chunk(dois, BATCH);
     var found = [], seen = Object.create(null), unchecked = [], done = 0;
+    // {doi: why} for references only one register answered about.
+    var halfChecked = Object.create(null);
+    // What the merged answer for each DOI ended up being, so it can be stored.
+    var merged = Object.create(null);
 
+    // Whatever this tab already asked about is not asked again. The reply is
+    // rebuilt into the same three buckets a fresh answer goes into, so a warm
+    // run and a cold run read identically bar the line admitting the age.
+    var known = bypassCache ? Object.create(null) : cacheGet(dois);
+    bypassCache = false;
+    var ask = dois.filter(function (d) { return !known[d]; });
+    var cacheCount = 0, cacheOldest = 0;
+    dois.forEach(function (d) {
+      var c = known[d];
+      if (!c) return;
+      cacheCount++;
+      if (c.age > cacheOldest) cacheOldest = c.age;
+      if (c.nf) return;                 // no Crossref record: falls into notFound
+      seen[d] = 1;
+      if (c.e) {
+        c.e.doi = d;
+        if (origen[d]) c.e.pmid = origen[d];
+        found.push(c.e);
+      }
+    });
+
+    var batches = chunk(ask, BATCH);
     // A thousand references is minutes, not seconds, and a progress counter that
     // starts at 0 of 1000 with no idea of the total wait reads as a hang. The
     // arithmetic is not a guess: one Crossref batch of 40 per second, plus the
     // PubMed passes, both paced to what those services ask for.
-    var secs = batches.length + Math.ceil(dois.length / AID_BATCH) * 2 + 3;
+    var secs = batches.length + Math.ceil(ask.length / AID_BATCH) * 2 + 3;
     var eta = secs < 20 ? "" :
       secs < 90 ? " About " + (Math.ceil(secs / 10) * 10) + " seconds — " :
                   " About " + Math.round(secs / 60) + " minute" +
                   (Math.round(secs / 60) === 1 ? "" : "s") + " — ";
-    status.textContent = "Checking " + dois.length + " reference" +
-      (dois.length === 1 ? "" : "s") + "…" + eta +
-      (eta ? "the free registers allow one request a second, and this waits its turn." : "");
+    var yaSe = cacheCount ? " " + cacheCount + " already checked in this tab." : "";
+    status.textContent = ask.length
+      ? "Checking " + ask.length + " reference" + (ask.length === 1 ? "" : "s") +
+        "…" + yaSe + eta +
+        (eta ? "the free registers allow one request a second, and this waits its turn." : "")
+      : "Rebuilding the answer this tab already has…";
 
     // Sequential on purpose: one public API, shared by everyone, funded by nobody.
     // And spaced, not just serialised. Measured 2026-09-09 from the response
@@ -1186,8 +1372,8 @@
         }).then(function () {
           done += b.length;
           if (batches.length > 1) {
-            status.textContent = "Checking… " + Math.min(done, dois.length) +
-              " of " + dois.length;
+            status.textContent = "Checking… " + Math.min(done, ask.length) +
+              " of " + ask.length;
           }
         });
       });
@@ -1196,11 +1382,14 @@
         // Now ask the other register. Measured 2026-09-11: one corrected paper
         // in five is invisible to Crossref, so skipping this would hand back a
         // clean bill of health that is not clean.
+        if (!ask.length) return;
         status.textContent = "Asking PubMed too…";
-        return pubmedNotices(dois).then(function (pm) {
+        return pubmedNotices(ask).then(function (res) {
+          var pm = res.notices;
+          Object.keys(res.missed).forEach(function (d) { halfChecked[d] = res.missed[d]; });
           var byDoi = Object.create(null);
           found.forEach(function (f) { byDoi[f.doi] = f; });
-          dois.forEach(function (d) {
+          ask.forEach(function (d) {
             var rec = pm[d];
             if (!rec || !rec.notices.length) return;
             var entry = byDoi[d];
@@ -1221,19 +1410,49 @@
             entry.clash = mergeNotices(entry.notices, rec.notices);
           });
         }).catch(function (e) {
-          // PubMed being unreachable must not cost the Crossref answer we have.
+          // PubMed being unreachable must not cost the Crossref answer we have
+          // — and must not pass for a second opinion either.
           lastError = lastError || e.message;
+          ask.forEach(function (d) { halfChecked[d] = e.message || "PubMed failed"; });
         });
       })
       .then(function () {
         var pending = Object.create(null);
         unchecked.forEach(function (d) { pending[d] = 1; });
         var notFound = dois.filter(function (d) { return !seen[d] && !pending[d]; });
+        // Only worth saying about references that WERE otherwise checked; the
+        // ones Crossref lost are already reported as unknown.
+        var halfList = dois.filter(function (d) {
+          return halfChecked[d] && !pending[d];
+        });
         // A PMID whose own lookup failed belongs in the same bucket: unknown.
         var fallados = sueltos.filter(function (s) {
           return s.estado === "pmid_unchecked";
         });
         fallados.forEach(function (s) { unchecked.push("PMID " + s.pmid); });
+
+        // Remember only the freshly asked ones, and only the complete answers:
+        // never a failed lookup, never a half where PubMed did not answer.
+        // A notice published tomorrow is invisible to a stored answer, which is
+        // why the age goes on the screen and not into the documentation.
+        var byDoiNow = Object.create(null);
+        found.forEach(function (f) { byDoiNow[f.doi] = f; });
+        var guardar = [];
+        ask.forEach(function (d) {
+          if (pending[d] || halfChecked[d]) return;
+          var e = byDoiNow[d];
+          guardar.push({
+            doi: d,
+            nf: !seen[d],
+            // Stored without the DOI spelling of this file: the reader's
+            // spelling is put back when it is read out again.
+            e: e ? { pmid: e.pmid || "", titulo: e.titulo || "",
+                     revista: e.revista || "", notices: e.notices,
+                     clash: e.clash || null, rescued: !!e.rescued } : null
+          });
+        });
+        if (guardar.length) cachePut(guardar);
+
         status.textContent = unchecked.length
           ? "Done, but " + unchecked.length + " reference" +
             (unchecked.length === 1 ? " could" : "s could") + " not be checked."
@@ -1241,7 +1460,8 @@
         // `total` counts everything that had a lookup attempted, so that
         // render's  checked = total - unchecked  still comes out right once the
         // failed PMIDs are in the unchecked list but not in `dois`.
-        render(found, notFound, unchecked, dois.length + fallados.length, sueltos);
+        render(found, notFound, unchecked, dois.length + fallados.length, sueltos,
+               halfList, { n: cacheCount, oldest: cacheOldest });
       })
       .then(function () { go.disabled = false; });
   }

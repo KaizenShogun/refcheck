@@ -915,6 +915,41 @@ class FusionDeRegistros(unittest.TestCase):
             refcheck.fusiona_pubmed(r)
         self.assertEqual(r[0]["estado"], "ok")
         self.assertIn("NCBI down", r[0]["pubmed_error"])
+        # And "not asked" is not "PubMed has no record of it".
+        self.assertIsNone(r[0]["en_pubmed"])
+
+    def test_un_lote_muerto_de_pubmed_no_se_lleva_a_los_demas(self):
+        """Found 2026-09-14 by reading my own code. 1,000 references are 20
+        batches; one transient failure used to throw away the second opinion on
+        all of them, not just on its own 50."""
+        r = [{"doi": "10.1/a", "estado": "ok", "titulo": "", "avisos": []},
+             {"doi": "10.1/b", "estado": "ok", "titulo": "", "avisos": []}]
+        respuestas = [ConnectionError("reset by peer"),
+                      json.dumps({"esearchresult": {"idlist": ["7"]}}).encode(),
+                      _xml(("7", "10.1/b", [("RetractionIn", "J. 2020. doi: 10.1/r.")]))]
+        with mock.patch.object(refcheck, "LOTE_AID", 1), \
+             mock.patch.object(refcheck, "_pide_ncbi", side_effect=respuestas):
+            refcheck.fusiona_pubmed(r)
+        self.assertIn("reset by peer", r[0]["pubmed_error"])
+        self.assertEqual(r[0]["avisos"], [])
+        self.assertNotIn("pubmed_error", r[1], "a live batch was blamed for a dead one")
+        self.assertEqual(len(r[1]["avisos"]), 1, "the surviving batch lost its answer")
+
+    def test_el_informe_no_se_calla_que_solo_hablo_un_registro(self):
+        """The whole bug in one assertion: before today the flag was set and
+        the report printed 'Nothing found'."""
+        r = [{"doi": "10.1/a", "estado": "ok", "titulo": "T", "avisos": [],
+              "pubmed_error": "NCBI down"}]
+        texto = refcheck.informe(r)
+        self.assertIn("Crossref ONLY", texto)
+        self.assertIn("10.1/a", texto)
+
+    def test_el_informe_no_nombra_mil_a_medias(self):
+        r = [{"doi": f"10.1/{i}", "estado": "ok", "titulo": "", "avisos": [],
+              "pubmed_error": "down"} for i in range(50)]
+        texto = refcheck.informe(r)
+        self.assertEqual(texto.count("Crossref only, PubMed did not answer:"), 10)
+        self.assertIn("and 40 more", texto)
 
     @unittest.skipUnless(os.environ.get("REFCHECK_RED") == "1", "necesita red: REFCHECK_RED=1")
     def test_contra_la_realidad_el_hueco_sigue_ahi(self):
@@ -1012,6 +1047,53 @@ class Cache(unittest.TestCase):
         refcheck.escribe_cache([self._ficha(estado="desconocido")],
                                ruta=self.ruta, ahora=1000.0)
         self.assertIn("10.1/a", refcheck.lee_cache(ruta=self.ruta, ahora=1000.0))
+
+    def test_media_respuesta_no_vale_por_entera(self):
+        """The bug this class did not catch until 2026-09-14: PubMed unreachable,
+        Crossref's half stored, and for the next seven days that half came back
+        as if both registers had spoken. PubMed is the one holding 21% of the
+        corrections, so a cached Crossref-only answer is a cached blind spot."""
+        media = self._ficha()
+        media["pubmed_error"] = "NCBI down"
+        refcheck.escribe_cache([media], ruta=self.ruta, ahora=1000.0)
+        self.assertEqual(refcheck.lee_cache(ruta=self.ruta, ahora=1000.0), {},
+                         "a half-checked answer was served as a whole one")
+        # It is still an answer about Crossref, so a run that wants only
+        # Crossref may have it. Nothing is thrown away; it is labelled.
+        solo = refcheck.lee_cache(ruta=self.ruta, ahora=1000.0, necesita=("crossref",))
+        self.assertIn("10.1/a", solo)
+
+    def test_una_entrada_de_la_version_vieja_no_se_cree(self):
+        """Entries written before coverage was recorded cannot be vouched for."""
+        with open(self.ruta, "w", encoding="utf-8") as f:
+            json.dump({"10.1/a": {"t": 1000.0, "r": self._ficha()}}, f)
+        self.assertEqual(refcheck.lee_cache(ruta=self.ruta, ahora=1000.0), {})
+
+    def test_no_se_degrada_una_respuesta_completa(self):
+        """Fresh and half-blind loses to a day old and complete."""
+        refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=1000.0)
+        media = self._ficha()
+        media["pubmed_error"] = "NCBI down"
+        refcheck.escribe_cache([media], ruta=self.ruta, ahora=2000.0)
+        vivos = refcheck.lee_cache(ruta=self.ruta, ahora=2000.0)
+        self.assertIn("10.1/a", vivos, "a complete answer was overwritten by half of one")
+        self.assertEqual(vivos["10.1/a"][0], 1000.0)
+
+    def test_una_entrada_caducada_si_la_reemplaza_una_a_medias(self):
+        """Nothing is not better than half of something, as long as it is labelled."""
+        refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=1000.0)
+        media = self._ficha()
+        media["pubmed_error"] = "NCBI down"
+        tarde = 1000.0 + refcheck.CACHE_DIAS * 86400 + 10
+        refcheck.escribe_cache([media], ruta=self.ruta, ahora=tarde)
+        self.assertEqual(refcheck.lee_cache(ruta=self.ruta, ahora=tarde), {})
+        self.assertIn("10.1/a", refcheck.lee_cache(ruta=self.ruta, ahora=tarde,
+                                                  necesita=("crossref",)))
+
+    def test_un_run_sin_pubmed_no_guarda_una_respuesta_completa(self):
+        refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=1000.0,
+                               registros=("crossref",))
+        self.assertEqual(refcheck.lee_cache(ruta=self.ruta, ahora=1000.0), {})
 
     def test_caduca(self):
         refcheck.escribe_cache([self._ficha()], ruta=self.ruta, ahora=1000.0)
@@ -1149,6 +1231,66 @@ class CacheEnLaCLI(unittest.TestCase):
         _, texto, llamadas = self._corre(["refcheck.py", self.refs])
         self.assertEqual(len(llamadas), 1, "a failed lookup was cached")
         self.assertNotIn("local cache", texto)
+
+    def _corre_con_pubmed(self, argv, pubmed_ok):
+        """Like _corre, but the PubMed half is real code against a stub NCBI."""
+        crossref, ncbi = [], []
+        notice = {"gravedad": 3, "tipo": "retraction", "etiqueta": "Retraction",
+                  "doi_aviso": "10.5555/rrr", "fecha": "2024", "fuente": "pubmed",
+                  "titulo": "", "contradice": []}
+
+        def falso_lote(dois, reintentos=3):
+            crossref.append(list(dois))
+            return {d.lower(): self.obras[d.lower()] for d in dois
+                    if d.lower() in self.obras}
+
+        def falso_pubmed(dois, fallos=None):
+            ncbi.append(list(dois))
+            if pubmed_ok:
+                return {"10.5555/bbb": {"pmid": "123", "titulo": "Dos",
+                                        "avisos": [dict(notice)]}}
+            if fallos is None:
+                raise ConnectionError("NCBI down")
+            for d in dois:
+                fallos[d.lower()] = "NCBI down"
+            return {}
+
+        salida = io.StringIO()
+        with mock.patch.object(refcheck, "consulta_lote", falso_lote), \
+             mock.patch.object(refcheck, "avisos_pubmed", falso_pubmed), \
+             mock.patch.object(refcheck, "ruta_cache", lambda: self.ruta), \
+             mock.patch.object(sys, "argv", argv), \
+             mock.patch.object(sys, "stdout", salida):
+            codigo = refcheck.main()
+        return codigo, salida.getvalue(), crossref, ncbi
+
+    def test_una_respuesta_a_medias_no_se_queda_pegada_siete_dias(self):
+        """The bug, end to end, and the reason today was spent here. Run one has
+        NCBI down: Crossref says the paper is clean and PubMed is never heard.
+        Before 2026-09-14 that run printed 'Nothing found', exited 0, and cached
+        the half-answer — so run two, with PubMed back and a retraction to
+        report, said 'clean' again for a week."""
+        # Only the paper Crossref calls clean, so nothing else can move the
+        # exit code and it is the half-checked state being tested.
+        solo_b = os.path.join(self.dir, "b.txt")
+        with open(solo_b, "w", encoding="utf-8") as f:
+            f.write("10.5555/BBB\n")
+        self.refs = solo_b
+        c1, t1, _, _ = self._corre_con_pubmed(["refcheck.py", self.refs], False)
+        self.assertEqual(c1, 2, "a half-checked run exited green")
+        self.assertIn("Crossref ONLY", t1)
+
+        c2, t2, cr2, pm2 = self._corre_con_pubmed(["refcheck.py", self.refs], True)
+        self.assertTrue(pm2, "PubMed was never asked again")
+        self.assertTrue(cr2, "the cache served an answer it should not have kept")
+        self.assertIn("RETRACTED", t2)
+        self.assertEqual(c2, 1)
+
+        # And now that both registers have spoken, it is cached for real.
+        c3, t3, cr3, pm3 = self._corre_con_pubmed(["refcheck.py", self.refs], True)
+        self.assertEqual((cr3, pm3), ([], []), "asked again for a complete answer")
+        self.assertIn("RETRACTED", t3)
+        self.assertIn("came from the local cache", t3)
 
 
 if __name__ == "__main__":

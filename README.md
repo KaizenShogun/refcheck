@@ -119,12 +119,15 @@ included studies:
 
 | code | meaning |
 |---|---|
-| `0` | everything checked, nothing found |
+| `0` | everything checked against **both** registers, nothing found |
 | `1` | at least one reference carries a change notice |
-| `2` | bad usage, **or a reference that could not be looked up** |
+| `2` | bad usage, a reference that could not be looked up, **or a run where PubMed did not answer** |
 
 That last one matters. A failed lookup is not a clean reference, so it does not
-let the gate go green.
+let the gate go green — and since 14 September 2026 neither does a run where one
+of the two registers was unreachable. That used to exit `0`: a night when NCBI
+was down passed a CI gate as clean while being blind to the register that holds
+one corrected paper in five.
 
 **No installation, no account, no key.** One file, Python 3.9+, standard library
 only. Set `REFCHECK_MAILTO=you@example.org` to identify yourself politely to
@@ -192,12 +195,37 @@ python3 refcheck.py review.nbib --no-cache   # asks both registers again
 It lives in `~/.cache/refcheck/checked.json` (`REFCHECK_CACHE` to move it), keeps
 an answer for 7 days (`REFCHECK_CACHE_DAYS`), and is written with mode `600` —
 it is a list of what you have been reading, and it stays yours. Nothing about it
-is sent anywhere; there is no cache in the browser version at all.
+is sent anywhere.
 
-Three things it will not do, which matter more than the speed:
+**The browser version has one too since 14 September 2026**, and where it lives
+was the decision, not whether to build it. It is `sessionStorage`: it belongs to
+the one tab you have open and is gone when you close it. This page gets opened on
+shared computers — a library counter, a university cluster — and the list of what
+somebody has been reading should not outlive their session. Measured the same day
+on 1,000 references, with the network stubbed so what is being timed is the page's
+own pacing rather than two public registers' load
+(`research/measure_page_cache.js`):
+
+| | cold run | same file again |
+|---|---:|---:|
+| time | 31.0 s | **0.26 s** |
+| requests to Crossref and NCBI | 45 | **0** |
+
+It costs 75 kB of tab memory for those 1,000 references — 75 bytes each — and
+`localStorage` is left completely empty, which the measurement asserts rather
+than promises. There is a **Ask both registers again** button, because "reload
+the page" would have been a lie: `sessionStorage` survives a reload.
+
+Four things neither cache will do, which matter more than the speed:
 
 - **A failed lookup is never stored.** A dropped connection stays a dropped
   connection, so "I could not check this" can never age into a cached clean bill.
+- **Neither is an answer only one register gave.** Found on 14 September 2026 by
+  reading the previous day's own code: when NCBI was unreachable, the Crossref
+  half was stored and handed back for seven days as if both registers had spoken.
+  PubMed is the one holding the 21% of corrections Crossref never heard about, so
+  that was a cached blind spot. An entry now records which registers it rests on
+  and is only reused by a run that wants no more than those.
 - **It says out loud how much of the answer came off the disk, and how old the
   oldest of it was** — `998 of those came from the local cache, the oldest 2 days
   old`. An answer read from disk is an answer about the day it was fetched, and a
@@ -430,6 +458,26 @@ disagreement never silently loses the graver verdict.
 `--no-pubmed` turns all of this off, along with PMID translation, if you would
 rather not talk to NCBI.
 
+### And when only one of them answers, you are told that too
+
+Asking two registers is worth nothing if a silent register can pass for a clean
+one. Until 14 September 2026 it could, in both versions: when NCBI was
+unreachable the code recorded the failure in a field, and then **nothing ever
+printed it**. The run said `Nothing found`, exited `0`, and looked exactly like a
+run where PubMed had answered and had nothing to report.
+
+Three things changed, all of them measured by tests that fail against the
+previous day's code:
+
+- A reference only one register answered about is **named as half-checked**, in
+  the report, in the copyable version of it, and on the page — not filed with the
+  clean ones. The command-line version exits `2` for it.
+- **One dead batch costs its own batch.** PubMed is asked 50 DOIs at a time, so a
+  1,000-reference file is 20 batches and 40 requests; one transient `connection
+  reset` used to reject the whole chain and throw away the second opinion on all
+  1,000. On a home connection roughly one run in three loses a request somewhere.
+- **A half answer is never cached**, in either version. See above.
+
 ## Who this is for
 
 Anyone whose argument rests on somebody else's numbers: people writing a thesis,
@@ -513,8 +561,8 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 118 tests, offline
-REFCHECK_RED=1 python3 test_refcheck.py   # 124, adding the live-API cases
+python3 test_refcheck.py                  # 121 offline, 6 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 127, adding the live-API cases
 ```
 
 One of those live tests asserts that `10.1148/85.3.474` still arrives
@@ -525,7 +573,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 100 checks driving the real page in
+The browser version has its own battery — 114 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:
@@ -544,6 +592,13 @@ The MEDLINE checks in there do not read the report. They record **every request
 the page makes** and then assert that a stranger's DOI was never asked about at
 all — a report that looks right while quietly checking the wrong papers is the
 failure that started this, so the test is written one level below the words.
+
+The cache checks are written the same way: the claim is not that the second run
+*looks* right, it is that it made **zero requests** and that the warm report is
+line-for-line the cold one plus the line admitting where the answer came from.
+And the one that matters most goes the other way — with NCBI down, PubMed must be
+asked **again** on the next run, and the retraction that a cached half answer was
+hiding must come out.
 
 ## Licence
 

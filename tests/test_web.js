@@ -157,6 +157,13 @@
   const realFetch = window.fetch;
   let calls = 0;
 
+  // Since 2026-09-14 the page remembers, inside the tab, what it already asked
+  // about — so every section below that asserts on WHICH requests are made has
+  // to start from a cold tab, or it would be testing the cache instead of the
+  // failure. Section 10 tests the cache itself.
+  const coldTab = () => { try { sessionStorage.clear(); } catch (e) {} };
+  coldTab();
+
   // 6a. transient failure on the first attempt must be retried, not surrendered to
   window.fetch = function (u, o) {
     calls++;
@@ -168,6 +175,7 @@
   ok("retry still produced the finding", /RETRACTED/.test(txt()));
 
   // 6b. permanent failure must not be reported as a clean bibliography
+  coldTab();          // 6a just succeeded, so that answer is in the tab's memory
   window.fetch = function () { return Promise.reject(new TypeError("Failed to fetch")); };
   s = await check("10.1016/j.nbd.2012.05.020");
   ok("permanent failure is admitted, not hidden", /could not be checked/i.test(s), s);
@@ -178,6 +186,7 @@
      /0 references checked/.test(txt()), txt().split("\n").slice(0, 3).join(" | "));
 
   // 6c. a dead batch must not take the good results down with it.
+  coldTab();
   // Fail the first batch through all its retries (1 attempt + 3 = 4 calls),
   // then let the second batch — holding the one real DOI — go through.
   let n = 0;
@@ -372,6 +381,7 @@
   // Watch every request the page makes: the strongest statement is not what the
   // report says, it is that a stranger's DOI was never asked about at all.
   var asked = [];
+  coldTab();
   window.fetch = function (u, o) {
     var url = String(u);
     asked.push(url + " " + ((o && o.body) ? String(o.body) : ""));
@@ -505,6 +515,7 @@
   // Typing while a file is held: whatever you typed wins, and the file is not
   // silently checked behind it.
   asked2 = [];
+  coldTab();
   $("#input").value = "10.1056/nejmoa2001017";
   $("#input").dispatchEvent(new Event("input", { bubbles: true }));
   ok("typing sets the loaded file aside", $("#loaded").hidden,
@@ -537,6 +548,129 @@
   ok("it counted all 1,200", /1200 records/.test($("#loadedText").textContent),
      $("#loadedText").textContent);
   $("#unload").click();
+
+  // ---- 10. the tab's memory, and the half answer it must never keep --------
+  // Canned on purpose: what is being tested is which requests the page makes,
+  // and that cannot be read off a live register that may or may not be slow.
+  const clean = (doi) => ({ message: { items: [{ DOI: doi, title: ["A canned paper"],
+    "container-title": ["Journal of Fixtures"] }] } });
+  const withNotice = (doi) => ({ message: { items: [{ DOI: doi,
+    title: ["A canned paper"], "container-title": ["Journal of Fixtures"],
+    "updated-by": [{ type: "correction", label: "Correction", DOI: "10.7777/notice",
+                     updated: { "date-parts": [[2021, 1, 1]] } }] }] } });
+  const pmXml = (doi, reftype) =>
+    '<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID Version="1">5</PMID>' +
+    '<Article><ArticleTitle>A canned paper</ArticleTitle></Article>' +
+    '<CommentsCorrectionsList><CommentsCorrections RefType="' + reftype + '">' +
+    '<RefSource>J Fixtures. 2022. doi: 10.7777/rin.</RefSource>' +
+    '<PMID Version="1">6</PMID></CommentsCorrections></CommentsCorrectionsList>' +
+    '</MedlineCitation><PubmedData><ArticleIdList>' +
+    '<ArticleId IdType="pubmed">5</ArticleId>' +
+    '<ArticleId IdType="doi">' + doi + '</ArticleId>' +
+    '</ArticleIdList></PubmedData></PubmedArticle></PubmedArticleSet>';
+  // innerText puts the button on its own line, so both go.
+  const noCacheLine = (t) =>
+    t.split("\n")
+     .filter((l) => l.trim() &&
+                    !/already checked in this tab|Ask both registers again/.test(l))
+     .join("\n");
+
+  let hits = [];
+  window.fetch = function (u, o) {
+    const url = String(u);
+    hits.push(url);
+    if (/api\.crossref\.org/.test(url)) return reply(withNotice("10.7777/a"));
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+    return reply({});
+  };
+  s = await check("doi:10.7777/a");
+  const coldHits = hits.length, coldReport = txt();
+  ok("a cold run asks both registers", coldHits >= 2, coldHits + " requests");
+  ok("the cold run found the notice", /CORRECTED/.test(coldReport), coldReport);
+
+  hits = [];
+  s = await check("doi:10.7777/a");
+  ok("running the same references again asks nothing at all", hits.length === 0,
+     hits.join(" | "));
+  ok("and the page admits the answer came from this tab",
+     /1 of those was already checked in this tab/.test(txt()), txt());
+  ok("the warm report says exactly what the cold one said",
+     noCacheLine(txt()).trim() === noCacheLine(coldReport).trim(),
+     noCacheLine(txt()).slice(0, 300));
+
+  // The control on that: a stored answer must be escapable, because a cached
+  // "clean" is an answer about the past. "Reload" would not do it —
+  // sessionStorage survives a reload — so there is a button.
+  hits = [];
+  const againBtn = [...document.querySelectorAll(".summary button")]
+    .find((b) => /Ask both registers again/.test(b.textContent));
+  ok("there is a way to ask again", !!againBtn);
+  againBtn.click();
+  await new Promise((r) => setTimeout(r, 2500));
+  ok("the ask-again button really goes back to the registers", hits.length >= 2,
+     hits.length + " requests");
+  ok("and then it is no longer reported as remembered",
+     !/already checked in this tab/.test(txt()), txt().slice(0, 200));
+
+  // The bug this section exists for. NCBI down: Crossref calls the paper clean
+  // and PubMed is never heard. Before 2026-09-14 the page printed "Nothing
+  // found", said nothing about the missing register, and — once it had a cache
+  // — would have served that half answer for the rest of the session.
+  hits = [];
+  window.fetch = function (u, o) {
+    const url = String(u);
+    hits.push(url);
+    if (/eutils\.ncbi/.test(url)) return Promise.reject(new TypeError("Failed to fetch"));
+    if (/api\.crossref\.org/.test(url)) return reply(clean("10.7777/b"));
+    return reply({});
+  };
+  s = await check("doi:10.7777/b");
+  ok("a reference only one register answered about is called half-checked",
+     /asked of Crossref ONLY/.test(txt()), txt());
+  ok("and 'nothing found' is not left standing as a clean bill",
+     /only half of nothing found/.test(txt()), txt());
+
+  const asked2b = [];
+  window.fetch = function (u, o) {
+    const url = String(u);
+    asked2b.push(/eutils\.ncbi/.test(url) ? "pubmed" : "crossref");
+    if (/api\.crossref\.org/.test(url)) return reply(clean("10.7777/b"));
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: ["5"] } });
+    if (/efetch\.fcgi/.test(url)) return reply(pmXml("10.7777/b", "RetractionIn"));
+    return reply({});
+  };
+  s = await check("doi:10.7777/b");
+  ok("the half answer was NOT kept: PubMed gets asked again",
+     asked2b.indexOf("pubmed") >= 0, asked2b.join(" | "));
+  ok("and the retraction it was hiding comes out",
+     /RETRACTED/.test(txt()) && /per PubMed/.test(txt()), txt());
+
+  // One dead PubMed batch must cost its own 50 DOIs and not the other batches.
+  // 60 references is two batches; the first esearch dies.
+  const lote = [];
+  for (let i = 0; i < 60; i++) lote.push("10.7778/n" + i);
+  // Fail by batch, not by call count: postNcbi retries three times, so counting
+  // calls would just be testing the retry. n0 is only in the first batch of 50.
+  const firstBatch = (o) =>
+    decodeURIComponent(String((o && o.body) || "")).indexOf('"10.7778/n0"') >= 0;
+  window.fetch = function (u, o) {
+    const url = String(u);
+    if (/api\.crossref\.org/.test(url)) return reply({ message: { items: [] } });
+    if (/esearch\.fcgi/.test(url)) {
+      return firstBatch(o)
+        ? Promise.reject(new TypeError("Failed to fetch"))
+        : reply({ esearchresult: { idlist: ["5"] } });
+    }
+    if (/efetch\.fcgi/.test(url)) return reply(pmXml("10.7778/n55", "RetractionIn"));
+    return reply({});
+  };
+  s = await check(lote.join("\n"));
+  ok("a dead PubMed batch is reported as exactly its own 50",
+     /50 references were asked of Crossref ONLY/.test(txt()), txt().slice(0, 600));
+  ok("and the surviving batch still delivers its answer",
+     /RETRACTED/.test(txt()) && /10\.7778\/n55/.test(txt()), txt().slice(0, 800));
+  window.fetch = realFetch;
 
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()
