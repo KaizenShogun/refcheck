@@ -8,19 +8,47 @@
   const $ = (s) => document.querySelector(s);
   const txt = () => document.getElementById("out").innerText;
 
-  const check = (value) =>
+  // Waits for the page to be idle BEFORE clicking, and treats the button coming
+  // back as the end of the run. Both halves were missing until 2026-09-15 and
+  // the battery was quietly lying because of it: the page disables #go while a
+  // run is in flight, so a click during one does nothing at all, and the old
+  // 45 s ceiling was shorter than a run with many DOIs Crossref does not hold —
+  // those are asked about one a second. Eleven checks then "failed" by reading
+  // the *previous* test's report. A battery that can test the wrong run is
+  // worse than no battery: it fails where nothing is broken, which is the noise
+  // that teaches you to ignore it, and it can pass the same way.
+  const idle = () =>
     new Promise((res) => {
-      $("#input").value = value;
-      $("#go").click();
+      const t = setInterval(() => {
+        if (!$("#go").disabled) { clearInterval(t); res(); }
+      }, 100);
+    });
+
+  // Counting writes to #out rather than comparing the status text: two runs in
+  // a row can legitimately end with the identical sentence, and waiting for the
+  // text to *change* would then hang until the ceiling. Every finished run
+  // rewrites the report, so this is the one signal that always moves.
+  let paints = 0;
+  new MutationObserver(() => { paints++; }).observe($("#out"), { childList: true });
+
+  const check = async (value) => {
+    await idle();
+    $("#input").value = value;
+    const from = paints;
+    $("#go").click();
+    return new Promise((res) => {
       const t0 = Date.now();
       const poll = setInterval(() => {
         const s = $("#status").textContent;
-        if (/^Done\.|Nothing to look up|Could not reach/.test(s) || Date.now() - t0 > 45000) {
+        const ended = !$("#go").disabled &&
+                      (paints > from || /Nothing to look up|Could not reach/.test(s));
+        if (ended || Date.now() - t0 > 240000) {
           clearInterval(poll);
           setTimeout(() => res(s), 120);
         }
       }, 150);
     });
+  };
 
   // ---- 1. static structure the page must have before anything is clicked ----
   ok("lang is set", document.documentElement.lang === "en", document.documentElement.lang);
@@ -62,8 +90,14 @@
   ok("run completed", s === "Done.", s);
 
   const body = txt();
-  ok("5 unique references counted (case-folded duplicate merged)",
-     /\b5 references checked\b/.test(body), body.split("\n")[1]);
+  // Six lines, one a case-folded duplicate, so five distinct references — and
+  // four *checked*, because the arXiv preprint is a DataCite DOI that Crossref
+  // does not hold. It is counted in the not-found bucket asserted just below,
+  // not in the checked total: since 2026-09-15 a reference nobody could look up
+  // stopped being counted as one that was looked up.
+  ok("the duplicate is merged and only what was really checked is counted",
+     /\b4 references checked\b/.test(body) && /Not found in Crossref \(1\)/.test(body),
+     body.split("\n")[1]);
   ok("reports the retraction", /RETRACTED — do not cite this as evidence/.test(body));
   ok("reports the correction", /CORRECTED — check the number/.test(body));
   ok("DOI from a BibTeX field was parsed", /10\.1038\/nature12373/.test(body) || true);
@@ -385,7 +419,14 @@
   window.fetch = function (u, o) {
     var url = String(u);
     asked.push(url + " " + ((o && o.body) ? String(o.body) : ""));
-    if (/api\.crossref\.org/.test(url)) return reply({ message: { items: [] } });
+    // The two real DOIs come back clean rather than empty. Two reasons, both
+    // learnt on 2026-09-15: a DOI Crossref does not hold is now asked about a
+    // second time by name, which would put those requests in `asked` and blunt
+    // the "a stranger's DOI is never asked about" assertions below; and the
+    // summary line only means "2 and not 3" if two were genuinely checked.
+    if (/api\.crossref\.org/.test(url)) return reply({ message: { items: [
+      { DOI: "10.1056/NEJMoa2001017", title: ["A Novel Coronavirus"], "updated-by": [] },
+      { DOI: "10.1016/j.nbd.2012.05.020", title: ["LRRK2"], "updated-by": [] }] } });
     if (/esummary\.fcgi/.test(url)) return reply({ result: {} });
     if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
     if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
@@ -443,10 +484,14 @@
     return recs.join("\n\n") + "\n";
   };
 
+  // The button coming back is part of the condition: the page disables it for
+  // the whole run, so a status that already matches while it is still disabled
+  // belongs to the previous run, not this one.
   const waitStatus = (re, ms) => new Promise((res) => {
     const t0 = Date.now();
     const poll = setInterval(() => {
-      if (re.test($("#status").textContent) || Date.now() - t0 > (ms || 30000)) {
+      const listo = re.test($("#status").textContent) && !$("#go").disabled;
+      if (listo || Date.now() - t0 > (ms || 30000)) {
         clearInterval(poll); res($("#status").textContent);
       }
     }, 100);
@@ -480,18 +525,34 @@
      ($("#unload").textContent || "").trim().length > 3, $("#unload").textContent);
 
   // An empty box plus a held file must check the file, not nothing.
+  // Cold tab first: the earlier .nbib fixture and this one share a DOI, and the
+  // tab's memory would otherwise hand back that fixture's answer — right down
+  // to its title — for a request this stub never got asked. Two fixtures, one
+  // cache, and the second one silently measuring the first.
+  coldTab();
   var asked2 = [];
   window.fetch = function (u, o) {
     var url = String(u);
     asked2.push(url + " " + ((o && o.body) ? String(o.body) : ""));
     if (/api\.crossref\.org/.test(url)) {
-      return reply({ message: { items: [{
-        DOI: "10.1016/j.nbd.2012.05.020",
-        title: ["LRRK2 kinase activity\n      mediates <i>toxic</i> interactions " +
-                "with <scp>GTPase</scp> &amp; more"],
-        "updated-by": [{ type: "retraction", label: "Retraction",
-                         DOI: "10.1016/j.nbd.2025.106930",
-                         updated: { "date-parts": [[2025, 5, 1]] } }] }] } });
+      // Echo back exactly what was filtered on, which is what Crossref does.
+      // Answering every batch with one fixed record made the other 399 look
+      // missing, and since 2026-09-14 a miss is asked about again one per
+      // second — so this fixture on its own added 100 s and the run outlasted
+      // the ceiling below, leaving the next three checks reading a report that
+      // belonged to a run still in flight.
+      var pedidos = (decodeURIComponent(url).match(/doi:([^,&]+)/g) || [])
+        .map(function (t) { return t.slice(4); });
+      return reply({ message: { items: pedidos.map(function (d) {
+        return /nbd\.2012\.05\.020/.test(d)
+          ? { DOI: d,
+              title: ["LRRK2 kinase activity\n      mediates <i>toxic</i> interactions " +
+                      "with <scp>GTPase</scp> &amp; more"],
+              "updated-by": [{ type: "retraction", label: "Retraction",
+                               DOI: "10.1016/j.nbd.2025.106930",
+                               updated: { "date-parts": [[2025, 5, 1]] } }] }
+          : { DOI: d, title: ["A trial of something"], "updated-by": [] };
+      }) } });
     }
     if (/esummary\.fcgi/.test(url)) return reply({ result: {} });
     if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
@@ -670,6 +731,114 @@
      /50 references were asked of Crossref ONLY/.test(txt()), txt().slice(0, 600));
   ok("and the surviving batch still delivers its answer",
      /RETRACTED/.test(txt()) && /10\.7778\/n55/.test(txt()), txt().slice(0, 800));
+  window.fetch = realFetch;
+
+  // ---- the DOI `filter=doi:` cannot see -------------------------------
+  // Measured 2026-09-14 against 1,000 retractions from the Retraction Watch
+  // database used as ground truth: of the 19 misses, 14 looked absent from
+  // Crossref and 4 of those were not absent at all — their publisher had
+  // redirected the DOI to the very notice that retracted them, so the batch
+  // filter answered nothing while /works/<doi> answered fine. Re-checked one by
+  // one against the live API on 2026-09-15: four for four.
+  //
+  // The fixture is the real shape of one of them. 10.1096/fasebj.2022.36.s1.0i128
+  // resolves to FASEB's "Withdrawn abstracts" notice, whose `update-to` names
+  // 42 different abstracts — verified live on 2026-09-15 — exactly one of them
+  // the DOI the reader asked about. Handing that record over whole would report
+  // 41 retractions of papers nobody cited, which is the .nbib bug of 12-sep
+  // happening again one register further in.
+  const MINE = "10.1096/fasebj.2022.36.s1.0i128";
+  const NOTICE = "10.1096/fsb2.22386";
+  const upd = (doi, i) => ({ DOI: doi, type: "retraction", label: "Retraction",
+                             source: "retraction-watch", "record-id": String(37476 + i),
+                             updated: { "date-parts": [[2022, 5, 27]] } });
+  const faseb = (includeMine) => {
+    const others = [];
+    for (let i = 0; i < 41; i++) others.push(upd("10.1096/fasebj.2022.36.s1.r" + i, i));
+    const rows = others.slice(0, 20)
+      .concat(includeMine ? [upd(MINE, 43)] : [])
+      .concat(others.slice(20));
+    return { message: { DOI: NOTICE, title: ["Withdrawn abstracts"],
+                        "container-title": ["The FASEB Journal"],
+                        "update-to": rows, "updated-by": [] } };
+  };
+  // The batch call carries `filter=`; the by-name one is /works/<doi>. Counting
+  // them apart is the only way to claim the second request happens ONLY on a
+  // miss, which is the difference between one extra request and one per entry.
+  const isBatch = (u) => /filter=/.test(String(u));
+  let byName = [];
+  const stub = (work) => function (u, o) {
+    const url = String(u);
+    if (/api\.crossref\.org/.test(url)) {
+      if (isBatch(url)) return reply({ message: { items: [] } });
+      byName.push(url);
+      return reply(work);
+    }
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+    return reply({});
+  };
+
+  byName = [];
+  window.fetch = stub(faseb(true));
+  s = await check("doi:" + MINE);
+  ok("a retraction the batch filter could not see is not reported as not-found",
+     /RETRACTED/.test(txt()), txt().slice(0, 700));
+  ok("it was asked about by name, once",
+     byName.length === 1, byName.join(" | "));
+  ok("the borrowed title is declared borrowed",
+     /no longer has a record of its own/.test(txt()) && txt().indexOf(NOTICE) >= 0,
+     txt().slice(0, 900));
+  ok("none of the 41 other people's retractions came along",
+     !/fasebj\.2022\.36\.s1\.r/.test(txt()), txt().slice(0, 900));
+  ok("and it is not also listed as missing from Crossref",
+     !/not found in Crossref/.test(txt()), txt().slice(0, 700));
+
+  // It moved, and the record it moved to does not say why. That is not a
+  // verdict in either direction and must not be dressed as one.
+  byName = [];
+  window.fetch = stub(faseb(false));
+  s = await check("doi:" + MINE);
+  ok("a DOI that moved for no stated reason is not a verdict",
+     /does not say why/.test(txt()) && !/RETRACTED/.test(txt()), txt().slice(0, 800));
+  ok("and the reader is told where it went, as a link they can follow",
+     txt().indexOf(NOTICE) >= 0, txt().slice(0, 800));
+
+  // A reply that names no DOI is not an answer about anything. Without the
+  // guard the page printed "this DOI now points at " with nothing after it.
+  byName = [];
+  window.fetch = stub({ message: { title: ["No DOI in here"], "update-to": [] } });
+  s = await check("doi:10.9999/nameless");
+  ok("a reply naming no DOI stays not-found instead of becoming a claim",
+     /not found in Crossref/.test(txt()) && !/now points at/.test(txt()) &&
+     !/no longer has a record/.test(txt()), txt().slice(0, 700));
+
+  // The header used to say "1 reference checked", then "not checked", then
+  // "Nothing found" — three lines that cannot all be true about one DOI.
+  ok("a reference nobody could look up is not counted as checked",
+     /0 references checked/.test(txt()), txt().slice(0, 300));
+  ok("and no clean bill is printed for it",
+     !/Nothing found/.test(txt()), txt().slice(0, 400));
+
+  // What the batch DID find must never cost a second request: one per entry
+  // would be a hundredfold on a free service, from a page that promises not to.
+  byName = [];
+  window.fetch = function (u, o) {
+    const url = String(u);
+    if (/api\.crossref\.org/.test(url)) {
+      if (isBatch(url)) return reply({ message: { items: [
+        { DOI: "10.4242/clean", title: ["Perfectly fine"], "updated-by": [] }] } });
+      byName.push(url);
+      return reply({});
+    }
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+    return reply({});
+  };
+  s = await check("doi:10.4242/clean");
+  ok("a reference the batch answered is never asked about twice",
+     byName.length === 0, byName.join(" | "));
+  ok("and it still counts as checked", /1 reference checked/.test(txt()), txt().slice(0, 300));
   window.fetch = realFetch;
 
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };

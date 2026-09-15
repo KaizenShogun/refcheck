@@ -610,6 +610,60 @@ def consulta(doi, reintentos=3):
     return None
 
 
+def _avisos_desde_destino(doi, destino):
+    """Notices that `destino` claims, in its own words, to be about `doi`.
+
+    The record a superseded DOI now resolves to carries `update-to`, which is
+    the mirror of `updated-by`: same fields, pointing the other way. So a
+    notice found here is not an inference of mine from a title that happens to
+    start with "Retraction:" — it is the publisher's own machine-readable
+    assertion that this work retracts that DOI. Entries naming any other DOI
+    are ignored: FASEB's withdrawn-abstracts notice names 42 of them, and only
+    the one the reader asked about is theirs.
+
+    Rewritten into `updated-by` shape so the rest of the pipeline — the
+    de-duplication, the contradiction check, the ordering — is the same code
+    that handles every other notice. In `updated-by` the DOI field is the
+    notice's; in `update-to` it is the article's, so it is swapped for the DOI
+    of the record we are reading.
+    """
+    suyo = str(destino.get("DOI", "")).lower()
+    quiere = doi.lower()
+    entradas = [dict(u, DOI=suyo) for u in (destino.get("update-to") or [])
+                if str(u.get("DOI", "")).lower() == quiere]
+    return avisos_de({"updated-by": entradas}) if entradas else []
+
+
+def consulta_sustituto(doi):
+    """Ask about one DOI by name, for the ones the batch filter cannot express.
+
+    Measured 2026-09-14 on 1.000 retractions drawn from the Retraction Watch
+    database: `filter=doi:X` returns nothing for a DOI Crossref has superseded,
+    while `/works/X` follows the alias and answers. Four of that sample's
+    nineteen misses were this, and all four were papers whose DOI the publisher
+    had redirected to the retraction notice that killed them — which is the
+    worst possible thing for a tool like this to report as "not found".
+
+    Returns (obra, es_alias). `es_alias` means the record that came back is NOT
+    the one asked for, and that distinction is the whole point of doing this by
+    hand rather than trusting the reply: handing the notice's record over as if
+    it were the article's would print "Retraction: …" as the reference's own
+    title with no notice attached, i.e. a retracted paper reported clean. That
+    would be worse than today's silence, so the caller is made to see it.
+    """
+    obra = consulta(doi)
+    if obra is None:
+        return None, False
+    suyo = str(obra.get("DOI", "")).lower()
+    if not suyo:
+        # A reply with no DOI in it is not an answer about anything. Found by
+        # the browser battery on 2026-09-14, where a stubbed reply produced the
+        # sentence "this DOI now points at " with nothing after it — a claim
+        # about a record that was never named. Treated as no answer at all.
+        return None, False
+    return obra, suyo != doi.lower()
+
+
 def marca_contradicciones(avisos):
     """Flag assertions that come from one upstream record but disagree on type.
 
@@ -757,6 +811,58 @@ def consulta_lote(dois, reintentos=3):
     raise ConnectionError(f"Crossref lookup failed: {ultimo}")
 
 
+# How many DOIs the batch missed are worth asking about one at a time. Each is
+# its own request at Crossref's 1/s, and a bibliography of arXiv preprints —
+# whose DOIs live at DataCite, so the filter finds none of them — would otherwise
+# turn a 30 s run into a ten-minute one. The ones beyond the cap keep the answer
+# they already had, "not found, not checked", which is not a clean bill; and the
+# report says how many were left, because an unstated limit is just silence
+# wearing a hat.
+SEGUNDAS_MAX = int(os.environ.get("REFCHECK_SECOND_CHANCES", "100"))
+
+
+def segunda_oportunidad(doi):
+    """What to report about a DOI the batch filter did not find.
+
+    Three endings, and they are deliberately not one:
+
+      · nothing there either — "not found", the same answer as before.
+      · the same DOI comes back — the filter simply could not express it. Use
+        it exactly as if the batch had returned it.
+      · a DIFFERENT DOI comes back — this one has been superseded. Never
+        presented as the reference's own record. If that record states it is a
+        notice about this DOI, that assertion is reported as the notice it is;
+        if it does not, the reader is told the DOI has moved and nothing more,
+        because "it now points at something else" is not a verdict.
+
+    One extra request, and only for DOIs the batch already failed on. Measured
+    on a real 1.000-record PubMed export: 4 of 1.000, so about 4 s added to a
+    65 s run. On a bibliography full of typos it costs more, and it should —
+    the alternative is calling a retracted paper "not found".
+    """
+    try:
+        obra, es_alias = consulta_sustituto(doi)
+    except Exception as e:
+        return {"doi": doi, "estado": "sin_comprobar", "error": str(e), "avisos": []}
+    if obra is None:
+        return {"doi": doi, "estado": "desconocido", "avisos": []}
+    if not es_alias:
+        return ficha(doi, obra)
+    destino = str(obra.get("DOI", "")).lower()
+    avisos = _avisos_desde_destino(doi, obra)
+    if not avisos:
+        # It moved, and the record it moved to does not say why. Saying more
+        # than that would be inventing it.
+        return {"doi": doi, "estado": "sustituido", "sustituido_por": destino,
+                "titulo": limpia_titulo((obra.get("title") or [""])[0]),
+                "avisos": []}
+    return {"doi": doi, "estado": "ok", "sustituido_por": destino,
+            "titulo": limpia_titulo((obra.get("title") or [""])[0]),
+            "revista": limpia_titulo((obra.get("container-title") or [""])[0]),
+            "contradictorio": any(a["contradice"] for a in avisos),
+            "avisos": avisos}
+
+
 def revisa_lote(dois, pausa=None, avisa=None):
     """Check every DOI, in batches. Never reports a failed lookup as 'not found'.
 
@@ -764,7 +870,7 @@ def revisa_lote(dois, pausa=None, avisa=None):
     `pausa` is an extra courtesy delay on top, for anyone who wants to go slower
     still; it is not the thing keeping us inside the limit.
     """
-    resultados, hechos = [], 0
+    resultados, hechos, segundas = [], 0, 0
     for i in range(0, len(dois), LOTE):
         trozo = dois[i:i + LOTE]
         try:
@@ -778,8 +884,14 @@ def revisa_lote(dois, pausa=None, avisa=None):
         if obras is not None:
             for d in trozo:
                 w = obras.get(d.lower())
-                resultados.append(ficha(d, w) if w
-                                  else {"doi": d, "estado": "desconocido", "avisos": []})
+                if w:
+                    resultados.append(ficha(d, w))
+                elif segundas < SEGUNDAS_MAX:
+                    segundas += 1
+                    resultados.append(segunda_oportunidad(d))
+                else:
+                    resultados.append({"doi": d, "estado": "desconocido",
+                                       "sin_segunda": True, "avisos": []})
         hechos += len(trozo)
         if avisa:
             avisa(hechos, len(dois))
@@ -956,6 +1068,8 @@ def informe(resultados, ancho=78):
     sinc = [r for r in resultados if r["estado"] == "sin_comprobar"]
     sin_doi = [r for r in resultados if r["estado"] == "pmid_sin_doi"]
     pmid_desc = [r for r in resultados if r["estado"] == "pmid_desconocido"]
+    # Crossref has merged this DOI into another record and does not say why.
+    sust = [r for r in resultados if r["estado"] == "sustituido"]
     # Checked against one register instead of two. Not a failure, not an answer
     # either, and until today this tool set the flag and printed nothing.
     a_medias = [r for r in resultados
@@ -1000,6 +1114,14 @@ def informe(resultados, ancho=78):
             # visible as a silent Crossref rather than as agreement.
             via = "  [per PubMed]" if a.get("fuente") == "pubmed" else ""
             lineas.append(f"      → {a['etiqueta']}{fecha}: {enlace}{choque}{via}")
+        if r.get("sustituido_por"):
+            # The title printed above belongs to the notice, not to the paper —
+            # it usually quotes the paper's, which is useful but is not the same
+            # thing, and the reader should not have to guess which they are
+            # looking at.
+            lineas.append(f"      This DOI no longer has a record of its own: Crossref sends it")
+            lineas.append(f"      to {r['sustituido_por']}, which states it is the notice above.")
+            lineas.append(f"      The title shown is that notice's.")
         if r.get("contradictorio"):
             lineas.append("      Same upstream record, two different verdicts, same date — the API")
             lineas.append("      does not say which is current. Look it up: retractiondatabase.org")
@@ -1007,7 +1129,15 @@ def informe(resultados, ancho=78):
             for d in r["discrepancia"]:
                 lineas.append(f"      Two of the lines above are the same notice ({d}),")
                 lineas.append("      filed at different severities. Read it and judge for yourself.")
-    comprobadas = len(resultados) - len(sinc) - len(sin_doi) - len(pmid_desc)
+    # `desc` and `sust` are subtracted too, and until 2026-09-15 they were not.
+    # A single mistyped DOI used to print three lines that cannot all be true:
+    # "1 reference(s) checked", then "1 not found in Crossref — not checked",
+    # then "Nothing found". A reader skimming the top of that takes away a clean
+    # bill for a reference nobody managed to look up. Nothing was checked, so the
+    # count is 0 and the "Nothing found" line — which is gated on this number —
+    # stays away.
+    comprobadas = (len(resultados) - len(sinc) - len(sin_doi) - len(pmid_desc)
+                   - len(desc) - len(sust))
     cab = [f"  {comprobadas} reference(s) checked · {len(con)} carry a change notice"]
     # An answer read off the disk is an answer about the day it was fetched, and
     # a notice published since then is invisible. Say it, do not let it pass as
@@ -1027,6 +1157,14 @@ def informe(resultados, ancho=78):
         cab.append("  so those are half-checked, not clean.")
     if desc:
         cab.append(f"  {len(desc)} not found in Crossref (preprints, books, bad DOI) — not checked")
+        recortados = [r for r in desc if r.get("sin_segunda")]
+        if recortados:
+            cab.append(f"  of those, {len(recortados)} were not asked about one by one "
+                       f"(cap {SEGUNDAS_MAX}) — REFCHECK_SECOND_CHANCES raises it")
+    if sust:
+        es = "" if len(sust) == 1 else "s"
+        cab.append(f"  {len(sust)} DOI{es} now point{'s' if len(sust) == 1 else ''} at a "
+                   "different record and Crossref does not say why — check by hand")
     if sin_doi:
         cab.append(f"  {len(sin_doi)} PMID(s) have no DOI in PubMed — nothing to ask Crossref "
                    "about, so NOT checked")
@@ -1035,7 +1173,7 @@ def informe(resultados, ancho=78):
     if not con and comprobadas > 0:
         cab.append("  Nothing found. That is the expected result most of the time;")
         cab.append("  it is the 1-in-N that this exists for.")
-    if sinc or sin_doi or pmid_desc or a_medias:
+    if sinc or sin_doi or pmid_desc or a_medias or sust:
         lineas.append("")           # do not let these hang off the last notice
     # Named so they can be rerun, but capped: a dead batch is 50 DOIs and a
     # 1,000-reference report that ends in 50 identical lines gets skipped whole.
@@ -1051,6 +1189,10 @@ def informe(resultados, ancho=78):
         lineas.append(f"      ? no DOI, not checked: PMID {r['pmid']}{fecha}{'  ' + t if t else ''}")
     for r in pmid_desc:
         lineas.append(f"      ? no such record: PMID {r['pmid']}")
+    for r in sust:
+        t = (r.get("titulo") or "")[:ancho - 30]
+        lineas.append(f"      ? {nombre(r)} now resolves to {r['sustituido_por']}"
+                      + (f" — {t}" if t else ""))
     return "\n".join(cab + lineas)
 
 

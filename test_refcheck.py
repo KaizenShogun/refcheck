@@ -110,7 +110,10 @@ class Robustez(unittest.TestCase):
                {"doi": "b", "estado": "ok", "titulo": "t", "avisos": []},
                {"doi": "c", "estado": "desconocido", "avisos": []}]
         txt = refcheck.informe(res)
-        self.assertIn("3 reference(s) checked · 1 carry a change notice", txt)
+        # 2 y no 3: el 15-sep-2026 dejó de contarse como "comprobada" una
+        # referencia que la línea siguiente declara "not checked". Ver
+        # LaCuentaDeLaCabecera, que es donde vive el porqué.
+        self.assertIn("2 reference(s) checked · 1 carry a change notice", txt)
         self.assertIn("1 not found in Crossref", txt)
 
 
@@ -124,14 +127,27 @@ class Lotes(unittest.TestCase):
             vistos.append(list(trozo))
             return {}
 
-        with mock.patch.object(refcheck, "consulta_lote", side_effect=falso):
+        # Los 95 DOIs no existen, así que desde el 14-sep-2026 cada uno se
+        # pregunta además por su nombre. Sin este segundo mock esta prueba
+        # hacía 285 peticiones de verdad a api.crossref.org (95 × 3 reintentos)
+        # y seguía saliendo en verde: 95 misses inventados descargados sobre un
+        # servicio público gratuito, desde la batería que presume de no usar red.
+        with mock.patch.object(refcheck, "consulta_lote", side_effect=falso), \
+             mock.patch.object(refcheck, "consulta", return_value=None):
             refcheck.revisa_lote([f"10.1234/x{i}" for i in range(95)], pausa=0)
         self.assertEqual([len(v) for v in vistos], [40, 40, 15])
 
     def test_ausente_de_la_respuesta_es_desconocido(self):
-        with mock.patch.object(refcheck, "consulta_lote", return_value={}):
+        # `consulta` va mockeada a propósito: desde que existe la segunda
+        # oportunidad (14-sep-2026) un DOI que el lote no encuentra se pregunta
+        # por su nombre, y sin este mock esta prueba SALÍA EN VERDE llamando a
+        # api.crossref.org de verdad. Una batería que promete funcionar sin red
+        # y la usa a escondidas no está midiendo lo que dice medir.
+        with mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "consulta", return_value=None) as c:
             r = refcheck.revisa_lote(["10.9999/nada"], pausa=0)
         self.assertEqual(r[0]["estado"], "desconocido")
+        self.assertEqual(c.call_count, 1)
 
     def test_fallo_de_red_NO_se_disfraza_de_desconocido(self):
         # El fallo que importa: si la consulta se cae, decir "no encontrado" le
@@ -842,6 +858,240 @@ class AvisosPubmed(unittest.TestCase):
         self.assertEqual(refcheck._avisos_de_xml(x), {})
 
 
+def _sustituto(nuestro, ajenos=41, tipo="retraction", suyo="10.1096/fsb2.22386"):
+    """The shape of the record a superseded DOI actually resolves to.
+
+    Modelled on a real one, checked against the live API on 2026-09-15:
+    `10.1096/fasebj.2022.36.s1.0i128` no longer has a record of its own and
+    Crossref sends it to FASEB's "Withdrawn abstracts" notice, whose
+    `update-to` names **42** different abstracts — all retractions, exactly one
+    of them the DOI a reader would have asked about.
+
+    That 42 is the whole reason the filter exists. Reporting the record as it
+    comes would hand somebody 41 retractions of papers they never cited, which
+    is the `.nbib` bug of 2026-09-12 happening again one register further in.
+    """
+    otros = [{"DOI": f"10.1096/fasebj.2022.36.s1.r{i}", "type": tipo,
+              "label": "Retraction", "source": "retraction-watch",
+              "updated": {"date-parts": [[2022, 5, 27]]}, "record-id": str(37476 + i)}
+             for i in range(ajenos)]
+    mio = [{"DOI": nuestro, "type": tipo, "label": "Retraction",
+            "source": "retraction-watch", "record-id": "37519",
+            "updated": {"date-parts": [[2022, 5, 27]]}}] if nuestro else []
+    return {"DOI": suyo, "title": ["Withdrawn abstracts"],
+            "container-title": ["The FASEB Journal"],
+            "update-to": otros[:20] + mio + otros[20:], "updated-by": []}
+
+
+class SegundaOportunidad(unittest.TestCase):
+    """Asking by name about a DOI `filter=doi:` cannot see.
+
+    Measured 2026-09-14 against 1,000 retractions drawn from the Retraction
+    Watch database as ground truth: of the 19 this tool missed, 14 were absent
+    from Crossref entirely — and 4 of those 14 were not absent at all. Their
+    publisher had redirected the DOI to the very notice that retracted them, so
+    `filter=doi:` answered nothing while `/works/<doi>` answered fine. Verified
+    one by one against the live API on 2026-09-15: all four come back, all four
+    carry a retraction. 981 → 985 of 1,000.
+
+    What the four have in common is what makes this worth code: the paper is
+    retracted, and the reader was being told "not found in Crossref".
+    """
+    NUESTRO = "10.1096/fasebj.2022.36.s1.0i128"
+
+    def _segunda(self, obra):
+        with mock.patch.object(refcheck, "consulta", return_value=obra):
+            return refcheck.segunda_oportunidad(self.NUESTRO)
+
+    def test_solo_sale_el_aviso_que_nombra_a_este_articulo(self):
+        r = self._segunda(_sustituto(self.NUESTRO))
+        self.assertEqual(len(r["avisos"]), 1,
+                         "se colaron avisos de artículos que este lector no citó")
+        self.assertEqual(r["avisos"][0]["tipo"], "retraction")
+
+    def test_el_aviso_apunta_al_aviso_y_no_al_propio_articulo(self):
+        # En `update-to` el DOI es el del ARTÍCULO; en `updated-by`, el del
+        # AVISO. Si no se cambia, el informe le ofrece al lector un enlace que
+        # devuelve al sitio del que viene en vez de a la retractación.
+        r = self._segunda(_sustituto(self.NUESTRO))
+        self.assertEqual(r["avisos"][0]["doi_aviso"], "10.1096/fsb2.22386")
+
+    def test_una_retractacion_sustituida_nunca_se_reporta_limpia(self):
+        r = self._segunda(_sustituto(self.NUESTRO))
+        texto = refcheck.informe([r])
+        self.assertIn("RETRACTED", texto)
+        self.assertNotIn("Nothing found", texto)
+        self.assertNotIn("not found in Crossref", texto)
+
+    def test_el_titulo_prestado_se_declara_prestado(self):
+        # El título que se imprime es el del AVISO, no el del artículo. Suele
+        # citar el del artículo, que es útil y no es lo mismo, y el lector no
+        # tiene por qué adivinar cuál de los dos está leyendo.
+        r = self._segunda(_sustituto(self.NUESTRO))
+        texto = refcheck.informe([r])
+        self.assertIn("no longer has a record of its own", texto)
+        self.assertIn("10.1096/fsb2.22386", texto)
+
+    def test_movido_y_mudo_no_es_un_veredicto(self):
+        # Se mudó, y el registro de destino no dice por qué. Decir más que eso
+        # sería inventarlo: ni limpio ni retractado, a mano.
+        r = self._segunda(_sustituto(None))
+        self.assertEqual(r["estado"], "sustituido")
+        self.assertEqual(r["avisos"], [])
+        texto = refcheck.informe([r])
+        self.assertIn("does not say why", texto)
+        self.assertNotIn("RETRACTED", texto)
+
+    def test_una_respuesta_sin_doi_no_es_respuesta(self):
+        # Sin esto el informe llega a decir "this DOI now points at " y nada
+        # detrás: una afirmación sobre un registro que nadie nombró.
+        r = self._segunda({"title": ["algo"], "update-to": []})
+        self.assertEqual(r["estado"], "desconocido")
+        self.assertNotIn("sustituido_por", r)
+
+    def test_el_mismo_doi_de_vuelta_es_solo_un_punto_ciego_del_filtro(self):
+        # Nada se ha movido: el filtro por lotes no supo expresarlo y ya está.
+        # Se usa igual que si el lote lo hubiera devuelto.
+        obra = {"DOI": self.NUESTRO, "title": ["El artículo"], "container-title": ["Revista"],
+                "updated-by": [{"type": "retraction", "label": "Retraction",
+                                "DOI": "10.1/r", "updated": {"date-parts": [[2021, 3, 1]]}}]}
+        r = self._segunda(obra)
+        self.assertEqual(r["estado"], "ok")
+        self.assertNotIn("sustituido_por", r)
+        self.assertEqual(r["titulo"], "El artículo")
+        self.assertEqual(len(r["avisos"]), 1)
+
+    def test_lo_que_de_verdad_no_esta_sigue_sin_estar(self):
+        r = self._segunda(None)
+        self.assertEqual(r["estado"], "desconocido")
+        self.assertEqual(r["avisos"], [])
+
+    def test_un_fallo_de_red_no_se_disfraza_de_no_encontrado(self):
+        with mock.patch.object(refcheck, "consulta", side_effect=ConnectionError("boom")):
+            r = refcheck.segunda_oportunidad(self.NUESTRO)
+        self.assertEqual(r["estado"], "sin_comprobar")
+        self.assertIn("could NOT be checked", refcheck.informe([r]))
+
+
+class SegundaOportunidadEnElLote(unittest.TestCase):
+    """Dónde se engancha: sólo sobre lo que el lote ya falló, y con tope."""
+
+    def test_no_se_vuelve_a_preguntar_por_lo_que_el_lote_encontro(self):
+        obras = {"10.1/a": {"DOI": "10.1/a", "title": ["t"], "updated-by": []}}
+        with mock.patch.object(refcheck, "consulta_lote", return_value=obras), \
+             mock.patch.object(refcheck, "consulta") as c:
+            refcheck.revisa_lote(["10.1/a"], pausa=0)
+        self.assertEqual(c.call_count, 0, "una petición de más por cada referencia sana")
+
+    def test_el_tope_recorta_y_lo_dice_en_voz_alta(self):
+        # Una bibliografía de preprints de arXiv (DOI de DataCite, que este
+        # filtro no encuentra) convertiría una tirada de 30 s en una de diez
+        # minutos. El tope existe por eso; que no se diga sería silencio con
+        # sombrero, y en esta herramienta el silencio se lee como "limpio".
+        dois = [f"10.1/x{i}" for i in range(5)]
+        with mock.patch.object(refcheck, "SEGUNDAS_MAX", 2), \
+             mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "consulta", return_value=None) as c:
+            r = refcheck.revisa_lote(dois, pausa=0)
+        self.assertEqual(c.call_count, 2, "el tope no se respetó")
+        self.assertEqual(sum(1 for x in r if x.get("sin_segunda")), 3)
+        self.assertTrue(all(x["estado"] == "desconocido" for x in r))
+        texto = refcheck.informe(r)
+        self.assertIn("3 were not asked about one by one", texto)
+        self.assertIn("REFCHECK_SECOND_CHANCES", texto)
+
+    def test_el_tope_cuenta_entre_lotes_y_no_se_reinicia(self):
+        # `segundas` vive fuera del bucle de lotes a propósito: si se reiniciara
+        # con cada trozo de 40, el tope de 100 sería en realidad 100 POR LOTE.
+        dois = [f"10.1/x{i}" for i in range(60)]
+        with mock.patch.object(refcheck, "LOTE", 20), \
+             mock.patch.object(refcheck, "SEGUNDAS_MAX", 25), \
+             mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "consulta", return_value=None) as c:
+            refcheck.revisa_lote(dois, pausa=0)
+        self.assertEqual(c.call_count, 25)
+
+    def test_el_recorte_no_se_cuenta_como_comprobado(self):
+        # Lo que el tope deja fuera conserva la respuesta que ya tenía: "no
+        # encontrado, no comprobado". Que no es un aprobado.
+        r = [{"doi": "10.1/a", "estado": "desconocido", "sin_segunda": True, "avisos": []}]
+        texto = refcheck.informe(r)
+        self.assertIn("0 reference(s) checked", texto)
+        self.assertNotIn("Nothing found", texto)
+
+
+class LaCuentaDeLaCabecera(unittest.TestCase):
+    """Que la primera línea no diga lo contrario que la segunda.
+
+    Encontrado el 15-sep-2026 escribiendo las pruebas del tope, no por un
+    usuario. Un solo DOI mal tecleado imprimía, seguidas: «1 reference(s)
+    checked», «1 not found in Crossref — not checked» y «Nothing found». Quien
+    lee por encima se queda con la primera y la última, que juntas dicen
+    exactamente lo contrario de lo que pasó.
+    """
+
+    def test_no_encontrado_no_es_comprobado(self):
+        texto = refcheck.informe([{"doi": "10.1/a", "estado": "desconocido", "avisos": []}])
+        self.assertIn("0 reference(s) checked", texto)
+        self.assertNotIn("Nothing found", texto)
+
+    def test_mudado_tampoco_es_comprobado(self):
+        texto = refcheck.informe([{"doi": "10.1/a", "estado": "sustituido",
+                                   "sustituido_por": "10.1/n", "titulo": "t", "avisos": []}])
+        self.assertIn("0 reference(s) checked", texto)
+        self.assertNotIn("Nothing found", texto)
+
+    def test_lo_que_si_se_comprobo_se_sigue_contando(self):
+        res = [{"doi": "a", "estado": "ok", "titulo": "t", "avisos": [
+                    {"tipo": "retraction", "gravedad": 3, "fecha": "2020",
+                     "doi_aviso": "10.1/r", "etiqueta": "Retraction", "contradice": []}]},
+               {"doi": "b", "estado": "ok", "titulo": "t", "avisos": []},
+               {"doi": "c", "estado": "desconocido", "avisos": []}]
+        texto = refcheck.informe(res)
+        self.assertIn("2 reference(s) checked · 1 carry a change notice", texto)
+        self.assertIn("1 not found in Crossref", texto)
+
+    def test_todo_limpio_sigue_diciendo_que_esta_limpio(self):
+        # El otro lado del arreglo: no vaya a ser que por callar de más se quede
+        # muda una tirada que de verdad no encontró nada.
+        texto = refcheck.informe([{"doi": "a", "estado": "ok", "titulo": "t", "avisos": []}])
+        self.assertIn("1 reference(s) checked", texto)
+        self.assertIn("Nothing found", texto)
+
+
+class SustituidoEnLaCache(unittest.TestCase):
+    """Que el disco no pierda justo lo que hace falta para no mentir."""
+
+    def test_el_dato_de_que_se_mudo_sobrevive_al_disco(self):
+        # La página NO cachea un DOI que se mudó, porque su formato guardado no
+        # tiene sitio para "esto vive ahora en otro lado" y al volver leería
+        # como una respuesta limpia normal. La CLI guarda la ficha entera, así
+        # que sí puede — pero eso hay que demostrarlo, no suponerlo.
+        d = _tmpdir(self)
+        ruta = os.path.join(d, "c.json")
+        ficha = {"doi": "10.1/viejo", "estado": "ok", "titulo": "Withdrawn abstracts",
+                 "revista": "The FASEB Journal", "sustituido_por": "10.1096/fsb2.22386",
+                 "contradictorio": False,
+                 "avisos": [{"tipo": "retraction", "gravedad": 3, "fecha": "2022-05-27",
+                             "doi_aviso": "10.1096/fsb2.22386", "etiqueta": "Retraction",
+                             "fuente": "retraction-watch", "registro": "37519",
+                             "contradice": []}]}
+        refcheck.escribe_cache([ficha], ruta=ruta)
+        leida = refcheck.lee_cache(ruta=ruta)
+        _, vuelta = leida["10.1/viejo"]
+        self.assertEqual(vuelta["sustituido_por"], "10.1096/fsb2.22386")
+        self.assertIn("no longer has a record of its own", refcheck.informe([vuelta]))
+
+    def test_un_mudado_mudo_no_se_guarda(self):
+        # `sustituido` no es ni "ok" ni "desconocido": es "no sé, míralo tú".
+        # Guardarlo lo convertiría en una respuesta, y no lo es.
+        d = _tmpdir(self)
+        ruta = os.path.join(d, "c.json")
+        refcheck.escribe_cache([{"doi": "10.1/v", "estado": "sustituido",
+                                 "sustituido_por": "10.1/n", "avisos": []}], ruta=ruta)
+        self.assertEqual(refcheck.lee_cache(ruta=ruta), {})
+
+
 class FusionDeRegistros(unittest.TestCase):
     """Merging the two registers, which is where the honesty lives."""
 
@@ -1294,4 +1544,17 @@ class CacheEnLaCLI(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    if os.environ.get("REFCHECK_SIN_RED") == "1":
+        # Enforces the promise in the module docstring instead of trusting it.
+        # Worth having because on 2026-09-15 it turned out not to be true: the
+        # second-chance lookup added the day before means a mocked batch that
+        # finds nothing now sends every miss off to be asked about by name, and
+        # two tests were quietly hitting api.crossref.org — one of them 285
+        # times — while reporting green. A battery that uses the network it
+        # claims not to use is not measuring what it says it measures, and it
+        # dumps invented misses on a free public service from a project whose
+        # README asks people to be kind to it.
+        def _sin_red(*a, **k):
+            raise AssertionError("an offline test reached the network")
+        refcheck.urllib.request.urlopen = _sin_red
     unittest.main(verbosity=2)

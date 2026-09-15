@@ -458,6 +458,86 @@ disagreement never silently loses the graver verdict.
 `--no-pubmed` turns all of this off, along with PMID translation, if you would
 rather not talk to NCBI.
 
+### Against a reference standard, not against the other register
+
+Both measurements above compare the two registers to each other, which tells you
+they disagree but not who is right. The question a reader actually has is
+different: **given a paper that really was retracted, does this tool say so?**
+
+The Retraction Watch database answers it. It is maintained by people whose whole
+job is finding these notices, it is CC BY, and Crossref republishes it, so it can
+be used as ground truth rather than as a third opinion. `research/measure_rw_gap.py`
+draws 200 retracted papers from each of five eras — stratified by the *original*
+paper's year, because deposit practice has improved enormously and a uniform draw
+would be dominated by recent papers and would flatter the answer — and runs them
+through refcheck itself rather than a reimplementation.
+
+**1,000 draws, 999 distinct papers, seed 20260914:**
+
+| the paper was published | n | refcheck says RETRACTED | says something milder | silent |
+|---|---:|---:|---:|---:|
+| pre-2000 | 200 | 99.5% | 0% | 0.5% |
+| 2000–09 | 200 | 99.0% | 0% | 1.0% |
+| 2010–14 | 200 | **100%** | 0% | 0% |
+| 2015–19 | 200 | 94.0% | 0% | **6.0%** |
+| 2020+ | 200 | **100%** | 0% | 0% |
+| all | 1,000 | **98.5%** | 0% | 1.5% |
+
+Nothing is reported as *milder* than it is, which is the failure that would
+matter most: being told to check a number when you should be throwing the
+citation out. The 15 misses are silence: ten of those papers are not in Crossref
+at all — and **eight of the ten are the same journal**, `10.4314/jfas`, which is
+an indexing gap rather than a scattering of bad luck — while the other five are
+in Crossref with no notice attached to them, so neither register knew.
+
+**The measurement paid for itself immediately, which is the point of running
+one.** The first run scored 981. Four of its nineteen misses turned out not to be
+missing: their publisher had redirected the DOI to the very notice that retracted
+them, and Crossref's `filter=doi:` — the batch query this tool is built on —
+cannot see a DOI that has been superseded, while `/works/<doi>` follows the alias
+and answers fine. Those four papers were retracted and the report said *not found
+in Crossref*. So every DOI the batch misses is now asked about again by name, and
+the same 999 papers re-run on 2026-09-15 score **985, with zero regressions and
+no other verdict moved**.
+
+Re-running the identical sample is what makes that a controlled before/after
+rather than two numbers: the CSV grows, so the same seed over a longer list draws
+different papers. `--sample research/rw_gap_20260914.json` replays the exact draw,
+which also means the figure can be reproduced from the JSON in this repo instead
+of the 66 MB CSV.
+
+**What the second look costs, measured rather than guessed:** one extra request
+per DOI the batch did not find, paced at Crossref's 1/s. On the 1,000-reference
+run that was 14 requests, so about 14 seconds. It is capped at 100 — a
+bibliography of arXiv preprints is *all* misses, and none of them would be found
+the second time either — and whatever the cap leaves out keeps the answer it had,
+`not found, not checked`, with the number of skipped ones printed. `REFCHECK_SECOND_CHANCES`
+raises the cap.
+
+**What comes back is never passed off as the reference's own record.** The notice
+is a different work with a different title; handing it over whole would print
+"Retraction: …" as your paper's title with no notice attached, which is a
+retracted paper reported clean — worse than the silence it replaced. Only the
+entries that name your DOI are kept: FASEB's *Withdrawn abstracts* notice lists
+42 of them, and 41 belong to somebody else. And if the record it moved to does
+not say why, you are told it moved and nothing more, because "it now points
+somewhere else" is not a verdict.
+
+Two of those four, live, where yesterday both read `not found in Crossref`:
+
+```
+  3 reference(s) checked · 2 carry a change notice
+  1 not found in Crossref (preprints, books, bad DOI) — not checked
+
+  RETRACTED — do not cite this as evidence
+    Withdrawn abstracts, The FASEB Journal, issue 36:S1
+    10.1096/fasebj.2022.36.s1.0i128
+      → Retraction (2022-05-27): https://doi.org/10.1096/fsb2.22386
+      This DOI no longer has a record of its own: Crossref sends it
+      to 10.1096/fsb2.22386, which states it is the notice above.
+      The title shown is that notice's.
+```
+
 ### And when only one of them answers, you are told that too
 
 Asking two registers is worth nothing if a silent register can pass for a clean
@@ -561,9 +641,22 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 121 offline, 6 network cases skipped
-REFCHECK_RED=1 python3 test_refcheck.py   # all 127, adding the live-API cases
+python3 test_refcheck.py                  # 140 offline, 6 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 146, adding the live-API cases
 ```
+
+"Offline" is checked rather than promised:
+
+```
+REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 140 must pass
+```
+
+That caught two tests on 2026-09-15. A mocked batch that finds nothing now sends
+every miss off to be asked about by name, so one of them was firing **285 real
+requests** at `api.crossref.org` — invented misses, from the battery of a project
+whose README asks people to be kind to that service — and reporting green while
+it did. The tell was the clock: the offline run takes 0.2 s once it stops
+secretly using the network, and it had been taking 29.
 
 One of those live tests asserts that `10.1148/85.3.474` still arrives
 contradictory. If Crossref fixes CR-2746 the test goes red — which is exactly
@@ -573,7 +666,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 114 checks driving the real page in
+The browser version has its own battery — 126 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:

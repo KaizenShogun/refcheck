@@ -949,6 +949,50 @@
       });
   }
 
+  // Crossref's `filter=doi:` cannot see a DOI that has been superseded, while
+  // /works/<doi> follows the alias and answers. Measured 2026-09-14 against
+  // 1,000 retractions drawn from the Retraction Watch database: of the 19 this
+  // tool missed, 4 were exactly this — papers whose DOI the publisher had
+  // redirected to the very notice that retracted them, reported here until
+  // today as "not found in Crossref".
+  //
+  // One request per DOI the batch missed, capped: a bibliography of arXiv
+  // preprints (DataCite DOIs, so the filter finds none of them) would turn a
+  // 30 s run into a ten-minute one. Whatever the cap leaves out keeps the
+  // answer it already had — "not found, not checked" — and the count is said
+  // out loud, because an unstated limit is silence wearing a hat.
+  var SECOND_CHANCES = 100;
+
+  function secondChance(doi) {
+    var path = doi.split("/").map(encodeURIComponent).join("/");
+    return fetch(API + "/" + path, { headers: { Accept: "application/json" } })
+      .then(function (r) {
+        if (r.status === 404) return null;
+        if (!r.ok) throw new Error("Crossref replied " + r.status);
+        return r.json();
+      })
+      .then(function (j) { return (j && j.message) || null; });
+  }
+
+  // Notices the record `work` states, in its own words, are about `doi`.
+  // `update-to` is the mirror of `updated-by` — same fields, pointing the other
+  // way — so this is the publisher's machine-readable assertion, not a guess of
+  // mine from a title that happens to begin "Retraction:". Entries naming any
+  // other DOI are dropped: FASEB's withdrawn-abstracts notice names 42, and
+  // only the one the reader asked about belongs to them.
+  function noticesAbout(doi, work) {
+    var mine = String(work.DOI || "").toLowerCase();
+    var want = doi.toLowerCase();
+    var hits = (work["update-to"] || []).filter(function (u) {
+      return String(u.DOI || "").toLowerCase() === want;
+    }).map(function (u) {
+      var c = {}; for (var k in u) if (Object.prototype.hasOwnProperty.call(u, k)) c[k] = u[k];
+      c.DOI = mine;
+      return c;
+    });
+    return hits.length ? noticesOf({ "updated-by": hits }) : [];
+  }
+
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -956,15 +1000,24 @@
     return n;
   }
 
-  function render(found, notFound, unchecked, total, sueltos, half, fromCache) {
+  function render(found, notFound, unchecked, total, sueltos, half, fromCache,
+                  superseded, notRetried) {
     out.textContent = "";
     lastReport = "";
     sueltos = sueltos || [];
     half = half || [];
     fromCache = fromCache || { n: 0, oldest: 0 };
+    superseded = superseded || [];
+    notRetried = notRetried || 0;
     var noDoi = sueltos.filter(function (s) { return s.estado === "pmid_no_doi"; });
     var noPmid = sueltos.filter(function (s) { return s.estado === "pmid_not_found"; });
-    var checked = total - unchecked.length;
+    // notFound and superseded come off the count too, and until 2026-09-15 they
+    // did not. One mistyped DOI printed three lines that cannot all be true:
+    // "1 reference checked", then "1 not found in Crossref … not checked", then
+    // "Nothing found". Whoever skims the top of that walks away with a clean
+    // bill for a reference nobody managed to look up. Nothing was checked, so
+    // it says 0 — and the "Nothing found" line, gated on this number, stays out.
+    var checked = total - unchecked.length - notFound.length - superseded.length;
 
     var box = el("div", "summary");
     var h = el("h2");
@@ -1004,6 +1057,33 @@
       box.appendChild(el("p", null,
         notFound.length + " not found in Crossref (preprints, books, chapters, or a " +
         "mistyped DOI) — these were not checked, which is not the same as clean."));
+    }
+    if (notRetried) {
+      box.appendChild(el("p", null,
+        "Of those, " + notRetried + " were not also asked about one at a time " +
+        "(this page stops at " + SECOND_CHANCES + " to stay polite to a free " +
+        "service). Check those on the command line, or in smaller batches."));
+    }
+    if (superseded.length) {
+      var sp = el("p", null,
+        superseded.length + (superseded.length === 1 ? " DOI now points" : " DOIs now point") +
+        " at a different record and Crossref does not say why. That is not a " +
+        "verdict either way — look " + (superseded.length === 1 ? "it" : "them") +
+        " up by hand:");
+      sp.style.fontWeight = "600";
+      box.appendChild(sp);
+      var sl = el("ul");
+      superseded.forEach(function (s2) {
+        var li = el("li");
+        li.appendChild(document.createTextNode(s2.doi + " \u2192 "));
+        var a = el("a", null, s2.movedTo);
+        a.href = "https://doi.org/" + s2.movedTo;
+        a.rel = "noopener";
+        li.appendChild(a);
+        if (s2.titulo) li.appendChild(document.createTextNode(" — " + s2.titulo));
+        sl.appendChild(li);
+      });
+      box.appendChild(sl);
     }
     // Said out loud, because until 2026-09-14 this page knew it and printed
     // "Nothing found" anyway. PubMed is the register holding 21% of the
@@ -1148,6 +1228,16 @@
             lines.push("    (" + texto + ")");
           });
         }
+        if (r.movedTo) {
+          // The title above belongs to the notice, not to the paper. It usually
+          // quotes the paper's, which is useful and is not the same thing, and
+          // the reader should not have to work out which they are looking at.
+          var mv = "This DOI no longer has a record of its own: Crossref sends it to " +
+                   r.movedTo + ", which states it is the notice above. " +
+                   "The title shown is that notice's.";
+          li.appendChild(el("p", "hint", mv));
+          lines.push("    (" + mv + ")");
+        }
         ol.appendChild(li);
       });
       out.appendChild(ol);
@@ -1290,6 +1380,15 @@
 
   function check(dois, origen, sueltos) {
     var found = [], seen = Object.create(null), unchecked = [], done = 0;
+    // DOIs Crossref has merged into another record without saying why, and the
+    // count of the ones the cap left unasked. Both go on screen.
+    var superseded = [], notRetried = 0;
+    // A DOI that moved is not written to the tab's memory. The stored shape has
+    // no room for "this now lives somewhere else", and an entry that loses that
+    // would come back on the next run as an ordinary clean answer — which is
+    // the one mistake this whole change exists to undo. Four in a thousand, so
+    // asking again costs nothing worth having.
+    var noCache = Object.create(null);
     // {doi: why} for references only one register answered about.
     var halfChecked = Object.create(null);
     // What the merged answer for each DOI ended up being, so it can be stored.
@@ -1379,6 +1478,63 @@
       });
     }, Promise.resolve())
       .then(function () {
+        // Before writing any of these off as "not found", ask about them by
+        // name. Only the ones the batch missed, and only up to the cap.
+        var pendiente = Object.create(null);
+        unchecked.forEach(function (d) { pendiente[d] = 1; });
+        var huerfanos = ask.filter(function (d) { return !seen[d] && !pendiente[d]; });
+        if (huerfanos.length > SECOND_CHANCES) {
+          notRetried = huerfanos.length - SECOND_CHANCES;
+          huerfanos = huerfanos.slice(0, SECOND_CHANCES);
+        }
+        if (!huerfanos.length) return;
+        return huerfanos.reduce(function (chain, d, i) {
+          return chain.then(function () {
+            status.textContent = "Asking about " + (i + 1) + " of " +
+              huerfanos.length + " Crossref's filter could not express…";
+            return sleep(i ? GAP_MS : 0);
+          }).then(function () {
+            return secondChance(d);
+          }).then(function (w) {
+            if (!w) return;                       // really not there
+            var suyo = String(w.DOI || "").toLowerCase();
+            // A reply that names no DOI is not an answer about anything, and
+            // must never become "this DOI now points at " with nothing after
+            // it — a claim about a record never named. Leave it as not found.
+            if (!suyo) return;
+            if (suyo === d) {                     // filter blind spot, nothing moved
+              seen[d] = 1;
+              var n = noticesOf(w);
+              if (n.length) {
+                found.push({ doi: d, pmid: origen[d] || "",
+                             titulo: cleanTitle((w.title || [""])[0]),
+                             revista: cleanTitle((w["container-title"] || [""])[0]),
+                             notices: n });
+              }
+              return;
+            }
+            // It moved. Never handed over as this reference's own record: doing
+            // that would print "Retraction: …" as the paper's title with no
+            // notice attached, i.e. a retracted paper reported clean.
+            var n2 = noticesAbout(d, w);
+            seen[d] = 1;
+            noCache[d] = 1;
+            if (n2.length) {
+              found.push({ doi: d, pmid: origen[d] || "",
+                           titulo: cleanTitle((w.title || [""])[0]),
+                           revista: cleanTitle((w["container-title"] || [""])[0]),
+                           notices: n2, movedTo: suyo });
+            } else {
+              superseded.push({ doi: d, movedTo: suyo,
+                                titulo: cleanTitle((w.title || [""])[0]) });
+            }
+          }).catch(function () {
+            // A failed second chance leaves the first answer alone: it was
+            // already "not found, not checked", which is not a clean bill.
+          });
+        }, Promise.resolve());
+      })
+      .then(function () {
         // Now ask the other register. Measured 2026-09-11: one corrected paper
         // in five is invisible to Crossref, so skipping this would hand back a
         // clean bill of health that is not clean.
@@ -1439,7 +1595,7 @@
         found.forEach(function (f) { byDoiNow[f.doi] = f; });
         var guardar = [];
         ask.forEach(function (d) {
-          if (pending[d] || halfChecked[d]) return;
+          if (pending[d] || halfChecked[d] || noCache[d]) return;
           var e = byDoiNow[d];
           guardar.push({
             doi: d,
@@ -1461,7 +1617,8 @@
         // render's  checked = total - unchecked  still comes out right once the
         // failed PMIDs are in the unchecked list but not in `dois`.
         render(found, notFound, unchecked, dois.length + fallados.length, sueltos,
-               halfList, { n: cacheCount, oldest: cacheOldest });
+               halfList, { n: cacheCount, oldest: cacheOldest },
+               superseded, notRetried);
       })
       .then(function () { go.disabled = false; });
   }
