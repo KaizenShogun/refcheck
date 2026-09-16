@@ -472,7 +472,35 @@ paper's year, because deposit practice has improved enormously and a uniform dra
 would be dominated by recent papers and would flatter the answer — and runs them
 through refcheck itself rather than a reimplementation.
 
-**1,000 draws, 999 distinct papers, seed 20260914:**
+Every nature in that database is measured, not just the gravest. All figures are
+from 16 September 2026 except the retraction row, which is the 14 September draw
+re-run that day with **zero verdicts moved** (`--sample` replays the exact draw,
+so a change in the score cannot be the sample moving):
+
+| ground truth says | n | refcheck warns at that severity | a notice of that **exact** nature appears |
+|---|---:|---:|---:|
+| retraction | 1,000 | **98.5%** | 98.5% |
+| expression of concern | 400 | **99.0%** | 95.2% |
+| correction | 349 | **100%** | 99.7% |
+
+**Two columns, because one of them flatters the tool.** The left asks what a
+reader cares about: am I warned, at least as loudly as the facts deserve. The
+right asks whether the notice that actually exists is the one shown. They come
+apart for expressions of concern — 396 papers are warned about but only 381 are
+warned about *as* an expression of concern, because for the other 15 the paper
+was later retracted outright and the retraction alone clears the bar. That is not
+a miss for a reader, and it would be dishonest to report it as a hit for the
+register.
+
+**Corrections scoring 100% is not a contradiction of the 21% gap measured on
+11 September.** Two things differ. That figure was Crossref *alone*, before the
+second register existed in this tool — closing it is precisely what PubMed was
+added for, and this is the controlled measurement of whether that worked. And the
+populations are not the same: Retraction Watch catalogues the corrections that
+reach its radar, which skew towards questioned conduct, not the routine erratum
+that makes up most of PubMed's 260,790.
+
+**The retraction row, in full — 1,000 draws, 999 distinct papers, seed 20260914:**
 
 | the paper was published | n | refcheck says RETRACTED | says something milder | silent |
 |---|---:|---:|---:|---:|
@@ -537,6 +565,56 @@ Two of those four, live, where yesterday both read `not found in Crossref`:
       to 10.1096/fsb2.22386, which states it is the notice above.
       The title shown is that notice's.
 ```
+
+### The one it gets wrong, and it cannot be fixed from here
+
+Retraction Watch records a fourth nature: **`Reinstatement`** — a retraction that
+was *reversed*. The paper stands. Measuring it needs the scoring turned round,
+because here the right answer is silence and anything refcheck says is a false
+alarm. There are only 155 such papers with a usable DOI, so this is the census,
+not a sample.
+
+| | n | |
+|---|---:|---|
+| quiet, as it should be | 105 | 67.7% |
+| warns, milder notice only | 19 | often a real notice published *after* the paper was restored |
+| **still says RETRACTED** | **31** | **20.0% — and this is the expensive way to be wrong** |
+
+Thirty-one papers that stand today, and this tool tells you to throw the citation
+out. Their own notes in the database are not ambiguous: *"Retracted in error and
+reinstated"*, *"This article was incorrectly retracted"*, *"article reinstated on
+unknown date with no explanation"*. Eleven of the 31 are `Retract and Replace`,
+where a retracted version really was superseded by a corrected one; the rest were
+simply restored.
+
+**This is not a bug in refcheck, and saying so is not an excuse — it is the
+finding.** Crossref has no `reinstatement` in its vocabulary of update types, and
+publishers do not deposit the reversal as a relation. Take
+`10.1080/21655979.2021.2005742`, retracted in error by Taylor & Francis and
+reinstated. Crossref still serves one `updated-by`, a `retraction`, deposited by
+the publisher. The notice restoring the paper exists — `10.1080/21655979.2024.2326361`
+— and it is filed as a plain `journal-article` titled *"Publisher's Note"*, with
+`update-to: null`. Nothing links it to the paper it rescues. **A checker built on
+these two registers cannot see it, however well written.**
+
+One case shows the shape of it from the other side.
+`10.1007/s00404-012-2548-3` carries a 2024 correction stating the article is *not*
+retracted — and Crossref has already dropped the retraction from its record.
+PubMed has not. refcheck asks both and the graver answer wins, so the stale
+register decides. That rule is still right: going quiet because one register
+stopped talking is the more dangerous error, and it is the one fixed on
+9 September. Here it costs.
+
+**What was deliberately not done about it.** Not a warning on every `RETRACTED` —
+31 papers against ~67,000 retractions is roughly one in two thousand, and a
+caveat printed on all of them teaches people to skip the caveat, which is worse
+than the problem. Not shipping the Retraction Watch CSV either: 66 MB to resolve
+155 papers is not a trade worth making, and that was already decided on the 9th
+for the same reason. What is here instead is the measured number, and the advice
+that follows from it: **a `RETRACTED` verdict on a paper whose retraction you have
+reason to doubt should be checked at
+[retractiondatabase.org](https://retractiondatabase.org), which is the only one of
+the three that records reversals.**
 
 ### And when only one of them answers, you are told that too
 

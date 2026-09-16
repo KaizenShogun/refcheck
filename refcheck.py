@@ -148,6 +148,22 @@ GRAVEDAD = {
     "correction": 1, "erratum": 1, "corrigendum": 1,
     "addendum": 0, "clarification": 0, "new_edition": 0, "new_version": 0,
 }
+# No `reinstatement` here, and that absence is measured rather than forgotten.
+# Retraction Watch records 155 papers whose retraction was REVERSED; 31 of them
+# are still reported RETRACTED by this tool (census, 2026-09-16,
+# research/measure_rw_gap.py --nature Reinstatement --all). Crossref has no such
+# update type, and publishers file the restoring notice as an unrelated article —
+# the one for 10.1080/21655979.2021.2005742 is a "Publisher's Note" with
+# `update-to: null` — so neither register carries a signal to read. Nothing is
+# invented here to cover a vocabulary that does not exist; the number and the
+# limit are in the README instead.
+#
+# If Crossref ever does add the type, the default below turns it into
+# GRAVEDAD.get("reinstatement", 1) = "CORRECTED", which would be the opposite of
+# what happened, and the headline would still read RETRACTED because the
+# retraction outranks it. Fixing that means ordering notices by date as well as
+# severity, and it should not be written until there is a real record to test it
+# against.
 ETIQUETA = {
     3: "RETRACTED — do not cite this as evidence",
     2: "EXPRESSION OF CONCERN — the journal itself is unsure",

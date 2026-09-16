@@ -1,0 +1,5203 @@
+{
+ "nature": "Correction",
+ "n_per_era": 80,
+ "census": false,
+ "seed": 20260914,
+ "rerun_of": null,
+ "counts": {
+  "avisado": 349
+ },
+ "exact": 348,
+ "rows": [
+  {
+   "doi": "10.1105/tpc.10.6.937",
+   "record": "9783",
+   "anno": 1998,
+   "titulo": "Initiation and Maintenance of Virus-Induced Gene Silencing",
+   "fecha_retractacion": "7/1/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/328686a0",
+   "record": "2088",
+   "anno": 1987,
+   "titulo": "The Drosophila Clock Gene per Affects Intercellular Junctional Communication",
+   "fecha_retractacion": "12/10/1992 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1073/pnas.86.20.7928",
+   "record": "3393",
+   "anno": 1989,
+   "titulo": "Heparin-binding growth factor 1 induces the formation of organoid neovascular structures in vivo",
+   "fecha_retractacion": "2/1/1990 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.274.51.36734",
+   "record": "9624",
+   "anno": 1999,
+   "titulo": "Regulation of E-cadherin/catenin association by tyrosine phosphorylation",
+   "fecha_retractacion": "9/2/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s0140-6736(94)91139-8",
+   "record": "2121",
+   "anno": 1994,
+   "titulo": "Polymorphism at the tumour necrosis factor locus: a marker of genetic predisposition to colorectal cancer?",
+   "fecha_retractacion": "2/12/1994 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/372150a0",
+   "record": "17083",
+   "anno": 1994,
+   "titulo": "Oligosaccharide Ligands for NKR-P1 Protein Activate NK Cells and Cytotoxicity",
+   "fecha_retractacion": "4/11/1996 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1073/pnas.89.17.8049",
+   "record": "3471",
+   "anno": 1992,
+   "titulo": "Recombinant human migration inhibitory factor has adjuvant activity",
+   "fecha_retractacion": "12/15/1993 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/s0010-7824(98)00120-6",
+   "record": "64943",
+   "anno": 1998,
+   "titulo": "Pharmacokinetics of Implanon\u00ae: An integrated analysis",
+   "fecha_retractacion": "5/24/1999 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/0092-8674(86)90389-2",
+   "record": "284",
+   "anno": 1986,
+   "titulo": "Altered Repertoire of Endogenous Immunoglobulin Gene Expression in Transgenic Mice Containing a Rearranged mu Heavy Chai",
+   "fecha_retractacion": "11/18/1988 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1212/wnl.53.2.437-a",
+   "record": "17808",
+   "anno": 1999,
+   "titulo": "An alternative to vitamin D supplementation to prevent fractures in patients with MS",
+   "fecha_retractacion": "3/27/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1063/1.370739",
+   "record": "5507",
+   "anno": 1999,
+   "titulo": "Origin of the Deep Center Photoluminescence in CuGaSe2 and CuInS2 Crystals",
+   "fecha_retractacion": "6/1/2001 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s0006-8993(98)00459-4",
+   "record": "34056",
+   "anno": 1998,
+   "titulo": "Role of neutrophil elastase in compression-induced spinal cord injury in rats",
+   "fecha_retractacion": "7/23/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1126/science.6264596",
+   "record": "755",
+   "anno": 1981,
+   "titulo": "Warburg effect revisited: merger of biochemistry and molecular biology",
+   "fecha_retractacion": "9/18/1981 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1111/j.1151-2916.1992.tb05612.x",
+   "record": "42662",
+   "anno": 1992,
+   "titulo": "A Prediction on the Strength of Glass Following the Formation of Subsurface Flaws by Scribing",
+   "fecha_retractacion": "1/1/1993 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1213/00000539-199302000-00006",
+   "record": "34468",
+   "anno": 1993,
+   "titulo": "Influence of Different Glucose-Insulin-Potassium Regimes on Glucose Homeostasis and Hormonal Response in Cardiac Surgery",
+   "fecha_retractacion": "11/1/1993 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/bf02815403",
+   "record": "3095",
+   "anno": 1994,
+   "titulo": "Induction of gene expression of amyloid precursor protein (APP) in activated human lymphoblastoid cells and lymphocytes",
+   "fecha_retractacion": "2/1/1995 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1136/bmj.299.6693.228",
+   "record": "11754",
+   "anno": 1989,
+   "titulo": "Influence of Maternal Diet During Lactation and Use of Formula Feeds on Development of Atopic Eczema in High Risk Infant",
+   "fecha_retractacion": "10/7/1989 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1097/00007691-199902000-00011",
+   "record": "42097",
+   "anno": 1999,
+   "titulo": "An Investigation into Variability in the Therapeutic Response to Deferiprone in Patients with Thalassemia Major",
+   "fecha_retractacion": "4/1/2004 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/bf00636263",
+   "record": "773",
+   "anno": 1993,
+   "titulo": "Experience with tumescent technique in lipoplasty",
+   "fecha_retractacion": "3/1/1994 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1073/pnas.88.13.5592",
+   "record": "41112",
+   "anno": 1991,
+   "titulo": "Splicing-defective mutants of the yeast mitochondrial COXI gene can be corrected by transformation with a hybrid maturas",
+   "fecha_retractacion": "11/1/1991 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/30741",
+   "record": "8249",
+   "anno": 1998,
+   "titulo": "Acute stress facilitates long-lasting changes in cholinergic gene expression",
+   "fecha_retractacion": "11/25/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1074/jbc.274.11.7196",
+   "record": "18080",
+   "anno": 1999,
+   "titulo": "CREB-binding protein interacts with the homeodomain protein Cdx2 and enhances transcriptional activity",
+   "fecha_retractacion": "5/7/1999 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": true,
+   "dice": [
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1111/j.1468-229x.1985.tb02478.x",
+   "record": "34870",
+   "anno": 1985,
+   "titulo": "The Italian War Effort and the Strategic Bombing of Italy",
+   "fecha_retractacion": "11/12/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1021/bi960098n",
+   "record": "117",
+   "anno": 1996,
+   "titulo": "Cellular and in vitro transport of glutathione conjugates by MRP",
+   "fecha_retractacion": "11/11/1997 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/s0140-6736(97)11096-0",
+   "record": "17269",
+   "anno": 1998,
+   "titulo": "Ileal-lymphoid-nodular Hyperplasia, Non-specific Colitis, and Pervasive Developmental Disorder in Children",
+   "fecha_retractacion": "3/6/2004 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/345495a0",
+   "record": "2092",
+   "anno": 1990,
+   "titulo": "Identification by Anti-idiotype Antibodies of an Intracellular Membrane Protein That Recognizes a Mammalian Endoplasmic ",
+   "fecha_retractacion": "11/26/1992 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1073/pnas.83.18.7008",
+   "record": "30784",
+   "anno": 1986,
+   "titulo": "Selective inhibition of interleukin 2 gene function following thymocyte antigen/major histocompatibility complex recepto",
+   "fecha_retractacion": "11/1/1986 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1128/mcb.19.10.7061",
+   "record": "1031",
+   "anno": 1999,
+   "titulo": "Growth Retardation, DNA Repair Defects, and Lack of Spermatogenesis in BRCA1-Deficient Mice",
+   "fecha_retractacion": "12/1/2006 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1073/pnas.91.11.5075",
+   "record": "3482",
+   "anno": 1994,
+   "titulo": "Potent inhibition of human immunodeficiency virus type 1 replication by an intracellular anti-Rev single-chain antibody",
+   "fecha_retractacion": "8/18/1998 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.4161/cc.7.2.5361",
+   "record": "21540",
+   "anno": 2007,
+   "titulo": "Specific isoforms of p73 control the induction of cell death induced by the viral proteins, E1A or Apoptin",
+   "fecha_retractacion": "3/19/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s0950-3293(02)00088-5",
+   "record": "17552",
+   "anno": 2003,
+   "titulo": "Profiling nutritional gatekeepers: Three methods for differentiating influential cooks",
+   "fecha_retractacion": "3/3/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s0092-8674(00)80887-9",
+   "record": "1012",
+   "anno": 2000,
+   "titulo": "SUMO-1 Modification of Mdm2 Prevents its Self-ubiquitination and Increases Mdm2 Ability to Ubiquitinate p53",
+   "fecha_retractacion": "11/16/2001 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1161/01.res.0000100665.67510.f5",
+   "record": "9822",
+   "anno": 2003,
+   "titulo": "Apoptosis Signal-Regulating Kinase 1 Plays a Pivotal Role in Angiotensin II\u2013Induced Cardiac Hypertrophy and Remodeling",
+   "fecha_retractacion": "3/3/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1073/pnas.0901206106",
+   "record": "15630",
+   "anno": 2009,
+   "titulo": "The cytokine interleukin-33 mediates anaphylactic shock",
+   "fecha_retractacion": "9/18/2012 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m408685200",
+   "record": "8583",
+   "anno": 2004,
+   "titulo": "Beta-Catenin and plakoglobin N- and C-tails determine ligand specificity",
+   "fecha_retractacion": "11/11/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1158/1535-7163.mct-08-0905",
+   "record": "17971",
+   "anno": 2009,
+   "titulo": "Curcumin circumvents chemoresistance in vitro and potentiates the effect of thalidomide and bortezomib against human mul",
+   "fecha_retractacion": "5/13/2009 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.2217/14796694.4.2.241",
+   "record": "7854",
+   "anno": 2008,
+   "titulo": "Is there a role for advanced radiation therapy technologies in the treatment of pancreatic adenocarcinoma?",
+   "fecha_retractacion": "6/2/2008 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.ssc.2009.02.014",
+   "record": "5274",
+   "anno": 2009,
+   "titulo": "Structure and properties of lanthanum-doped bismuth ferrite thin films",
+   "fecha_retractacion": "10/11/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.paid.2009.11.013",
+   "record": "11063",
+   "anno": 2009,
+   "titulo": "The nature of the relationship between personality traits and political attitudes",
+   "fecha_retractacion": "5/20/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s1568-7864(02)00236-7",
+   "record": "28674",
+   "anno": 2003,
+   "titulo": "Retraction: Requirement for DNA Mismatch Repair Proteins in the Transcription-coupled Repair of Thymine Glycols in Sacch",
+   "fecha_retractacion": "8/9/2003 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1073/pnas.0608100104",
+   "record": "18732",
+   "anno": 2007,
+   "titulo": "NF-kappaB activation by the Toll-IL-1 receptor domain protein MyD88 adapter-like is regulated by caspase-1",
+   "fecha_retractacion": "10/22/2013 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s0140-6736(08)61598-6",
+   "record": "42607",
+   "anno": 2008,
+   "titulo": "Clinical transplantation of a tissue-engineered airway",
+   "fecha_retractacion": "7/18/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1158/0008-5472.can-03-1484",
+   "record": "17970",
+   "anno": 2004,
+   "titulo": "Imatinib Mesylate Resistance Through BCR-ABL Independence in Chronic Myelogenous Leukemia",
+   "fecha_retractacion": "3/16/2004 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": true,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s00253-005-0255-8",
+   "record": "7377",
+   "anno": 2006,
+   "titulo": "Enhancing the catalytic potential of nitrilase from Pseudomonas putida for stereoselective nitrile hydrolysis",
+   "fecha_retractacion": "7/8/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1046/j.0960-7412.2001.01242.x",
+   "record": "9742",
+   "anno": 2002,
+   "titulo": "Identification, subcellular localization and some properties of a cysteine-rich suppressor of gene silencing encoded by ",
+   "fecha_retractacion": "6/10/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1128/jvi.80.10.5021-5031.2006",
+   "record": "2445",
+   "anno": 2006,
+   "titulo": "Human rhinovirus attenuates the type I interferon response by disrupting activation of interferon regulatory factor 3",
+   "fecha_retractacion": "7/1/2006 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1128/mcb.02347-06",
+   "record": "16023",
+   "anno": 2007,
+   "titulo": "Activation Status-Coupled Transient S Acylation Determines Membrane Partitioning of a Plant Rho-Related GTPase",
+   "fecha_retractacion": "9/11/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m409028200",
+   "record": "9464",
+   "anno": 2004,
+   "titulo": "a-Synuclein Expression Levels Do Not Significantly Affect Proteasome Function and Expression in Mice and Stably Transfec",
+   "fecha_retractacion": "4/22/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.5897/ajb2003.000-1125",
+   "record": "16500",
+   "anno": 2003,
+   "titulo": "Thin Cell Layer technology in ornamental plant micropropagation and biotechnology",
+   "fecha_retractacion": "8/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1002/uog.6309",
+   "record": "7997",
+   "anno": 2009,
+   "titulo": "Extracardiac lesions and chromosomal abnormalities associated with major fetal heart defects: Comparison of intrauterine",
+   "fecha_retractacion": "3/4/2010 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1074/jbc.m313385200",
+   "record": "8575",
+   "anno": 2004,
+   "titulo": "S-Nitrosylation of heterogeneous nuclear ribonucleoprotein A/B regulates osteopontin transcription in endotoxin-stimulat",
+   "fecha_retractacion": "2/24/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s0001-8708(02)00076-2",
+   "record": "12312",
+   "anno": 2003,
+   "titulo": "Oriented matroids, complex manifolds, and a combinatorial model for BU",
+   "fecha_retractacion": "3/4/2009 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s00266-003-3091-1",
+   "record": "35034",
+   "anno": 2003,
+   "titulo": "Surgical correction of retracted nostril rim with auricular composite grafts and anchoring suspension",
+   "fecha_retractacion": "1/1/2004 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1017/s1355838201016089",
+   "record": "5466",
+   "anno": 2001,
+   "titulo": "Protein ligands mediate the CRM1-dependent export of HuR in response to heat shock",
+   "fecha_retractacion": "11/1/2003 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": true,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.cell.2004.07.001",
+   "record": "1025",
+   "anno": 2004,
+   "titulo": "Heritable Integration of kDNA Minicircle Sequences from Trypanosoma cruzi into the Avian Genome:Insights Into Human Chag",
+   "fecha_retractacion": "10/21/2005 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1242/jcs.02878",
+   "record": "18350",
+   "anno": 2006,
+   "titulo": "N-terminal palmitoylation within the appropriate amino acid environment conveys on NOS2 the ability to progress along th",
+   "fecha_retractacion": "6/4/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1063/1.3079329",
+   "record": "5872",
+   "anno": 2009,
+   "titulo": "Broadband and omnidirectional antireflection from conductive indium-tin-oxide nanocolumns prepared by glancing-angle dep",
+   "fecha_retractacion": "11/1/2013 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.anbehav.2009.11.027",
+   "record": "16701",
+   "anno": 2009,
+   "titulo": "Evidence of sexually selected infanticide in an endangered brown bear population",
+   "fecha_retractacion": "12/14/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1056/nejmoa054208",
+   "record": "8236",
+   "anno": 2006,
+   "titulo": "Abdominal Sacrocolpopexy with Burch Colposuspension to Reduce Urinary Stress Incontinence",
+   "fecha_retractacion": "6/9/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.3791/962",
+   "record": "2482",
+   "anno": 2008,
+   "titulo": "Collecting and measuring nociceptive and inflammatory mediators in surgical wounds",
+   "fecha_retractacion": "3/7/2012 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1128/mcb.25.11.4727-4741.2005",
+   "record": "18099",
+   "anno": 2005,
+   "titulo": "5-Aza-Deoxycytidine Induces Selective Degradation of DNA Methyltransferase 1 by a Proteasomal Pathway That Requires the ",
+   "fecha_retractacion": "4/30/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1093/arclin/18.5.473",
+   "record": "42496",
+   "anno": 2003,
+   "titulo": "The construct validity of the Lees-Haley Fake Bad Scale Does this scale measure somatic malingering and feigned emotiona",
+   "fecha_retractacion": "7/1/2003 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1158/1078-0432.ccr-08-2714",
+   "record": "20171",
+   "anno": 2009,
+   "titulo": "Combining PCI-24781, a Novel Histone Deacetylase Inhibitor, with Chemotherapy for the Treatment of Soft Tissue Sarcoma",
+   "fecha_retractacion": "5/31/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1111/j.1540-5885.2009.00666.x",
+   "record": "15637",
+   "anno": 2009,
+   "titulo": "The Role of Champions in the External Commercialization of Knowledge",
+   "fecha_retractacion": "3/14/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1182/blood-2009-02-203174",
+   "record": "12618",
+   "anno": 2009,
+   "titulo": "p73, miR106b, miR34a, and Itch in chronic lymphocytic leukemia",
+   "fecha_retractacion": "6/11/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1074/jbc.m500435200",
+   "record": "8510",
+   "anno": 2005,
+   "titulo": "Schlafen-1 causes a cell cycle arrest by inhibiting induction of cyclin D1",
+   "fecha_retractacion": "11/25/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.intimp.2008.08.009",
+   "record": "29301",
+   "anno": 2008,
+   "titulo": "Rapamycin reverses TLR4 signaling-triggered tumor apoptosis resistance by disrupting Akt-mediated Bcl-xL upregulation",
+   "fecha_retractacion": "3/3/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1074/jbc.m802400200",
+   "record": "9550",
+   "anno": 2009,
+   "titulo": "Hyaluronan mediates ozone-induced airway hyperresponsiveness in mice",
+   "fecha_retractacion": "9/9/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1002/adsc.200800500",
+   "record": "44861",
+   "anno": 2008,
+   "titulo": "Polymer-Supported N-Phenylsulfonyloxaziridine (Davis Reagent): A Versatile Oxidant",
+   "fecha_retractacion": "1/20/2009 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1128/aem.66.8.3234-3240.2000",
+   "record": "66534",
+   "anno": 2000,
+   "titulo": "Comparative Experiments To Examine the Effects of Heating on Vegetative Cells and Spores of Clostridium perfringens Isol",
+   "fecha_retractacion": "12/1/2000 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1124/mol.107.034512",
+   "record": "17968",
+   "anno": 2007,
+   "titulo": "Fisetin, an Inhibitor of Cyclin-Dependent Kinase 6, Down-Regulates Nuclear Factor-kappaB-Regulated Cell Proliferation, A",
+   "fecha_retractacion": "5/17/2012 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1111/j.1460-9568.2008.06425.x",
+   "record": "6191",
+   "anno": 2008,
+   "titulo": "Neurotoxic catecholamine metabolite in nociceptors contributes to painful peripheral neuropathy",
+   "fecha_retractacion": "11/25/2009 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/sj.embor.7400454",
+   "record": "9754",
+   "anno": 2005,
+   "titulo": "Sulphatase activities are regulated by the interaction of sulphatase-modifying factor 1 with SUMF2",
+   "fecha_retractacion": "12/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1001/jama.293.9.1082",
+   "record": "10307",
+   "anno": 2005,
+   "titulo": "Effect of folate and mecobalamin on hip fractures in patients with stroke: a randomized controlled trial",
+   "fecha_retractacion": "7/26/2006 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.nedt.2003.11.009",
+   "record": "8798",
+   "anno": 2004,
+   "titulo": "A pilot study on nurses' attitudes toward perinatal bereavement support: a cluster analysis",
+   "fecha_retractacion": "2/26/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.4049/jimmunol.0900452",
+   "record": "12599",
+   "anno": 2009,
+   "titulo": "SP-A preserves airway homeostasis during Mycoplasma pneumoniae infection in mice",
+   "fecha_retractacion": "9/15/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1073/pnas.0604044103",
+   "record": "64569",
+   "anno": 2006,
+   "titulo": "Death-receptor activation halts clathrin-dependent endocytosis",
+   "fecha_retractacion": "1/3/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00222-005-0472-x",
+   "record": "9611",
+   "anno": 2005,
+   "titulo": "Kg is not finitely generated",
+   "fecha_retractacion": "5/20/2009 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1242/dev.01050",
+   "record": "18923",
+   "anno": 2004,
+   "titulo": "Polo-like kinase confers MPF autoamplification competence to growing Xenopus oocytes",
+   "fecha_retractacion": "7/30/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.2298/abs0803341r",
+   "record": "8694",
+   "anno": 2008,
+   "titulo": "Neuroprotection by MK-801 Following Cerebral Ischemia in Mongolian Gerbils",
+   "fecha_retractacion": "1/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1111/j.1471-4159.2008.05353.x",
+   "record": "16224",
+   "anno": 2008,
+   "titulo": "Toll-like Receptor 3 Contributes to Spinal Glial Activation and Tactile Allodynia After Nerve Injury",
+   "fecha_retractacion": "8/30/2010 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00280-007-0662-x",
+   "record": "19150",
+   "anno": 2008,
+   "titulo": "An in vitro and in vivo study of the combination of the heat shock protein inhibitor 17-allylamino-17-demethoxygeldanamy",
+   "fecha_retractacion": "9/1/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s11095-008-9661-9",
+   "record": "17974",
+   "anno": 2008,
+   "titulo": "Cancer is a preventable disease that requires major lifestyle changes",
+   "fecha_retractacion": "7/30/2008 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1111/j.1464-410x.2008.07424.x",
+   "record": "10834",
+   "anno": 2008,
+   "titulo": "Total reconstruction of the vesico-urethral junction",
+   "fecha_retractacion": "9/8/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.ccr.2008.04.018",
+   "record": "10142",
+   "anno": 2008,
+   "titulo": "Genetic and Epigenetic Silencing of MicroRNA-203 Enhances ABL1 and BCR-ABL1 Oncogene Expression",
+   "fecha_retractacion": "4/11/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1172/jci23187",
+   "record": "12478",
+   "anno": 2005,
+   "titulo": "Complementary roles of IRS-1 and IRS-2 in the hepatic regulation of metabolism",
+   "fecha_retractacion": "5/2/2005 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m313201200",
+   "record": "8980",
+   "anno": 2004,
+   "titulo": "Differential roles of the insulin and insulin-like growth factor-I (IGF-I) receptors in response to insulin and IGF-I.",
+   "fecha_retractacion": "10/14/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s1097-2765(03)00276-4",
+   "record": "20100",
+   "anno": 2003,
+   "titulo": "A Mutant Form of MeCP2 Protein Associated with Human Rett Syndrome Cannot Be Displaced from Methylated DNA by Notch in X",
+   "fecha_retractacion": "7/7/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1212/01.wnl.0000078892.24356.90",
+   "record": "9567",
+   "anno": 2003,
+   "titulo": "Amelioration of osteoporosis and hypovitaminosis D by sunlight exposure in stroke patients",
+   "fecha_retractacion": "3/18/2008 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m109.008078",
+   "record": "24045",
+   "anno": 2009,
+   "titulo": "Mdm2 directs the ubiquitination of \u03b2-arrestin-sequestered cAMP phosphodiesterase-4D5",
+   "fecha_retractacion": "8/1/2009 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction",
+    "withdrawal"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1103/physrevb.68.193414",
+   "record": "8393",
+   "anno": 2003,
+   "titulo": "Equation of state of an anisotropic three-dimensional C 60 polymer: The most stable form of fullerene",
+   "fecha_retractacion": "1/30/2004 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1002/mc.20149",
+   "record": "17972",
+   "anno": 2005,
+   "titulo": "Mutant human tumor suppressor p53 modulates the activation of mitogen-activated protein kinase and nuclear factor-kappaB",
+   "fecha_retractacion": "6/5/2006 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1084/jem.20031467",
+   "record": "25762",
+   "anno": 2004,
+   "titulo": "KSHV vFLIP Is Essential for the Survival of Infected Lymphoma Cells",
+   "fecha_retractacion": "5/8/2006 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/onc.2008.495",
+   "record": "10147",
+   "anno": 2009,
+   "titulo": "Regulation of microRNA expression by HMGA1 proteins",
+   "fecha_retractacion": "7/11/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1073/pnas.0911570106",
+   "record": "5166",
+   "anno": 2009,
+   "titulo": "Increased muscle PGC-1alpha expression protects from sarcopenia and metabolic disease during aging",
+   "fecha_retractacion": "10/15/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.5665/sleep/31.7.953",
+   "record": "18006",
+   "anno": 2008,
+   "titulo": "Orthodontic expansion treatment and adenotonsillectomy in the treatment of obstructive sleep apnea in prepubertal childr",
+   "fecha_retractacion": "1/1/2009 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1124/mol.107.036111",
+   "record": "20384",
+   "anno": 2007,
+   "titulo": "The Phosphoinositide-Dependent Kinase-1 Inhibitor 2-Amino-N-[4-[5-(2-phenanthrenyl)-3-(trifluoromethyl)-1H-pyrazol-1-yl]",
+   "fecha_retractacion": "1/30/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1111/j.1600-6143.2004.00642.x",
+   "record": "20233",
+   "anno": 2004,
+   "titulo": "FTY720 attenuates hepatic ischemia-reperfusion injury in normal and cirrhotic livers",
+   "fecha_retractacion": "1/13/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1111/j.1365-2141.2007.06798.x",
+   "record": "16857",
+   "anno": 2007,
+   "titulo": "In Vitro Evidence of the Inhibitory Capacity of Chloroquine on Arginase Activity in Sickle Erythrocytes",
+   "fecha_retractacion": "3/22/2010 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1172/jci32738",
+   "record": "17089",
+   "anno": 2007,
+   "titulo": "Parathyroid hormone inhibits renal phosphate transport by phosphorylation of serine 77 of sodium-hydrogen exchanger regu",
+   "fecha_retractacion": "1/2/2008 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.2337/db07-0847",
+   "record": "9346",
+   "anno": 2007,
+   "titulo": "Transcription Factor 7-Like 2 Regulates \u00df-Cell Survival and Function in Human Pancreatic Islets",
+   "fecha_retractacion": "10/23/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1093/emboj/cdf464",
+   "record": "9782",
+   "anno": 2002,
+   "titulo": "Two classes of short interfering RNA in RNA silencing",
+   "fecha_retractacion": "10/14/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1158/1078-0432.ccr-04-1192",
+   "record": "8545",
+   "anno": 2005,
+   "titulo": "Associations and Interactions between Ets-1 and Ets-2 and Coregulatory Proteins, SRC-1, AIB1, and NCoR in Breast Cancer",
+   "fecha_retractacion": "4/30/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1242/jcs.058537",
+   "record": "18578",
+   "anno": 2009,
+   "titulo": "Antioxidant-induced modification of INrf2 cysteine 151 and PKC-delta-mediated phosphorylation of Nrf2 serine 40 are both",
+   "fecha_retractacion": "5/19/2010 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1023/a:1026313031091",
+   "record": "18539",
+   "anno": 2003,
+   "titulo": "Intraspecific and Interspecific Interactions Mediated by a Phytotoxin, (-)-Catechin, Secreted by the Roots of Centaurea ",
+   "fecha_retractacion": "12/1/2004 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1073/pnas.0506654102",
+   "record": "10169",
+   "anno": 2005,
+   "titulo": "miR-15 and miR-16 induce apoptosis by targeting BCL2",
+   "fecha_retractacion": "2/14/2007 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1128/jb.00154-09",
+   "record": "8501",
+   "anno": 2009,
+   "titulo": "RsmC of Erwinia carotovora subsp. carotovora Negatively Controls Motility, Extracellular Protein Production, and Virulen",
+   "fecha_retractacion": "12/1/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1124/mol.106.031153",
+   "record": "9547",
+   "anno": 2006,
+   "titulo": "Human chorionic gonadotropin modulates prostate cancer cell survival after irradiation or HMG CoA reductase inhibitor tr",
+   "fecha_retractacion": "7/13/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1074/jbc.m408679200",
+   "record": "8587",
+   "anno": 2004,
+   "titulo": "Brn-3a Transcription Factor Blocks p53-mediated Activation of Proapoptotic Target Genes Noxa and Bax in Vitro and in Viv",
+   "fecha_retractacion": "7/22/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1104/pp.112.204891",
+   "record": "10712",
+   "anno": 2012,
+   "titulo": "DAC Is Involved in the Accumulation of the Cytochrome b6/f Complex in Arabidopsis",
+   "fecha_retractacion": "2/1/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1089/ars.2011.3982",
+   "record": "17954",
+   "anno": 2012,
+   "titulo": "Zyflamend Sensitizes Tumor Cells to TRAIL-Induced Apoptosis Through Up-Regulation of Death Receptors and Down-Regulation",
+   "fecha_retractacion": "1/10/2013 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1177/1074248410381759",
+   "record": "31292",
+   "anno": 2010,
+   "titulo": "Cardioprotective Effect of Nerium oleander Flower Against Isoproterenol-Induced Myocardial Oxidative Stress in Experimen",
+   "fecha_retractacion": "3/21/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1074/jbc.m112.379396",
+   "record": "29149",
+   "anno": 2012,
+   "titulo": "The transcription factor SPDEF suppresses prostate tumor metastasis",
+   "fecha_retractacion": "9/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.trsl.2010.08.002",
+   "record": "34055",
+   "anno": 2010,
+   "titulo": "Limaprost reduces motor disturbances by increasing the production of insulin-like growth factor I in rats subjected to s",
+   "fecha_retractacion": "6/25/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1088/0957-4484/21/8/085102",
+   "record": "15286",
+   "anno": 2010,
+   "titulo": "Tunable plasmonic nanobubbles forcell theranostics",
+   "fecha_retractacion": "2/10/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/onc.2014.228",
+   "record": "10820",
+   "anno": 2014,
+   "titulo": "Thrombospondin-1 repression is mediated via distinct mechanisms in fibroblasts and epithelial cells",
+   "fecha_retractacion": "5/28/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.diabet.2013.06.003",
+   "record": "18793",
+   "anno": 2013,
+   "titulo": "The impact of anxiety and depression on patients within a large type 1 diabetes insulin pump population. An observationa",
+   "fecha_retractacion": "5/28/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1128/mbio.00275-11",
+   "record": "36307",
+   "anno": 2011,
+   "titulo": "Epsilon-toxin production by Clostridium perfringens type D strain CN3718 is dependent upon the agr operon but not the Vi",
+   "fecha_retractacion": "1/27/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1161/circulationaha.113.006591",
+   "record": "11317",
+   "anno": 2013,
+   "titulo": "Growth Properties of Cardiac Stem Cells Are a Novel Biomarker of Patients\u2019 Outcome After Coronary Bypass Surgery",
+   "fecha_retractacion": "8/12/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1039/c4ob00562g",
+   "record": "8850",
+   "anno": 2014,
+   "titulo": "A unifying mechanism for the rearrangement of vinyl allene oxide geometric isomers to cyclopentenones",
+   "fecha_retractacion": "3/17/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1158/1078-0432.ccr-14-0315",
+   "record": "10830",
+   "anno": 2014,
+   "titulo": "TMEFF2 Deregulation Contributes to Gastric Carcinogenesis and Indicates Poor Survival Outcome",
+   "fecha_retractacion": "8/2/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1039/c2nr30460k",
+   "record": "18550",
+   "anno": 2012,
+   "titulo": "Design of nanoporous metals with bimodal pore size distributions for enhanced biosensing",
+   "fecha_retractacion": "6/27/2012 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1186/1471-2180-11-188",
+   "record": "60075",
+   "anno": 2011,
+   "titulo": "Identification of one critical amino acid that determines a conformational neutralizing epitope in the capsid protein of",
+   "fecha_retractacion": "10/28/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.bcp.2010.03.016",
+   "record": "5814",
+   "anno": 2010,
+   "titulo": "HMBA depolymerizes microtubules, activates mitotic checkpoints and induces mitotic block in MCF-7 cells by binding at th",
+   "fecha_retractacion": "10/1/2010 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1161/circresaha.112.273649",
+   "record": "43776",
+   "anno": 2012,
+   "titulo": "Tracking chromatid segregation to identify human cardiac stem cells that regenerate extensively the infarcted myocardium",
+   "fecha_retractacion": "12/4/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0010085",
+   "record": "38163",
+   "anno": 2010,
+   "titulo": "Interaction between Age and Obesity on Cardiomyocyte Contractile Function: Role of Leptin and Stress Signaling",
+   "fecha_retractacion": "8/11/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m111.318261",
+   "record": "8588",
+   "anno": 2011,
+   "titulo": "BubR1 Is Modified by Sumoylation during Mitotic Progression",
+   "fecha_retractacion": "1/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.rser.2010.08.018",
+   "record": "17369",
+   "anno": 2010,
+   "titulo": "A review on the performance of nanoparticles suspended with refrigerants and lubricating oils in refrigeration systems",
+   "fecha_retractacion": "1/17/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1002/hep.24040",
+   "record": "17452",
+   "anno": 2011,
+   "titulo": "Excessive hepatomegaly of mice with hepatocyte-targeted elimination of integrin linked kinase following treatment with 1",
+   "fecha_retractacion": "7/22/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0072783",
+   "record": "37332",
+   "anno": 2013,
+   "titulo": "TNF-\u03b1 Induces Cytosolic Phospholipase A2 Expression in Human Lung Epithelial Cells via JNK1/2- and p38 MAPK-Dependent AP",
+   "fecha_retractacion": "12/19/2013 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1155/2011/785265",
+   "record": "12417",
+   "anno": 2011,
+   "titulo": "NF-kB signaling in the brain of autistic subjects",
+   "fecha_retractacion": "2/5/2013 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1111/j.1540-5885.2012.00957.x",
+   "record": "15634",
+   "anno": 2012,
+   "titulo": "The Performance Implications of Dynamic Capabilities: The Case of Product Innovation",
+   "fecha_retractacion": "8/13/2012 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1021/ja504624q",
+   "record": "12191",
+   "anno": 2014,
+   "titulo": "Molecular Imaging of Peroxynitrite with HKGreen-4 in Live Cells and Tissues",
+   "fecha_retractacion": "5/5/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1161/circulationaha.113.004698",
+   "record": "9556",
+   "anno": 2013,
+   "titulo": "Age-Associated Defects in EphA2 Signaling Impair the Migration of Human Cardiac Progenitor Cells",
+   "fecha_retractacion": "12/1/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1086/663680",
+   "record": "30836",
+   "anno": 2012,
+   "titulo": "Behavioral Types of Predator and Prey Jointly Determine Prey Survival: Potential Implications for the Maintenance of Wit",
+   "fecha_retractacion": "5/31/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.2337/db10-0582",
+   "record": "9471",
+   "anno": 2010,
+   "titulo": "Adiponectin Prevents Diabetic Premature Senescence of Endothelial Progenitor Cells and Promotes Endothelial Repair by Su",
+   "fecha_retractacion": "9/22/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.fct.2011.03.040",
+   "record": "22716",
+   "anno": 2011,
+   "titulo": "Synergistic growth inhibition of mouse skin tumors by pomegranate fruit extract and diallyl sulfide: Evidence for inhibi",
+   "fecha_retractacion": "8/27/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1242/jcs.081612",
+   "record": "8169",
+   "anno": 2011,
+   "titulo": "Chromosomal breaks during mitotic catastrophe trigger gammaH2AX\u2013ATM\u2013p53-mediated apoptosis",
+   "fecha_retractacion": "5/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1039/c2ra01308h",
+   "record": "15586",
+   "anno": 2012,
+   "titulo": "Aligned nanoporous PtNi nanorod-like structures for electrocatalysis and biosensing",
+   "fecha_retractacion": "6/29/2012 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.powtec.2013.06.036",
+   "record": "19382",
+   "anno": 2013,
+   "titulo": "Deposition of mesoporous activated powder alumina on SiC ceramic foam substrates by an in-situ hydrothermal technique",
+   "fecha_retractacion": "3/28/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.2147/dddt.s66574",
+   "record": "43657",
+   "anno": 2014,
+   "titulo": "Involvement of NF-KB and HSP70 signaling pathways in the apoptosis of MDA-MB-231 cells induced by a prenylated xanthone ",
+   "fecha_retractacion": "6/12/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ccr.2010.09.005",
+   "record": "10141",
+   "anno": 2010,
+   "titulo": "Downregulation of p53-inducible microRNAs 192, 194, and 215 impairs the p53/MDM2 autoregulatory loop in multiple myeloma",
+   "fecha_retractacion": "8/8/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.mehy.2013.06.002",
+   "record": "24966",
+   "anno": 2013,
+   "titulo": "Does Piroxicam really protect ischemic neurons and influence neuronal firing in cerebral ischemia? An exploration toward",
+   "fecha_retractacion": "9/17/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1242/jcs.082693",
+   "record": "9462",
+   "anno": 2011,
+   "titulo": "Wnt controls the transcriptional activity of Kaiso through CK1e-dependent phosphorylation of p120-catenin",
+   "fecha_retractacion": "2/15/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1271/bbb.100807",
+   "record": "42500",
+   "anno": 2011,
+   "titulo": "Transcriptional Controls by Nuclear Fat-Soluble Vitamin Receptors through Chromatin Reorganization",
+   "fecha_retractacion": "10/23/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1158/1535-7163.mct-10-0019",
+   "record": "11135",
+   "anno": 2010,
+   "titulo": "ErbB-Inhibitory Protein: A Modified Ectodomain of Epidermal Growth Factor Receptor Synergizes with Dasatinib to Inhibit ",
+   "fecha_retractacion": "9/1/2010 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0054540",
+   "record": "19831",
+   "anno": 2013,
+   "titulo": "Heat Shock Protein 70 Expression Is Spatially Distributed in Human Placenta and Selectively Upregulated during Labor and",
+   "fecha_retractacion": "1/16/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1093/brain/aws299",
+   "record": "10505",
+   "anno": 2012,
+   "titulo": "Curcumin derivatives promote Schwann cell differentiation and improve neuropathy in R98C CMT1B mice",
+   "fecha_retractacion": "9/16/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1097/mol.0b013e3283474ce1",
+   "record": "17812",
+   "anno": 2011,
+   "titulo": "The cholesterol ester transfer protein inhibitor, anacetrapib",
+   "fecha_retractacion": "8/1/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.yjmcc.2013.12.010",
+   "record": "43403",
+   "anno": 2013,
+   "titulo": "Akt2 knockout alleviates prolonged caloric restriction-induced change in cardiac contractile function through regulation",
+   "fecha_retractacion": "12/6/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0105555",
+   "record": "18328",
+   "anno": 2014,
+   "titulo": "Intermittent Hypoxia Effect on Osteoclastogenesis Stimulated by Neuroblastoma Cells",
+   "fecha_retractacion": "1/13/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/onc.2010.361",
+   "record": "22450",
+   "anno": 2010,
+   "titulo": "CpG island hypermethylation-associated silencing of non-coding RNAs transcribed from ultraconserved regions in human can",
+   "fecha_retractacion": "11/5/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1161/atvbaha.113.301869",
+   "record": "41136",
+   "anno": 2013,
+   "titulo": "Adenosine monophosphate-activated protein kinase-\u03b12 deficiency promotes vascular smooth muscle cell migration via S-phas",
+   "fecha_retractacion": "10/23/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1111/j.1464-410x.2011.10402.x",
+   "record": "10980",
+   "anno": 2011,
+   "titulo": "Nerve sparing can preserve orgasmic function in most men after robotic-assisted laparoscopic radical prostatectomy",
+   "fecha_retractacion": "9/8/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s10894-010-9305-z",
+   "record": "54599",
+   "anno": 2010,
+   "titulo": "Biasing Effect on Modifying of the Tokamak Plasma Horizontal Displacement",
+   "fecha_retractacion": "7/18/2010 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m109.043711",
+   "record": "22910",
+   "anno": 2010,
+   "titulo": "CB1 cannabinoid receptors increase neuronal precursor proliferation through AKT/glycogen synthase kinase-3\u00df/\u00df-catenin si",
+   "fecha_retractacion": "3/6/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1002/emmm.201100209",
+   "record": "10114",
+   "anno": 2012,
+   "titulo": "MicroRNA dysregulation in cancer: diagnostics, monitoring and therapeutics. A comprehensive review",
+   "fecha_retractacion": "6/1/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1242/dev.052456",
+   "record": "12437",
+   "anno": 2010,
+   "titulo": "Plasma membrane-bound AGC3 kinases phosphorylate PIN auxin carriers at TPRXS(N/S) motifs to direct apical PIN recycling",
+   "fecha_retractacion": "6/30/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/s1734-1140(11)70505-9",
+   "record": "18498",
+   "anno": 2011,
+   "titulo": "Immunosuppressant cytoprotection correlates with HMGB1 suppression in primary astrocyte cultures exposed to combined oxy",
+   "fecha_retractacion": "6/14/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1172/jci76887",
+   "record": "20224",
+   "anno": 2014,
+   "titulo": "The HMGB1/RAGE axis triggers neutrophil-mediated injury amplification following necrosis",
+   "fecha_retractacion": "3/4/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1074/jbc.m114.581702",
+   "record": "22959",
+   "anno": 2014,
+   "titulo": "Inhibition of glutathione peroxidase mediates the collateral sensitivity of multidrug-resistant cells to tiopronin",
+   "fecha_retractacion": "3/27/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1080/14782804.2013.815464",
+   "record": "21138",
+   "anno": 2013,
+   "titulo": "Civil Society in Macedonia\u2019s Democratization Process",
+   "fecha_retractacion": "1/8/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3402/gha.v6i0.19305",
+   "record": "44075",
+   "anno": 2014,
+   "titulo": "Self-reported health and health care use in an ageing population in the Agincourt sub-district of rural South Africa",
+   "fecha_retractacion": "3/13/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s10495-013-0955-y",
+   "record": "19494",
+   "anno": 2013,
+   "titulo": "Licochalcone A induces apoptosis through endoplasmic reticulum stress via a phospholipase C?1-, Ca2+-, and reactive oxyg",
+   "fecha_retractacion": "11/2/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/srep04571",
+   "record": "17670",
+   "anno": 2013,
+   "titulo": "Efficient Quantum Transmission in Multiple-source Networks",
+   "fecha_retractacion": "3/19/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.4049/jimmunol.1000283",
+   "record": "9549",
+   "anno": 2010,
+   "titulo": "Hyaluronan Fragments Contribute to the Ozone-Primed Immune Response to Lipopolysaccharide",
+   "fecha_retractacion": "2/19/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0069583",
+   "record": "60853",
+   "anno": 2013,
+   "titulo": "PrPST, a Soluble, Protease Resistant and Truncated PrP Form Features in the Pathogenesis of a Genetic Prion Disease",
+   "fecha_retractacion": "7/20/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00784-013-1120-2",
+   "record": "53597",
+   "anno": 2013,
+   "titulo": "Biomechanical and histological evaluation of four different titanium implant surface modifications: an experimental stud",
+   "fecha_retractacion": "6/20/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m112.385542",
+   "record": "20207",
+   "anno": 2012,
+   "titulo": "The heme oxygenase 1 inducer (CoPP) protects human cardiac stem cells against apoptosis through activation of the extrac",
+   "fecha_retractacion": "3/22/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0054692",
+   "record": "13761",
+   "anno": 2013,
+   "titulo": "Diabetes and Overexpression of proNGF Cause Retinal Neurodegeneration via Activation of RhoA Pathway",
+   "fecha_retractacion": "4/29/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.jaad.2011.12.014",
+   "record": "19402",
+   "anno": 2012,
+   "titulo": "Toxic epidermal necrolysis: Five years of treatment experience from a burn unit",
+   "fecha_retractacion": "10/3/2013 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1126/scisignal.2005786",
+   "record": "14407",
+   "anno": 2014,
+   "titulo": "Structural analysis of the EGFR/HER3 heterodimer reveals the molecular basis for activating HER3 mutations",
+   "fecha_retractacion": "9/1/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.cell.2010.06.020",
+   "record": "40669",
+   "anno": 2010,
+   "titulo": "SIRT1 Suppresses Beta-amyloid Production by Activating the Alpha-secretase Gene ADAM10",
+   "fecha_retractacion": "8/6/2010 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1039/c2cc37045j",
+   "record": "8194",
+   "anno": 2012,
+   "titulo": "A novel route for preparing highly proton conductive membrane materials with metal-organic frameworks",
+   "fecha_retractacion": "4/23/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1111/j.1464-410x.2011.10565.x",
+   "record": "10977",
+   "anno": 2011,
+   "titulo": "Anatomical grades of nerve sparing: a risk-stratified approach to neural-hammock sparing during robot-assisted radical p",
+   "fecha_retractacion": "9/8/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1089/ten.tea.2010.0385",
+   "record": "22421",
+   "anno": 2010,
+   "titulo": "The Potential of Stem Cells in Adult Tissues Representative of the Three Germ Layers",
+   "fecha_retractacion": "4/9/2014 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3109/00365521.2012.708940",
+   "record": "17664",
+   "anno": 2012,
+   "titulo": "Isolation and characterization of human primary enterocytes from small intestine using a novel method",
+   "fecha_retractacion": "6/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.2298/abs1401023t",
+   "record": "14309",
+   "anno": 2014,
+   "titulo": "Molecular and biochemical characterization of Pseudomonas putida isolated from bottled uncarbonated mineral drinking wat",
+   "fecha_retractacion": "1/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.4161/rna.23144",
+   "record": "23366",
+   "anno": 2013,
+   "titulo": "A new role for microRNAs, as ligands of Toll-like Receptors",
+   "fecha_retractacion": "4/16/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.jss.2010.10.039",
+   "record": "15283",
+   "anno": 2010,
+   "titulo": "Selective and Self-Guided Micro-Ablation of Tissue with Plasmonic Nanobubbles",
+   "fecha_retractacion": "6/18/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/nature13848",
+   "record": "9045",
+   "anno": 2014,
+   "titulo": "CEACAM1 regulates TIM-3-mediated tolerance and exhaustion",
+   "fecha_retractacion": "3/16/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s00109-010-0669-3",
+   "record": "17953",
+   "anno": 2010,
+   "titulo": "Celastrol suppresses invasion of colon and pancreatic cancer cells through the downregulation of expression of CXCR4 che",
+   "fecha_retractacion": "1/11/2013 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s00784-014-1241-2",
+   "record": "51320",
+   "anno": 2014,
+   "titulo": "Influence of surface treatment on osseointegration of dental implants: histological, histomorphometric and radiological ",
+   "fecha_retractacion": "1/4/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/nature13444",
+   "record": "11629",
+   "anno": 2014,
+   "titulo": "Inactivation of PI(3)K p110delta breaks regulatory T-cell-mediated immune tolerance to cancer",
+   "fecha_retractacion": "4/6/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1159/000284389",
+   "record": "43673",
+   "anno": 2010,
+   "titulo": "Synergistic Effect of Parathyroid Hormone and Growth Hormone on Trabecular and Cortical Bone Formation in Hypophysectomi",
+   "fecha_retractacion": "7/3/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1074/jbc.m113.449918",
+   "record": "20211",
+   "anno": 2013,
+   "titulo": "Membrane microdomains and cytoskeleton organization shape and regulate the IL-7 receptor signalosome in human CD4 T-cell",
+   "fecha_retractacion": "3/29/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1093/mnras/stt2196",
+   "record": "8794",
+   "anno": 2013,
+   "titulo": "A phenomenological model for the intracluster medium that matches X-ray and Sunyaev\u2013Zel'dovich observations",
+   "fecha_retractacion": "11/7/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/nature13375",
+   "record": "23514",
+   "anno": 2014,
+   "titulo": "miR-34a blocks osteoporosis and bone metastasis by inhibiting osteoclastogenesis and Tgif2",
+   "fecha_retractacion": "5/24/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0053510",
+   "record": "9098",
+   "anno": 2013,
+   "titulo": "Chronic Morphine Treatment Attenuates Cell Growth of Human BT474 Breast Cancer Cells by Rearrangement of the ErbB Signal",
+   "fecha_retractacion": "4/14/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1080/10408444.2016.1214680",
+   "record": "19251",
+   "anno": 2016,
+   "titulo": "Genotoxicity Expert Panel review: weight of evidence evaluation of the genotoxicity of glyphosate, glyphosate-based form",
+   "fecha_retractacion": "9/25/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1007/s10854-019-01484-w",
+   "record": "24284",
+   "anno": 2019,
+   "titulo": "The effect of deposition pressure on the material properties of pulsed laser deposited BaAl2O4:Eu2+, Dy3+ thin films",
+   "fecha_retractacion": "1/30/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.cell.2018.09.011",
+   "record": "29296",
+   "anno": 2018,
+   "titulo": "Phosphorylation-Mediated IFN-\u03b3R2 Membrane Translocation Is Required to Activate Macrophage Innate Response",
+   "fecha_retractacion": "3/4/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1242/jcs.166553",
+   "record": "18921",
+   "anno": 2015,
+   "titulo": "Fine-tuning of Cdc6 accumulation by Cdk1 and MAP kinase is essential for completion of oocyte meiotic divisions",
+   "fecha_retractacion": "2/1/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/ncomms8353",
+   "record": "67568",
+   "anno": 2015,
+   "titulo": "Epstein\u2013Barr virus-encoded microRNA BART1 induces tumour metastasis by regulating PTEN-dependent pathways in nasopharyng",
+   "fecha_retractacion": "7/6/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/s41598-019-50538-w",
+   "record": "38468",
+   "anno": 2019,
+   "titulo": "Selective Priming of Tumor Blood Vessels by Radiation Therapy Enhances Nanodrug Delivery",
+   "fecha_retractacion": "9/15/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21691401.2019.1670190",
+   "record": "44685",
+   "anno": 2019,
+   "titulo": "MicroRNA-3194-3p inhibits metastasis and epithelial-mesenchymal transition of hepatocellular carcinoma by decreasing Wnt",
+   "fecha_retractacion": "8/10/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/ki.2015.293",
+   "record": "11212",
+   "anno": 2016,
+   "titulo": "Src inhibition blocks renal interstitial fibroblast activation and ameliorates renal fibrosis",
+   "fecha_retractacion": "9/1/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1016/j.ijleo.2015.09.225",
+   "record": "13121",
+   "anno": 2015,
+   "titulo": "Illumination response on the electrical characterizations of Cr/n\u2013GaAs/In photodiode",
+   "fecha_retractacion": "12/21/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1097/mlr.0000000000000550",
+   "record": "8533",
+   "anno": 2016,
+   "titulo": "Validity of the Agency for Healthcare Research and Quality Patient Safety Indicators and the Centers for Medicare and Me",
+   "fecha_retractacion": "12/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.cell.2018.02.061",
+   "record": "29297",
+   "anno": 2018,
+   "titulo": "Tumor-Induced Generation of Splenic Erythroblast-like Ter-Cells Promotes Tumor Progression",
+   "fecha_retractacion": "3/4/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1039/c9cc02715g",
+   "record": "30129",
+   "anno": 2019,
+   "titulo": "Enzyme-mediated dual-targeted-assembly realizes a synergistic anticancer effect",
+   "fecha_retractacion": "6/13/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1038/nature14232",
+   "record": "8972",
+   "anno": 2015,
+   "titulo": "Dietary emulsifiers impact the mouse gut microbiota promoting colitis and metabolic syndrome",
+   "fecha_retractacion": "5/4/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0202330",
+   "record": "20201",
+   "anno": 2018,
+   "titulo": "Rapid-onset gender dysphoria in adolescents and young adults: A study of parental reports",
+   "fecha_retractacion": "3/19/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1186/s12935-017-0407-9",
+   "record": "28375",
+   "anno": 2017,
+   "titulo": "miR-484 suppresses proliferation and epithelial\u2013mesenchymal transition by targeting ZEB1 and SMAD2 in cervical cancer ce",
+   "fecha_retractacion": "7/17/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.17763/1943-5045-88.2.227",
+   "record": "30235",
+   "anno": 2018,
+   "titulo": "Toward a New Model of College \u201cChoice\u201d for a Twenty-First-Century Context",
+   "fecha_retractacion": "1/1/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.5812/hepatmon.39196",
+   "record": "22387",
+   "anno": 2016,
+   "titulo": "Bioinformatic Analysis of Codon Usage and Phylogenetic Relationships in Different Genotypes of the Hepatitis C Virus",
+   "fecha_retractacion": "11/13/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.conbuildmat.2018.11.098",
+   "record": "46247",
+   "anno": 2018,
+   "titulo": "Thermal shock reactions of Ordinary Portland cement and geopolymer concrete: Microstructural and mechanical investigatio",
+   "fecha_retractacion": "6/1/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1039/c5cp02741a",
+   "record": "9050",
+   "anno": 2015,
+   "titulo": "Origin of colossal permittivity in (In1/2Nb1/2)TiO2 via broadband dielectric spectroscopy",
+   "fecha_retractacion": "9/3/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.biomaterials.2015.07.055",
+   "record": "24573",
+   "anno": 2015,
+   "titulo": "LNA aptamer based multi-modal, Fe3O4-saturated lactoferrin (Fe3O4-bLf) nanocarriers for triple positive (EpCAM, CD133, C",
+   "fecha_retractacion": "5/27/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1039/b925228b",
+   "record": "12082",
+   "anno": 2015,
+   "titulo": "Formation of lipid/peptide tubules by IAPP and temporin B on supported lipidmembranes",
+   "fecha_retractacion": "11/18/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.yexcr.2018.01.041",
+   "record": "32927",
+   "anno": 2018,
+   "titulo": "In vitro-induced M2 type macrophages induces the resistance of prostate cancer cells to cytotoxic action of NK cells",
+   "fecha_retractacion": "4/21/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.3892/or.2017.6109",
+   "record": "68913",
+   "anno": 2017,
+   "titulo": "Src homology phosphotyrosyl phosphatase 2 mediates cisplatin-related drug resistance by inhibiting apoptosis and activat",
+   "fecha_retractacion": "11/19/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1002/jbmr.3597",
+   "record": "31729",
+   "anno": 2018,
+   "titulo": "Release of CXCL12 From Apoptotic Skeletal Cells Contributes to Bone Growth Defects Following Dexamethasone Therapy in Ra",
+   "fecha_retractacion": "4/30/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.jvsv.2014.12.002",
+   "record": "17665",
+   "anno": 2015,
+   "titulo": "Successful tissue engineering of competent allogeneic venous valves",
+   "fecha_retractacion": "2/15/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s10571-019-00659-7",
+   "record": "23580",
+   "anno": 2019,
+   "titulo": "Mammalian Target of Rapamycin 2 (MTOR2) and C-MYC Modulate Glucosamine-6-Phosphate Synthesis in Glioblastoma (GBM) Cells",
+   "fecha_retractacion": "8/14/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1371/journal.pone.0140474",
+   "record": "9514",
+   "anno": 2015,
+   "titulo": "Insect Biometrics: Optoacoustic Signal Processing and Its Applications to Remote Monitoring of McPhail Type Traps",
+   "fecha_retractacion": "12/9/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1086/687235",
+   "record": "33931",
+   "anno": 2016,
+   "titulo": "The Effect of Keystone Individuals on Collective Outcomes Can Be Mediated through Interactions or Behavioral Persistence",
+   "fecha_retractacion": "12/22/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0118440",
+   "record": "23201",
+   "anno": 2015,
+   "titulo": "Individualized Homeopathic Treatment and Fluoxetine for Moderate to Severe Depression in Peri- and Postmenopausal Women ",
+   "fecha_retractacion": "5/4/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m114.610915",
+   "record": "11848",
+   "anno": 2015,
+   "titulo": "Long non-coding RNAs (LncRNA) regulated by transforming growth factor (TGF) beta: LncRNA-hit-mediated TGFbeta-induced ep",
+   "fecha_retractacion": "10/21/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1155/2019/4328219",
+   "record": "35923",
+   "anno": 2019,
+   "titulo": "Novel Hybrid Gels Made of High and Low Molecular Weight Hyaluronic Acid Induce Proliferation and Reduce Inflammation in ",
+   "fecha_retractacion": "7/25/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3892/or.2017.5622",
+   "record": "54017",
+   "anno": 2017,
+   "titulo": "Sulforaphane sensitizes human cholangiocarcinoma to cisplatin via the downregulation of anti\u2011apoptotic proteins",
+   "fecha_retractacion": "10/11/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1098/rspb.2015.2694",
+   "record": "45698",
+   "anno": 2016,
+   "titulo": "Reef fishes can recognize bleached habitat during settlement: sea anemone bleaching alters anemonefish host selection",
+   "fecha_retractacion": "7/8/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1111/anec.12955",
+   "record": "53500",
+   "anno": 2016,
+   "titulo": "T-peak to T-end Interval Predicts Appropriate Shocks in Patients with Heart Failure Undergoing Implantable Cardioverter ",
+   "fecha_retractacion": "12/30/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1515/rjim-2016-0018",
+   "record": "9623",
+   "anno": 2016,
+   "titulo": "Recurrent Cerebellar Desmoplastic/Nodular Medulloblastoma in Cerebrospinal Fluid (CSF) in the Elderly. A Cytologic Diagn",
+   "fecha_retractacion": "1/23/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1080/15368370500381620",
+   "record": "8342",
+   "anno": 2015,
+   "titulo": "Electrical Transfer of Molecule Information into Water, its Storage, and Bioeffects on Plants and Bacteria",
+   "fecha_retractacion": "11/4/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1002/adhm.201600169",
+   "record": "36281",
+   "anno": 2016,
+   "titulo": "Multifunctional Polymeric Nanosystems for Dual-Targeted Combinatorial Chemo/Antiangiogenesis Therapy of Tumors",
+   "fecha_retractacion": "10/21/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s12640-018-9921-3",
+   "record": "67522",
+   "anno": 2018,
+   "titulo": "Telmisartan Ameliorates Astroglial and Dopaminergic Functions in a Mouse Model of Chronic Parkinsonism",
+   "fecha_retractacion": "12/15/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1126/science.aau1949",
+   "record": "55785",
+   "anno": 2018,
+   "titulo": "A room-temperature single-photon source based on strongly interacting Rydberg atoms",
+   "fecha_retractacion": "3/6/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s12094-017-1633-2",
+   "record": "21954",
+   "anno": 2017,
+   "titulo": "BRG1 regulation by miR-155 in human leukemia and lymphoma cell lines",
+   "fecha_retractacion": "7/27/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.3892/mmr.2018.8941",
+   "record": "69107",
+   "anno": 2018,
+   "titulo": "miR\u201123a suppresses pancreatic cancer cell progression by inhibiting PLK\u20111 expression",
+   "fecha_retractacion": "5/17/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1098/rspb.2016.0477",
+   "record": "33117",
+   "anno": 2016,
+   "titulo": "Host\u2013parasitoid evolution in a metacommunity",
+   "fecha_retractacion": "6/30/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1016/s2213-8587(17)30396-0",
+   "record": "41929",
+   "anno": 2018,
+   "titulo": "Diabetes and adiposity: a heavy load for cancer",
+   "fecha_retractacion": "5/23/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1074/jbc.m116.731190",
+   "record": "8085",
+   "anno": 2016,
+   "titulo": "Substrate Recognition by the Cdh1 Destruction Box Receptor Is a General Requirement for APC/CCdh1-mediated Proteolysis",
+   "fecha_retractacion": "3/24/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1136/medethics-2015-102739",
+   "record": "9057",
+   "anno": 2015,
+   "titulo": "China to halt using executed prisoners\u2019 organs for transplants: a step in the right direction in medical ethics",
+   "fecha_retractacion": "3/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s00289-017-2072-5",
+   "record": "21816",
+   "anno": 2017,
+   "titulo": "Preparation and dielectric properties of PVP-based polymer electrolyte films for solid-state battery application",
+   "fecha_retractacion": "6/28/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1111/lasr.12396",
+   "record": "21173",
+   "anno": 2019,
+   "titulo": "A Legacy of Lynchings: Perceived Black Criminal Threat Among Whites",
+   "fecha_retractacion": "4/15/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1186/s13058-015-0577-0",
+   "record": "9164",
+   "anno": 2015,
+   "titulo": "Quantitative assessment of background parenchymal enhancement in breast MRI predicts response to risk-reducing salpingo-",
+   "fecha_retractacion": "11/24/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/s41586-019-1306-0",
+   "record": "21329",
+   "anno": 2019,
+   "titulo": "Global analysis of streamflow response to forest management",
+   "fecha_retractacion": "9/29/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "addendum",
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.2147/ijn.s166200",
+   "record": "38050",
+   "anno": 2018,
+   "titulo": "Phase-Shift, Targeted Nanoparticles for Ultrasound Molecular Imaging by Low Intensity Focused Ultrasound Irradiation",
+   "fecha_retractacion": "8/24/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3892/ijmm.2018.3590",
+   "record": "24726",
+   "anno": 2018,
+   "titulo": "Antiproliferative effects of imatinib mesylate on ZR-75-1 and MDA-MB-231 cell lines via PDGFR-\u03b2, PDGF-BB, c-Kit and SCF ",
+   "fecha_retractacion": "3/4/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.shpsc.2017.04.004",
+   "record": "40104",
+   "anno": 2017,
+   "titulo": "The \u2018Kantian principle\u2019 for natural history and its historical significance",
+   "fecha_retractacion": "1/9/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/ncomms12879",
+   "record": "24677",
+   "anno": 2016,
+   "titulo": "Air-stable superparamagnetic metal nanoparticles entrapped in graphene oxide matrix",
+   "fecha_retractacion": "6/18/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.jclepro.2018.01.231",
+   "record": "22287",
+   "anno": 2018,
+   "titulo": "Macroscopic and microscopic investigation of Cr(VI) immobilization by nanoscaled zero-valent iron supported zeolite MCM-",
+   "fecha_retractacion": "5/1/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1113/jp270788",
+   "record": "43329",
+   "anno": 2015,
+   "titulo": "KATP channels in the nodose ganglia mediate the orexigenic actions of ghrelin",
+   "fecha_retractacion": "1/19/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1039/c8bm00317c",
+   "record": "44130",
+   "anno": 2018,
+   "titulo": "The role of Sox9 in collagen hydrogel-mediated chondrogenic differentiation of adult mesenchymal stem cells (MSCs)",
+   "fecha_retractacion": "9/1/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1039/c9ra07880k",
+   "record": "25847",
+   "anno": 2019,
+   "titulo": "Long non-coding RNA MEG3 inhibits cell proliferation, migration, invasion and enhances apoptosis in non-small cell lung ",
+   "fecha_retractacion": "6/5/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3892/ol.2016.4838",
+   "record": "68910",
+   "anno": 2016,
+   "titulo": "Targeted silencing of CXCR4 inhibits epithelial-mesenchymal transition in oral squamous cell carcinoma",
+   "fecha_retractacion": "12/10/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.molstruc.2017.12.031",
+   "record": "28407",
+   "anno": 2017,
+   "titulo": "Application of the small-angle X-ray scattering technique for structural analysis studies: A review",
+   "fecha_retractacion": "3/25/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1186/s13046-019-1100-8",
+   "record": "33496",
+   "anno": 2019,
+   "titulo": "Long non-coding RNA LINC00968 attenuates drug resistance of breast cancer cells through inhibiting the Wnt2/\u03b2-catenin si",
+   "fecha_retractacion": "6/22/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s10653-014-9673-9",
+   "record": "42235",
+   "anno": 2015,
+   "titulo": "Solid-state UV-MALDI mass spectrometric quantitation of fluroxypyr and triclopyr in soil",
+   "fecha_retractacion": "12/29/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.biortech.2019.03.105",
+   "record": "54824",
+   "anno": 2019,
+   "titulo": "Biosynthesis of 2,5-furan dicarboxylic acid by Aspergillus flavus APLS-1: Process optimization and intermediate product ",
+   "fecha_retractacion": "4/6/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1021/acscentsci.8b00050",
+   "record": "70462",
+   "anno": 2018,
+   "titulo": "Overcoming Ovarian Cancer Drug Resistance with a Cold Responsive Nanomaterial",
+   "fecha_retractacion": "5/17/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3892/or.2019.7016",
+   "record": "46401",
+   "anno": 2019,
+   "titulo": "Deoxypodophyllotoxin inhibits cell viability and invasion by blocking the PI3K/Akt signaling pathway in human glioblasto",
+   "fecha_retractacion": "7/16/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.virusres.2018.11.013",
+   "record": "28138",
+   "anno": 2018,
+   "titulo": "Evaluation of imidazole and its derivative against Newcastle disease virus infection in chicken: A drug repurposing appr",
+   "fecha_retractacion": "1/20/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/978-981-13-8406-6_29",
+   "record": "40951",
+   "anno": 2019,
+   "titulo": "Analysis of Archimedes\u2019 Spiral Based Wireless Sensor Network with Mobile Sink",
+   "fecha_retractacion": "12/20/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.2214/ajr.15.15163",
+   "record": "34939",
+   "anno": 2016,
+   "titulo": "Retracted Publications Within Radiology Journals",
+   "fecha_retractacion": "4/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1289/ehp.1408257",
+   "record": "8464",
+   "anno": 2015,
+   "titulo": "Examination of the Safety of Pediatric Vaccine Schedules in a Non-Human Primate Model: Assessments of Neurodevelopment, ",
+   "fecha_retractacion": "1/1/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1080/21691401.2019.1575843",
+   "record": "23462",
+   "anno": 2019,
+   "titulo": "Graphene oxide-PLGA hybrid nanofibres for the local delivery of IGF-1 and BDNF in spinal cord repair",
+   "fecha_retractacion": "3/11/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1172/jci81480",
+   "record": "43220",
+   "anno": 2015,
+   "titulo": "CDK4 is an essential insulin effector in adipocytes",
+   "fecha_retractacion": "7/1/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/s41598-019-44350-9",
+   "record": "37494",
+   "anno": 2019,
+   "titulo": "The Adipocyte Na/K-ATPase Oxidant Amplification Loop is the Central Regulator of Western Diet-Induced Obesity and Associ",
+   "fecha_retractacion": "11/5/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.micinf.2018.01.010",
+   "record": "27749",
+   "anno": 2018,
+   "titulo": "Leptospira interrogans infection leads to IL-1\u03b2 and IL-18 secretion from a human macrophage cell line through reactive o",
+   "fecha_retractacion": "9/26/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1002/jcb.27957",
+   "record": "31495",
+   "anno": 2018,
+   "titulo": "Propranolol suppresses HUVEC viability, migration, VEGF expression, and promotes apoptosis by downregulation of miR-4295",
+   "fecha_retractacion": "3/12/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1177/1087054716682337",
+   "record": "35300",
+   "anno": 2016,
+   "titulo": "Sluggish Cognitive Tempo, Internalizing Symptoms, and Executive Function in Adults With ADHD",
+   "fecha_retractacion": "6/2/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s00484-018-1543-1",
+   "record": "39626",
+   "anno": 2018,
+   "titulo": "Association between cancer risk and polycyclic aromatic hydrocarbons\u2019 exposure in the ambient air of Ahvaz, southwest of",
+   "fecha_retractacion": "8/2/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.rser.2015.12.175",
+   "record": "17411",
+   "anno": 2016,
+   "titulo": "Survey of the most influential parameters on the wind farm net present value (NPV) by adaptive neuro-fuzzy approach",
+   "fecha_retractacion": "3/18/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.biopha.2018.07.119",
+   "record": "52514",
+   "anno": 2018,
+   "titulo": "LINC01116 targets miR-520a-3p and affects IL6R to promote the proliferation and migration of osteosarcoma cells through ",
+   "fecha_retractacion": "12/3/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.bbadis.2015.08.015",
+   "record": "24569",
+   "anno": 2015,
+   "titulo": "Brain targeted PLGA nanocarriers alleviating amyloid-\u0392 expression and preserving basal survivin in degenerating mice mod",
+   "fecha_retractacion": "10/23/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3892/ijmm.2017.3118",
+   "record": "42274",
+   "anno": 2017,
+   "titulo": "Suppression of CUL4A attenuates TGF\u2011\u03b21\u2011induced epithelial\u2011to\u2011mesenchymal transition in breast cancer cells",
+   "fecha_retractacion": "9/14/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1039/c7cp08054a",
+   "record": "67285",
+   "anno": 2018,
+   "titulo": "Factors impacting the aggregation/agglomeration and photocatalytic activity of highly crystalline spheroid- and rod-shap",
+   "fecha_retractacion": "1/19/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0243105",
+   "record": "64894",
+   "anno": 2020,
+   "titulo": "Machine learning-based e-commerce platform repurchase customer prediction model",
+   "fecha_retractacion": "12/5/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.heliyon.2023.e22020",
+   "record": "70567",
+   "anno": 2023,
+   "titulo": "Potential roles of circulating microRNAs in the healing of type 1 diabetic wounds treated with green tea extract: molecu",
+   "fecha_retractacion": "3/20/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.chemosphere.2022.136020",
+   "record": "60869",
+   "anno": 2022,
+   "titulo": "Multifaceted role of polyphenols in the treatment and management of neurodegenerative diseases",
+   "fecha_retractacion": "8/4/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1128/msphere.00925-19",
+   "record": "24871",
+   "anno": 2020,
+   "titulo": "A Nonfunctional Opsonic Antibody Response Frequently Occurs after Pneumococcal Pneumonia and Is Associated with Invasive",
+   "fecha_retractacion": "4/8/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1186/s13046-021-01889-8",
+   "record": "45085",
+   "anno": 2021,
+   "titulo": "Downregulation of lncRNA ZNF582-AS1 due to DNA hypermethylation promotes clear cell renal cell carcinoma growth and meta",
+   "fecha_retractacion": "5/13/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3389/fgene.2022.883930",
+   "record": "71918",
+   "anno": 2022,
+   "titulo": "Cytokinins: a genetic target for increasing yield potential in the CRISPR era",
+   "fecha_retractacion": "1/30/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "corrigendum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00500-020-05287-8",
+   "record": "44903",
+   "anno": 2020,
+   "titulo": "A new emergency response of spherical intelligent fuzzy decision process to diagnose of COVID19",
+   "fecha_retractacion": "1/9/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1136/bcr-2021-241572",
+   "record": "49382",
+   "anno": 2021,
+   "titulo": "Potential risk for developing severe COVID-19 disease among anabolic steroid users",
+   "fecha_retractacion": "11/2/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00109-021-02069-z",
+   "record": "46833",
+   "anno": 2021,
+   "titulo": "Antioxidative effects of polypyrimidine tract-binding protein-associated splicing factor against pathological retinal an",
+   "fecha_retractacion": "3/24/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s13198-021-01184-x",
+   "record": "40457",
+   "anno": 2021,
+   "titulo": "Industrial-IoT-hardware security-improvement using plan load optimization method in cloud",
+   "fecha_retractacion": "8/21/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00779-021-01520-9",
+   "record": "68117",
+   "anno": 2021,
+   "titulo": "The early warning research on nursing care of stroke patients with intelligent wearable devices under COVID-19",
+   "fecha_retractacion": "3/16/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.5937/sinteze9-25402",
+   "record": "38322",
+   "anno": 2020,
+   "titulo": "The influence of project teaching on creativity and achievements of students in studying social contents within the subj",
+   "fecha_retractacion": "3/6/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0271769",
+   "record": "42145",
+   "anno": 2022,
+   "titulo": "Genetic characterization of the highlander Tibetan population from Qinghai-Tibet Plateau revealed by X chromosomal STRs",
+   "fecha_retractacion": "11/28/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0274852",
+   "record": "41414",
+   "anno": 2022,
+   "titulo": "Application of sewage sludge combined with thiourea improves the growth and yield attributes of wheat (Triticum aestivum",
+   "fecha_retractacion": "12/19/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1186/s11658-021-00251-2",
+   "record": "60067",
+   "anno": 2021,
+   "titulo": "Inhibition of PAD4 enhances radiosensitivity and inhibits aggressive phenotypes of nasopharyngeal carcinoma cells",
+   "fecha_retractacion": "4/4/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/17461391.2020.1802516",
+   "record": "42393",
+   "anno": 2020,
+   "titulo": "Wearable resistance sprint running is superior to training with no load for retaining performance in pre-season training",
+   "fecha_retractacion": "3/29/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1093/bib/bbab529",
+   "record": "42986",
+   "anno": 2021,
+   "titulo": "OPUS-Rota4: a gradient-based protein side-chain modeling framework assisted by deep learning-based predictors",
+   "fecha_retractacion": "5/18/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.7759/cureus.73130",
+   "record": "61447",
+   "anno": 2024,
+   "titulo": "Evaluation of the Efficacy of the HaeNaem Zero Bone Loss Kit in Indirect Sinus Lift Using Osseodensification",
+   "fecha_retractacion": "11/21/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s12640-020-00271-4",
+   "record": "37328",
+   "anno": 2020,
+   "titulo": "Exploring the Role of CLU in the Pathogenesis of Alzheimer's Disease",
+   "fecha_retractacion": "8/29/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.2298/gensr2103273g",
+   "record": "50103",
+   "anno": 2021,
+   "titulo": "Genetic diversity and population structure analysis in Lonicera L. (Caprifoliaceae) with the use of ISSR molecular marke",
+   "fecha_retractacion": "4/30/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.2989/1814232x.2020.1857836",
+   "record": "43889",
+   "anno": 2021,
+   "titulo": "Evaluating Kenya\u2019s coastal gillnet fishery: trade-offs in recommended mesh-size regulations",
+   "fecha_retractacion": "6/30/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "addendum",
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0250959",
+   "record": "67165",
+   "anno": 2021,
+   "titulo": "An efficient post-processing adaptive filtering technique to rectifying the flickering effects",
+   "fecha_retractacion": "10/12/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1096/fj.202201899r",
+   "record": "63572",
+   "anno": 2023,
+   "titulo": "Effect of Mechanical Tension on Fibroblast Transcriptome Profile and Regulatory Mechanisms of Myocardial Collagen Turnov",
+   "fecha_retractacion": "10/13/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1039/d2ra90017c",
+   "record": "43781",
+   "anno": 2022,
+   "titulo": "Self-assembled membrane manufactured by metal-organic framework (UiO-66) coated \u03b3-Al2O3 for cleaning oily seawater",
+   "fecha_retractacion": "11/15/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1002/jmv.28975",
+   "record": "49677",
+   "anno": 2023,
+   "titulo": "Assessment of HBV infection and inter-host cellular responses using intrahepatic cholangiocyte organoids",
+   "fecha_retractacion": "8/31/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1177/1533033820947485",
+   "record": "53976",
+   "anno": 2020,
+   "titulo": "Curcumin Inhibits the Migration and Invasion of Non-Small-Cell Lung Cancer Cells Through Radiation-Induced Suppression o",
+   "fecha_retractacion": "12/29/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3389/fonc.2020.533176",
+   "record": "69831",
+   "anno": 2020,
+   "titulo": "Upregulation of CCT-3 Induces Breast Cancer Cell Proliferation Through miR-223 Competition and Wnt/\u03b2-Catenin Signaling P",
+   "fecha_retractacion": "5/19/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "corrigendum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3390/math10030343",
+   "record": "59029",
+   "anno": 2022,
+   "titulo": "Stability and Numerical Solutions of Second Wave Mathematical Modeling on COVID-19 and Omicron Outbreak Strategy of Pand",
+   "fecha_retractacion": "9/11/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.3389/fgene.2022.943025",
+   "record": "52994",
+   "anno": 2022,
+   "titulo": "Cytokinin and abiotic stress tolerance -what has been accomplished and the way forward?",
+   "fecha_retractacion": "1/16/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "corrigendum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/s41598-023-42751-5",
+   "record": "72308",
+   "anno": 2023,
+   "titulo": "Strategical selection of maintenance type under different conditions",
+   "fecha_retractacion": "10/17/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1128/mbio.03197-21",
+   "record": "62627",
+   "anno": 2022,
+   "titulo": "The Mechanism of Pertussis Cough Revealed by the Mouse-Coughing Model",
+   "fecha_retractacion": "5/31/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.intimp.2021.108005",
+   "record": "66082",
+   "anno": 2021,
+   "titulo": "Molsidomine alleviates acetic acid-induced colitis in rats by reducing oxidative stress, inflammation and apoptosis",
+   "fecha_retractacion": "2/28/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1037/pspa0000335",
+   "record": "53166",
+   "anno": 2023,
+   "titulo": "The political is personal: The costs of daily politics",
+   "fecha_retractacion": "9/1/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s10936-021-09800-4",
+   "record": "65590",
+   "anno": 2021,
+   "titulo": "The Comparative Effects of Teacher Versus Peer-Scaffolding on EFL Learners\u2019 Incidental Vocabulary Learning and Reading C",
+   "fecha_retractacion": "8/19/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1186/s13098-022-00844-7",
+   "record": "44998",
+   "anno": 2022,
+   "titulo": "Association of cord blood asprosin concentration with atherogenic lipid profile and anthropometric indices",
+   "fecha_retractacion": "7/15/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1093/mtomcs/mfae004",
+   "record": "68222",
+   "anno": 2024,
+   "titulo": "Nitrogen sources enhance siderophore-mediated competition for iron between potato common scab and late blight causative ",
+   "fecha_retractacion": "11/14/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ijbiomac.2022.09.134",
+   "record": "49937",
+   "anno": 2022,
+   "titulo": "Xanthan gum/oil body-microgel emulsions with enhanced transdermal absorption for accelerating wound healing",
+   "fecha_retractacion": "8/3/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1242/bio.049478",
+   "record": "38534",
+   "anno": 2020,
+   "titulo": "MicroRNA-96-5p promotes proliferation, invasion and EMT of oral carcinoma cells by directly targeting FOXF2",
+   "fecha_retractacion": "7/28/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/s41598-021-89139-x",
+   "record": "66401",
+   "anno": 2021,
+   "titulo": "nAChRs gene expression and neuroinflammation in APPswe/PS1dE9 transgenic mouse",
+   "fecha_retractacion": "7/6/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s11042-023-15581-w",
+   "record": "71764",
+   "anno": 2023,
+   "titulo": "DVT: a recent review and a taxonomy for oral and maxillofacial visualization and tracking based augmented reality: image",
+   "fecha_retractacion": "6/7/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.toxrep.2021.08.010",
+   "record": "37216",
+   "anno": 2021,
+   "titulo": "Why are we vaccinating children against COVID-19",
+   "fecha_retractacion": "10/7/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0287755",
+   "record": "63889",
+   "anno": 2023,
+   "titulo": "Harnessing the power of AI: Advanced deep learning models optimization for accurate SARS-CoV-2 forecasting",
+   "fecha_retractacion": "12/14/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.heliyon.2024.e35145",
+   "record": "70659",
+   "anno": 2024,
+   "titulo": "Maximizing the performance of badminton athletes through core strength training: Unlocking their full potential using ma",
+   "fecha_retractacion": "11/6/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1038/s41598-022-16666-6",
+   "record": "51906",
+   "anno": 2022,
+   "titulo": "Optical and structural properties of Sn and Ag-doped PbS/PVA nanocomposites synthesized by chemical bath deposition",
+   "fecha_retractacion": "6/19/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1002/tox.23874",
+   "record": "71195",
+   "anno": 2023,
+   "titulo": "METTL3 \u2010mediated m6A modification of pri\u2010miR \u2010148a\u20103p affects prostate cancer progression by regulating TXNIP",
+   "fecha_retractacion": "3/13/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0352001",
+   "record": "72916",
+   "anno": 2026,
+   "titulo": "Retraction: Robust policy evaluation from large-scale observational studies",
+   "fecha_retractacion": "8/13/2026 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pbio.3001883",
+   "record": "41017",
+   "anno": 2022,
+   "titulo": "A chaperonin subunit with unique structures is essential for folding of a specific substrate",
+   "fecha_retractacion": "12/2/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0304729",
+   "record": "64788",
+   "anno": 2024,
+   "titulo": "Unveiling the Nexus: Influence of learning motivation on organizational performance and innovative climate of Chinese fi",
+   "fecha_retractacion": "7/25/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.toxrep.2021.04.003",
+   "record": "37226",
+   "anno": 2021,
+   "titulo": "Safety of COVID-19 vaccines administered in the EU: Should we be concerned",
+   "fecha_retractacion": "9/2/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1038/s41598-024-65834-3",
+   "record": "69812",
+   "anno": 2024,
+   "titulo": "Salt stress amelioration and nutrient strengthening in spinach (Spinacia oleracea L.) via biochar amendment and zinc for",
+   "fecha_retractacion": "8/7/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.17179/excli2026-9644",
+   "record": "71954",
+   "anno": 2026,
+   "titulo": "Retraction of the landmark glyphosate safety publication by Williams, Kroes and Munro (2000) should be reversed",
+   "fecha_retractacion": "7/27/2026 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": true,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1371/journal.pone.0301829",
+   "record": "69671",
+   "anno": 2024,
+   "titulo": "National income accounting attributes and economic welfare. Evidence from Pakistan",
+   "fecha_retractacion": "3/6/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1039/d1ra02780h",
+   "record": "46595",
+   "anno": 2021,
+   "titulo": "Synthesis and characterization of AFe2O4 (A: Ni, Co, Mg)\u2013silica nanocomposites and their application for the removal of ",
+   "fecha_retractacion": "7/21/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.jcis.2024.09.068",
+   "record": "67205",
+   "anno": 2024,
+   "titulo": "Oxygen vacancies enhancing hierarchical NiCo2S4@MnO2 electrode for flexible asymmetric supercapacitors",
+   "fecha_retractacion": "5/19/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ijbiomac.2023.125510",
+   "record": "60267",
+   "anno": 2023,
+   "titulo": "Aptamer/doxorubicin-conjugated nanoparticles target membranous CEMIP2 in colorectal cancer",
+   "fecha_retractacion": "7/21/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.7759/cureus.18316",
+   "record": "34392",
+   "anno": 2021,
+   "titulo": "The Role of Heat Shock Proteins in Cellular Homeostasis and Cell Survival",
+   "fecha_retractacion": "11/9/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1158/0008-5472.can-21-1825",
+   "record": "37513",
+   "anno": 2021,
+   "titulo": "Targeting KDM6A Suppresses SREBP1c-Dependent Lipid Metabolism and Prostate Tumorigenesis",
+   "fecha_retractacion": "6/2/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s11356-023-25412-y",
+   "record": "53897",
+   "anno": 2023,
+   "titulo": "Converging concepts of sustainability and supply chain networks: a systematic literature review approach",
+   "fecha_retractacion": "2/14/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00429-021-02310-y",
+   "record": "43726",
+   "anno": 2021,
+   "titulo": "Comparing astrocytic gap junction of genetic absence epileptic rats with control rats: an experimental study",
+   "fecha_retractacion": "1/11/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3390/sym15010219",
+   "record": "53672",
+   "anno": 2023,
+   "titulo": "A Perception Study for Unit Charts in the Context of Large-Magnitude Data Representation",
+   "fecha_retractacion": "4/10/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "expression_of_concern",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3892/etm.2021.10255",
+   "record": "68936",
+   "anno": 2021,
+   "titulo": "Changes in the interstitial cells of Cajal in\u00a0the\u00a0gallbladder of guinea pigs fed a lithogenic diet",
+   "fecha_retractacion": "10/29/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/s41598-023-37680-2",
+   "record": "53667",
+   "anno": 2023,
+   "titulo": "Synthesis and characterization of ZrFe2O4@SiO2@Ade-Pd as a novel, recyclable, green, and versatile catalyst for Buchwald",
+   "fecha_retractacion": "4/3/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1002/tox.23980",
+   "record": "71199",
+   "anno": 2023,
+   "titulo": "Exosomal miRNA\u2010166\u20105p derived from G\u2010MDSCs promotes proliferation by targeting ITM3E in colorectal cancer",
+   "fecha_retractacion": "9/20/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ijbiomac.2021.04.013",
+   "record": "72105",
+   "anno": 2021,
+   "titulo": "Antibacterial potency, cell viability and morphological implications of copper oxide nanoparticles encapsulated into cel",
+   "fecha_retractacion": "5/29/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1002/advs.202408631",
+   "record": "71116",
+   "anno": 2024,
+   "titulo": "Injectable Genetic Engineering Hydrogel for Promoting Spatial Tolerance of Transplanted Kidney in Situ",
+   "fecha_retractacion": "3/20/2026 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.jare.2021.08.009",
+   "record": "68857",
+   "anno": 2022,
+   "titulo": "Novel dynamic fuzzy decision-making framework for COVID-19 vaccine dose recipients",
+   "fecha_retractacion": "2/25/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.heliyon.2024.e31849",
+   "record": "66162",
+   "anno": 2024,
+   "titulo": "Optimization of ultra-precision CBN turning of AISI D2 using hybrid GA-RSM and Taguchi-GRA statistic tools",
+   "fecha_retractacion": "1/7/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1038/s41598-024-52043-1",
+   "record": "66443",
+   "anno": 2024,
+   "titulo": "Extremely efficient aerogels of graphene oxide/graphene oxide nanoribbons/sodium alginate for uranium removal from waste",
+   "fecha_retractacion": "2/19/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00210-023-02542-1",
+   "record": "53828",
+   "anno": 2023,
+   "titulo": "Experimental evidence of shikonin as a novel intervention for anti-inflammatory effects",
+   "fecha_retractacion": "6/20/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1021/acs.jmedchem.0c00694",
+   "record": "67289",
+   "anno": 2020,
+   "titulo": "Temozolomide, Gemcitabine, and Decitabine Hybrid Nanoconjugates: From Design to Proof-of-Concept (PoC) of Synergies towa",
+   "fecha_retractacion": "6/30/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1007/s13369-021-05986-w",
+   "record": "43006",
+   "anno": 2021,
+   "titulo": "Context-Aware Evaluation of HCI Systems for Transportation in Urban Areas",
+   "fecha_retractacion": "10/18/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0333202",
+   "record": "72964",
+   "anno": 2025,
+   "titulo": "SPAG6 hypermethylation silences a novel tumor suppressor and inhibits renal cell carcinoma progression via PI3K/AKT/mTOR",
+   "fecha_retractacion": "3/13/2026 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3233/jad-200551",
+   "record": "47403",
+   "anno": 2020,
+   "titulo": "The Iron Chelator Deferiprone Improves the Phenotype in a Mouse Model of Tauopathy",
+   "fecha_retractacion": "12/8/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1002/jcp.29471",
+   "record": "53265",
+   "anno": 2020,
+   "titulo": "Long noncoding RNA ITGB2-AS1 promotes growth and metastasis through miR-4319/RAF1 axis in pancreatic ductal adenocarcino",
+   "fecha_retractacion": "2/25/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.2147/cmar.s276297",
+   "record": "47014",
+   "anno": 2021,
+   "titulo": "IL-33 Promotes the Growth of Non-Small Cell Lung Cancer Cells Through Regulating miR-128-3p/CDIP1 Signalling Pathway",
+   "fecha_retractacion": "3/30/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.heliyon.2021.e06952",
+   "record": "72270",
+   "anno": 2021,
+   "titulo": "Impact of Nigeria's industrial sector on level of inefficiency for energy consumption: Fisher Ideal index decomposition ",
+   "fecha_retractacion": "12/18/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1093/mmy/myac072.p495",
+   "record": "44779",
+   "anno": 2022,
+   "titulo": "P495 contamination of wind instruments: A potential threat to musicians",
+   "fecha_retractacion": "12/6/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1186/s12951-020-00622-5",
+   "record": "54255",
+   "anno": 2020,
+   "titulo": "M2 macrophagy-derived exosomal miRNA-5106 induces bone mesenchymal stem cells towards osteoblastic fate by targeting sal",
+   "fecha_retractacion": "3/27/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.scitotenv.2021.146994",
+   "record": "59496",
+   "anno": 2021,
+   "titulo": "Green toxicology approach involving polylactic acid biomicroplastics and neotropical tadpoles: (Eco)toxicological safety",
+   "fecha_retractacion": "1/13/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1371/journal.pone.0295633",
+   "record": "69668",
+   "anno": 2024,
+   "titulo": "Intersecting paths: Corporate and green innovation in Chinese firms\u2014A panel cointegration analysis",
+   "fecha_retractacion": "1/28/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": true,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  }
+ ]
+}

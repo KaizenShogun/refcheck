@@ -216,6 +216,32 @@ class ContraLaRealidad(unittest.TestCase):
         self.assertEqual(por["10.1038/nature12373"]["avisos"], [])
         self.assertEqual(por["10.9999/no.existe.9999"]["estado"], "desconocido")
 
+    def test_una_retractacion_revertida_sigue_llegando_como_retractacion(self):
+        """The limit this tool cannot fix from here — asserted, so it can expire.
+
+        Taylor & Francis retracted this paper in error and reinstated it; the
+        restoring notice, 10.1080/21655979.2024.2326361, is filed as a plain
+        "Publisher's Note" with `update-to: null` and is linked to nothing. So
+        Crossref still serves a bare retraction, and refcheck says RETRACTED
+        about a paper that stands. One of 31 such papers out of 155, censused
+        2026-09-16.
+
+        This is written as a claim about the register rather than a wish about
+        the code, which means the day a publisher or Crossref starts carrying
+        the reversal this test goes RED — and that is how I want to find out,
+        the same way the CR-2746 test is set up.
+        """
+        r = refcheck.revisa("10.1080/21655979.2021.2005742")
+        self.assertEqual(r["estado"], "ok")
+        tipos = {a["tipo"] for a in r["avisos"]}
+        self.assertIn("retraction", tipos,
+                      "the stale retraction is gone — check whether the "
+                      "reinstatement is now carried, and update the README census")
+        self.assertNotIn("reinstatement", tipos,
+                         "Crossref now has a reinstatement type: refcheck must "
+                         "stop headlining RETRACTED here, and the GRAVEDAD note "
+                         "about ordering by date is now due")
+
 
 class Cortesia(unittest.TestCase):
     """Stay inside the rate the server states, not the one I assumed.
@@ -1541,6 +1567,176 @@ class CacheEnLaCLI(unittest.TestCase):
         self.assertEqual((cr3, pm3), ([], []), "asked again for a complete answer")
         self.assertIn("RETRACTED", t3)
         self.assertIn("came from the local cache", t3)
+
+
+def _medidor():
+    """The measuring script, imported by path.
+
+    `research/` produces the figures printed in the README, and until 2026-09-16
+    none of it had a single test. A published number that comes out of untested
+    code is the "plausible, not measured" this whole project exists to object to.
+    """
+    import importlib.util
+    ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "research", "measure_rw_gap.py")
+    spec = importlib.util.spec_from_file_location("measure_rw_gap", ruta)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _ficha(*tipos, estado="ok"):
+    """A refcheck result carrying these notice types, worst first."""
+    avisos = [{"tipo": t, "gravedad": refcheck.GRAVEDAD.get(t, 1)} for t in tipos]
+    avisos.sort(key=lambda a: -a["gravedad"])
+    return {"doi": "10.5555/x", "estado": estado, "avisos": avisos}
+
+
+class PuntuacionContraPatronOro(unittest.TestCase):
+    """How measure_rw_gap scores a paper, per nature.
+
+    The scoring is not the same shape for every nature, which is the whole
+    reason the nature became a parameter instead of a string swap. Three of them
+    say "a notice exists, did you find it"; Reinstatement says "the retraction
+    was reversed, did you shut up about it". Grading the fourth like the first
+    three would score the tool on doing exactly the wrong thing.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.m = _medidor()
+
+    def _v(self, ficha, naturaleza):
+        return self.m.veredicto(ficha, self.m.NATURALEZAS[naturaleza]["esperado"])
+
+    def _e(self, ficha, naturaleza):
+        return self.m.exacto(ficha, self.m.NATURALEZAS[naturaleza]["tipos"])
+
+    # --- the ordinary direction ------------------------------------------
+    def test_retraction_encontrada(self):
+        self.assertEqual(self._v(_ficha("retraction"), "Retraction"), "avisado")
+        for t in ("partial_retraction", "removal", "withdrawal"):
+            self.assertEqual(self._v(_ficha(t), "Retraction"), "avisado", t)
+
+    def test_retraction_reportada_como_correccion_no_cuenta(self):
+        # The expensive half-failure: the reader is told to check a number when
+        # they should be throwing the citation out.
+        self.assertEqual(self._v(_ficha("correction"), "Retraction"), "mas suave")
+
+    def test_silencio_y_desconocido_se_distinguen(self):
+        self.assertEqual(self._v(_ficha(), "Retraction"), "silencio")
+        self.assertEqual(self._v(_ficha(estado="desconocido"), "Retraction"),
+                         "silencio, y ni siquiera tiene el DOI")
+
+    def test_lo_no_comprobado_no_es_una_respuesta(self):
+        self.assertEqual(self._v(_ficha(estado="sin_comprobar"), "Retraction"),
+                         "no comprobado")
+        self.assertEqual(self._v(None, "Retraction"), "no comprobado")
+
+    def test_tipo_desconocido_no_asciende_a_retractacion(self):
+        # Crossref really serves this: record 69356 arrives with `type` set to
+        # the string "68818", another record's id. It falls to the default
+        # severity of 1, and it must not be allowed to score as a retraction.
+        self.assertEqual(self._v(_ficha("68818"), "Retraction"), "mas suave")
+        self.assertFalse(self._e(_ficha("68818"), "Retraction"))
+
+    # --- the milder natures, where lax and strict come apart ---------------
+    def test_una_retractacion_cubre_una_expresion_de_preocupacion(self):
+        # At the reader's bar this is a hit: they are warned, and warned harder.
+        self.assertEqual(self._v(_ficha("retraction"), "Expression of concern"),
+                         "avisado")
+        # At the strict bar it is not: "retracted" and "the journal is unsure"
+        # are not the same fact, and counting one as the other is how a gap gets
+        # flattered out of the measurement.
+        self.assertFalse(self._e(_ficha("retraction"), "Expression of concern"))
+        self.assertTrue(self._e(_ficha("expression_of_concern"),
+                                "Expression of concern"))
+
+    def test_correccion_no_alcanza_la_expresion_de_preocupacion(self):
+        self.assertEqual(self._v(_ficha("correction"), "Expression of concern"),
+                         "mas suave")
+
+    def test_erratum_y_corrigendum_cuentan_como_correccion(self):
+        for t in ("correction", "erratum", "corrigendum"):
+            self.assertEqual(self._v(_ficha(t), "Correction"), "avisado", t)
+            self.assertTrue(self._e(_ficha(t), "Correction"), t)
+
+    def test_en_retraction_lo_laxo_y_lo_estricto_coinciden(self):
+        # Not news, a self-check: every type at severity 3 is a retraction type,
+        # so if these ever diverge the two tables have drifted apart.
+        for t in sorted(self.m.NATURALEZAS["Retraction"]["tipos"]):
+            self.assertEqual(self._v(_ficha(t), "Retraction") == "avisado",
+                             self._e(_ficha(t), "Retraction"), t)
+
+    # --- the inverted one --------------------------------------------------
+    def test_reinstatement_acertar_es_callarse(self):
+        self.assertEqual(self._v(_ficha(), "Reinstatement"), "silencio")
+
+    def test_reinstatement_cualquier_aviso_es_falsa_alarma(self):
+        # Including — especially — the loud one. A paper whose retraction was
+        # reversed and that refcheck still calls RETRACTED is the 2026-09-09 bug
+        # all over again: a reader throwing away a citation that stands.
+        for t in ("retraction", "expression_of_concern", "correction"):
+            self.assertEqual(self._v(_ficha(t), "Reinstatement"), "avisado", t)
+
+    def test_reinstatement_no_tiene_bar_de_gravedad(self):
+        self.assertIsNone(self.m.NATURALEZAS["Reinstatement"]["esperado"])
+
+    # --- reading the ground truth -----------------------------------------
+    def _csv(self, filas):
+        ruta = os.path.join(_tmpdir(self), "rw.csv")
+        campos = ["Record ID", "OriginalPaperDOI", "RetractionNature",
+                  "OriginalPaperDate", "Title", "RetractionDate"]
+        with open(ruta, "w", encoding="utf-8", newline="") as f:
+            f.write(",".join(campos) + "\n")
+            for fila in filas:
+                f.write(",".join(fila.get(c, "") for c in campos) + "\n")
+        return ruta
+
+    def test_filtra_por_naturaleza(self):
+        ruta = self._csv([
+            {"Record ID": "1", "OriginalPaperDOI": "10.1/a",
+             "RetractionNature": "Retraction", "OriginalPaperDate": "1/2/2011"},
+            {"Record ID": "2", "OriginalPaperDOI": "10.1/b",
+             "RetractionNature": "Correction", "OriginalPaperDate": "1/2/2011"},
+        ])
+        self.assertEqual([f["doi"] for f in self.m.filas(ruta, "Retraction")],
+                         ["10.1/a"])
+        self.assertEqual([f["doi"] for f in self.m.filas(ruta, "Correction")],
+                         ["10.1/b"])
+
+    def test_un_paper_con_dos_filas_no_pesa_el_doble(self):
+        ruta = self._csv([
+            {"Record ID": "1", "OriginalPaperDOI": "10.1/a",
+             "RetractionNature": "Retraction", "OriginalPaperDate": "1/2/2011"},
+            {"Record ID": "2", "OriginalPaperDOI": "10.1/A",
+             "RetractionNature": "Retraction", "OriginalPaperDate": "1/2/2011"},
+        ])
+        self.assertEqual(len(self.m.filas(ruta, "Retraction")), 1)
+
+    def test_sin_doi_usable_se_excluye_no_se_puntua(self):
+        # "unavailable" is outside what a DOI checker can be asked about at all.
+        # Scoring these as misses would invent a failure that is not the tool's.
+        ruta = self._csv([
+            {"Record ID": "1", "OriginalPaperDOI": "unavailable",
+             "RetractionNature": "Retraction", "OriginalPaperDate": "1/2/2011"},
+            {"Record ID": "2", "OriginalPaperDOI": "10.1/b c",
+             "RetractionNature": "Retraction", "OriginalPaperDate": "1/2/2011"},
+        ])
+        self.assertEqual(self.m.filas(ruta, "Retraction"), [])
+
+    def test_el_anno_sale_de_la_fecha_del_articulo(self):
+        self.assertEqual(self.m.anno("5/14/2013 0:00"), 2013)
+        self.assertEqual(self.m.anno(""), 0)
+        self.assertEqual(self.m.anno(None), 0)
+
+    # --- the control -------------------------------------------------------
+    def test_el_veredicto_viejo_se_traduce_para_comparar(self):
+        # The 2026-09-14/15 files say "retractado", from before the nature was a
+        # parameter. A before/after that cannot line up the labels would report
+        # 1.000 verdicts moved and mean none of it.
+        self.assertEqual(self.m.VIEJOS["retractado"], "avisado")
+        self.assertIn("avisado", self.m.ORDEN)
 
 
 if __name__ == "__main__":

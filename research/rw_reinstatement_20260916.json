@@ -1,0 +1,1983 @@
+{
+ "nature": "Reinstatement",
+ "n_per_era": null,
+ "census": true,
+ "seed": 20260914,
+ "rerun_of": null,
+ "counts": {
+  "avisado": 50,
+  "silencio": 101,
+  "silencio, y ni siquiera tiene el DOI": 4
+ },
+ "exact": 0,
+ "rows": [
+  {
+   "doi": "10.1016/j.heliyon.2023.e18637",
+   "record": "65838",
+   "anno": 2023,
+   "titulo": "Animal bites management in Northern Iran: Challenges and solutions",
+   "fecha_retractacion": "3/12/2025 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1001/jamainternmed.2024.5726",
+   "record": "64316",
+   "anno": 2024,
+   "titulo": "Vitamin K2 in Managing Nocturnal Leg Cramps: A Randomized Clinical Trial",
+   "fecha_retractacion": "5/2/2025 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.3352/jeehp.2024.21.22",
+   "record": "60605",
+   "anno": 2024,
+   "titulo": "Insights into undergraduate medical student selection tools: a systematic review and meta-analysis",
+   "fecha_retractacion": "12/31/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1001/jamanetworkopen.2023.47176",
+   "record": "57285",
+   "anno": 2023,
+   "titulo": "Opportunistic Screening With Low-Dose Computed Tomography and Lung Cancer Mortality in China",
+   "fecha_retractacion": "9/30/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.drugalcdep.2024.112428",
+   "record": "56862",
+   "anno": 2024,
+   "titulo": "Patterns of nicotine pouch use among young Australians",
+   "fecha_retractacion": "9/25/2024 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1001/jamahealthforum.2023.4449",
+   "record": "54010",
+   "anno": 2023,
+   "titulo": "Estimated Savings From the Medicare Shared Savings Program",
+   "fecha_retractacion": "4/5/2024 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1007/s00404-012-2548-3",
+   "record": "53222",
+   "anno": 2012,
+   "titulo": "Fetal fibronectin (Quick Check fFN test) for detection of premature rupture of fetal membranes",
+   "fecha_retractacion": "12/27/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": false,
+   "dice": [
+    "correction",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21655979.2021.1996016",
+   "record": "52487",
+   "anno": 2021,
+   "titulo": "MicroRNA-4521 targets hepatoma up-regulated protein (HURP) to inhibit the malignant progression of breast cancer",
+   "fecha_retractacion": "3/1/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "addendum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1001/jamanetworkopen.2022.31321",
+   "record": "51987",
+   "anno": 2022,
+   "titulo": "Effect of In-Person vs Video Training and Access to All Functions vs a Limited Subset of Functions on Portal Use Among I",
+   "fecha_retractacion": "2/15/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.semarthrit.2024.152361",
+   "record": "51939",
+   "anno": 2024,
+   "titulo": "PROMIS-29 in rheumatoid arthritis patients who screen positive or negative for fibromyalgia on MDHAQ FAST4 (fibromyalgia",
+   "fecha_retractacion": "1/18/2024 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1080/21655979.2021.2005742",
+   "record": "51823",
+   "anno": 2021,
+   "titulo": "miR-148-3p inhibits gastric cancer cell malignant phenotypes and chemotherapy resistance by targeting Bcl2",
+   "fecha_retractacion": "2/1/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21655979.2021.2006865",
+   "record": "51822",
+   "anno": 2021,
+   "titulo": "Functional analysis of ceRNA network of lncRNA TSIX/miR-34a-5p/RBP2 in acute myocardial infarction based on GEO database",
+   "fecha_retractacion": "2/1/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21655979.2021.1997697",
+   "record": "51821",
+   "anno": 2021,
+   "titulo": "MYCN contributes to the sensitization of acute myelogenous leukemia cells to cisplatin by targeting SRY-box transcriptio",
+   "fecha_retractacion": "2/1/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21655979.2021.2011638",
+   "record": "51820",
+   "anno": 2021,
+   "titulo": "The mechanism of \u03b12-macroglobulin against oxidative stress and promoting cell proliferation in intervertebral disc degen",
+   "fecha_retractacion": "2/1/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ophtha.2023.11.021",
+   "record": "51529",
+   "anno": 2023,
+   "titulo": "Delays between Uveal Melanoma Diagnosis and Treatment Increase the Risk of Metastatic Death",
+   "fecha_retractacion": "11/21/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21655979.2021.2003926",
+   "record": "51367",
+   "anno": 2021,
+   "titulo": "The role of second generation sequencing technology and nanomedicine in the monitoring and treatment of lower extremity ",
+   "fecha_retractacion": "1/29/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21655979.2021.2000258",
+   "record": "51366",
+   "anno": 2021,
+   "titulo": "Mechanism of isosorbide dinitrate combined with exercise training rehabilitation to mobilize endothelial progenitor cell",
+   "fecha_retractacion": "1/29/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21655979.2021.1987083",
+   "record": "51263",
+   "anno": 2021,
+   "titulo": "Protective effects of ulinastatin on rats with acute lung injury induced by lipopolysaccharide",
+   "fecha_retractacion": "1/25/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1080/21655979.2021.1995573",
+   "record": "51104",
+   "anno": 2021,
+   "titulo": "Knockdown of long non-coding RNA AGAP2-AS1 suppresses the proliferation and metastasis of glioma by targeting microRNA-4",
+   "fecha_retractacion": "1/18/2024 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1161/circoutcomes.120.007778",
+   "record": "49720",
+   "anno": 2021,
+   "titulo": "Provider Care Team Segregation and Operative Mortality Following Coronary Artery Bypass Grafting",
+   "fecha_retractacion": "11/21/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1093/g3journal/jkad063",
+   "record": "48197",
+   "anno": 2023,
+   "titulo": "Stripes and loss of color in ball pythons (Python regius) are associated with variants affecting endothelin signaling",
+   "fecha_retractacion": "9/30/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1016/j.ajt.2023.04.018",
+   "record": "47621",
+   "anno": 2023,
+   "titulo": "Qualifying a novel clinical trial endpoint (iBOX) predictive of long-term kidney transplant outcomes",
+   "fecha_retractacion": "9/18/2023 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jtha.2023.07.028",
+   "record": "47105",
+   "anno": 2023,
+   "titulo": "Characterization of all small RNAs in and comparisons across cultured megakaryocytes and platelets of healthy individual",
+   "fecha_retractacion": "8/7/2023 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.2478/jtim-2022-0008",
+   "record": "46638",
+   "anno": 2022,
+   "titulo": "Hydrogel: A promising new technique for treating Alzheimer's disease (in Volume 10 Issue 3)",
+   "fecha_retractacion": "1/13/2023 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1001/jamainternmed.2022.4696",
+   "record": "46436",
+   "anno": 2022,
+   "titulo": "Association of Particulate Matter Exposure With Lung Function and Mortality Among Patients With Fibrotic Interstitial Lu",
+   "fecha_retractacion": "7/24/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.ijscr.2023.107896",
+   "record": "45241",
+   "anno": 2023,
+   "titulo": "Viscus perforation as an initial presentation of gastric plexiform fibromyxoma: A case report and review of the literatu",
+   "fecha_retractacion": "1/12/2023 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1055/a-2059-4844",
+   "record": "44137",
+   "anno": 2023,
+   "titulo": "Atorvastatin versus Placebo in ICU Patients with COVID-19: Ninety-day Results of the INSPIRATION-S Trial",
+   "fecha_retractacion": "3/21/2023 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/reseval/rvab020",
+   "record": "44041",
+   "anno": 2021,
+   "titulo": "Journal citation reports and the definition of a predatory journal: The case of the Multidisciplinary Digital Publishing",
+   "fecha_retractacion": "4/18/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1001/jamanetworkopen.2022.35721",
+   "record": "43743",
+   "anno": 2022,
+   "titulo": "Association of Video Gaming With Cognitive Performance Among Children",
+   "fecha_retractacion": "4/3/2023 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.3390/coatings11050501",
+   "record": "43656",
+   "anno": 2021,
+   "titulo": "Antioxidant, Antigenotoxic, and Hepatic Ameliorative Effects of Quercetin/Zinc Complex on Cadmium-Induced Hepatotoxicity",
+   "fecha_retractacion": "9/15/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1001/jama.2021.16685",
+   "record": "43262",
+   "anno": 2021,
+   "titulo": "Trends in Obesity Prevalence Among Adults Aged 18 Through 25 Years, 1976-2018",
+   "fecha_retractacion": "2/21/2023 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1161/circulationaha.120.050749",
+   "record": "42989",
+   "anno": 2020,
+   "titulo": "Effect of Adding Ticagrelor to Standard Aspirin on Saphenous Vein Graft Patency in Patients Undergoing Coronary Artery B",
+   "fecha_retractacion": "7/12/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1016/j.dhjo.2023.101442",
+   "record": "42458",
+   "anno": 2023,
+   "titulo": "Barriers and enablers to the implementation of healthy lifestyle interventions for people with disability living in supp",
+   "fecha_retractacion": "1/16/2023 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.13052/jicts2245-800x.1033",
+   "record": "42138",
+   "anno": 2022,
+   "titulo": "A Moroccan Sign Language Recognition Algorithm Using a Convolution Neural Network",
+   "fecha_retractacion": "9/1/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ygeno.2008.11.010",
+   "record": "41891",
+   "anno": 2009,
+   "titulo": "Discovery of transcriptional regulators and signaling pathways in the developing pituitary gland by bioinformatic and ge",
+   "fecha_retractacion": "11/1/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/s00432-014-1623-5",
+   "record": "41791",
+   "anno": 2014,
+   "titulo": "Transglutaminase 2 inhibitor abrogates renal cell carcinoma in xenograft models",
+   "fecha_retractacion": "1/1/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ejogrb.2015.07.009",
+   "record": "41412",
+   "anno": 2015,
+   "titulo": "Effectiveness of complementary pain treatment for women with deep endometriosis through Transcutaneous Electrical Nerve ",
+   "fecha_retractacion": "11/16/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ajp.2020.102073",
+   "record": "41080",
+   "anno": 2020,
+   "titulo": "First COVID-19 suicide case in Bangladesh due to fear of COVID-19 and xenophobia: Possible suicide prevention strategies",
+   "fecha_retractacion": "4/7/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.esxm.2022.100579",
+   "record": "40710",
+   "anno": 2022,
+   "titulo": "Pooled Analysis Confirms Flibanserin's Unimpressive Efficacy, Raises Measurement Questions",
+   "fecha_retractacion": "11/1/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.esxm.2022.100570",
+   "record": "40705",
+   "anno": 2022,
+   "titulo": "Effects of Flibanserin on Subdomain Scores of the Female Sexual Function Index in Women With Hypoactive Sexual Desire Di",
+   "fecha_retractacion": "11/10/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1161/circresaha.116.308301",
+   "record": "40091",
+   "anno": 2016,
+   "titulo": "Ablation of Adenosine Monophosphate-Activated Protein Kinase \u03b11 in Vascular Smooth Muscle Cells Promotes Diet-Induced At",
+   "fecha_retractacion": "10/28/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.biortech.2022.127749",
+   "record": "39555",
+   "anno": 2022,
+   "titulo": "Small biochar addition enhanced anammox granular sludge system for practical wastewater treatment: Performance and micro",
+   "fecha_retractacion": "10/1/2022 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1055/a-1926-0335",
+   "record": "38701",
+   "anno": 2022,
+   "titulo": "Autonomic nervous system in preterm very low birth weight neonates with intraventricular hemorrhage",
+   "fecha_retractacion": "8/17/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jvir.2022.07.009",
+   "record": "38595",
+   "anno": 2022,
+   "titulo": "Crossword Puzzle: Answer Key",
+   "fecha_retractacion": "8/2/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jvir.2022.07.008",
+   "record": "38594",
+   "anno": 2022,
+   "titulo": "Crossword Puzzle",
+   "fecha_retractacion": "8/1/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1159/000443123",
+   "record": "38190",
+   "anno": 2016,
+   "titulo": "LOX-1-Mediated Effects on Vascular Cells in Atherosclerosis",
+   "fecha_retractacion": "9/1/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref+pubmed",
+   "exacto": false,
+   "dice": [
+    "erratum",
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.scitotenv.2022.156726",
+   "record": "37945",
+   "anno": 2022,
+   "titulo": "PCB exposure is associated with reduction of endosymbionts in riparian spider microbiomes",
+   "fecha_retractacion": "6/15/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jinf.2022.05.004",
+   "record": "37484",
+   "anno": 2022,
+   "titulo": "A novel clinical therapy to combat infections caused by Hypervirulent Carbapenem-Resistant Klebsiella pneumoniae",
+   "fecha_retractacion": "5/10/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.swevo.2021.100868",
+   "record": "37261",
+   "anno": 2021,
+   "titulo": "Major Advances in Particle Swarm Optimization: Theory, Analysis, and Application",
+   "fecha_retractacion": "5/18/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1001/jamanetworkopen.2021.24638",
+   "record": "35990",
+   "anno": 2021,
+   "titulo": "Association of Marijuana Legalization With Marijuana Use Among US High School Students, 1993-2019",
+   "fecha_retractacion": "3/8/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ajog.2021.11.1357",
+   "record": "35043",
+   "anno": 2022,
+   "titulo": "The diagnosis and management of suspected fetal growth restriction: an evidence-based approach",
+   "fecha_retractacion": "1/10/2022 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1055/a-1708-1994",
+   "record": "34576",
+   "anno": 2021,
+   "titulo": "Characterization of different forms of kava (Piper methysticum) products by UPLC-MS/MS",
+   "fecha_retractacion": "11/28/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1055/a-1708-2081",
+   "record": "34575",
+   "anno": 2021,
+   "titulo": "In vitro cytotoxic and leishmanicidal activity of isolated and semisynthetic ent-pimaranes from Aldama arenaria",
+   "fecha_retractacion": "11/28/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ebiom.2021.103668",
+   "record": "34275",
+   "anno": 2021,
+   "titulo": "Big data, biomarkers and proteomics: Informing childhood diarrhoeal disease management in low- and middle-income countri",
+   "fecha_retractacion": "11/3/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1308/rcsann.2020.0038",
+   "record": "32151",
+   "anno": 2020,
+   "titulo": "Tumour-to-tumour metastasis: breast carcinoma to an olfactory neuroblastoma",
+   "fecha_retractacion": "9/7/2021 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1016/j.ypmed.2021.106734",
+   "record": "31365",
+   "anno": 2021,
+   "titulo": "Implementing the National Suicide Prevention Strategy: Time for action to flatten the curve",
+   "fecha_retractacion": "7/19/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.mayocp.2020.10.041",
+   "record": "30194",
+   "anno": 2021,
+   "titulo": "Direct Oral Anticoagulants Compared With Dalteparin for Treatment of Cancer-Associated Thrombosis: A Living, Interactive",
+   "fecha_retractacion": "6/27/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ajpc.2021.100185",
+   "record": "29588",
+   "anno": 2021,
+   "titulo": "Race is not a risk factor: Reframing discourse on racial health inequities in CVD prevention",
+   "fecha_retractacion": "6/10/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.injury.2021.03.025",
+   "record": "26989",
+   "anno": 2021,
+   "titulo": "Re Pathways and factors that influence time to definitive trauma care for injured children in New South Wales, Australia",
+   "fecha_retractacion": "3/11/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jaip.2021.02.047",
+   "record": "26988",
+   "anno": 2021,
+   "titulo": "The association of plasma IL-6 with measures of asthma morbidity in a moderate-severe pediatric cohort aged 6-18 years",
+   "fecha_retractacion": "3/23/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.scitotenv.2021.145238",
+   "record": "26602",
+   "anno": 2021,
+   "titulo": "Global economic costs of aquatic invasive alien species",
+   "fecha_retractacion": "1/20/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1053/j.gastro.2020.12.079",
+   "record": "26162",
+   "anno": 2021,
+   "titulo": "Canadian Association of Gastroenterology CLINICAL Practice Guideline For Immunizations in Patients with Inflammatory Bow",
+   "fecha_retractacion": "2/28/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jvir.2020.11.004",
+   "record": "25066",
+   "anno": 2021,
+   "titulo": "The Impact of Physician Exposure to Organized Political Advocacy in the Society of Interventional Radiology",
+   "fecha_retractacion": "1/10/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jaip.2020.12.047",
+   "record": "24991",
+   "anno": 2020,
+   "titulo": "mRNA Vaccines to Prevent COVID-19 Disease and Reported Allergic Reactions: Current Evidence and Approach",
+   "fecha_retractacion": "12/31/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1053/j.ajkd.2020.10.021",
+   "record": "24990",
+   "anno": 2021,
+   "titulo": "Genetic and Sporadic Renal Cystic Diseases During the Perinatal and Neonatal Period: Core Curriculum 2021",
+   "fecha_retractacion": "1/6/2021 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jaip.2020.12.035",
+   "record": "24925",
+   "anno": 2020,
+   "titulo": "GINA 2020: Potential Impacts, Opportunities and Challenges for Primary Care",
+   "fecha_retractacion": "12/26/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jstrokecerebrovasdis.2020.105521",
+   "record": "24852",
+   "anno": 2020,
+   "titulo": "Antiplatelet Therapy During Emergent Extracranial Internal Carotid Artery Stenting: Comparison of Three Intravenous Anti",
+   "fecha_retractacion": "12/9/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.echo.2020.11.001",
+   "record": "24617",
+   "anno": 2020,
+   "titulo": "Welcome to 2021!",
+   "fecha_retractacion": "11/12/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jhin.2020.10.010",
+   "record": "24597",
+   "anno": 2020,
+   "titulo": "Hospital factors associated with SARS-CoV-2 infection among healthcare personnel in Greece",
+   "fecha_retractacion": "10/22/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.socscimed.2020.113448",
+   "record": "24564",
+   "anno": 2020,
+   "titulo": "Neighbourhood greenspace and smoking prevalence: Results from a nationally representative survey in England",
+   "fecha_retractacion": "10/21/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.neuroimage.2020.117497",
+   "record": "24550",
+   "anno": 2020,
+   "titulo": "Detection of human auditory evoked brain signals with a resilient nonlinear optically pumped magnetometer",
+   "fecha_retractacion": "10/24/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jphys.2020.08.003",
+   "record": "24265",
+   "anno": 2020,
+   "titulo": "Call for applications for the Journal of Physiotherapy Editorial Fellowship",
+   "fecha_retractacion": "9/15/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1088/1757-899x/872/1/012032",
+   "record": "24194",
+   "anno": 2020,
+   "titulo": "Energy potential of vinasse derived from rum manufacturing",
+   "fecha_retractacion": "9/15/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1055/a-1230-5610",
+   "record": "23856",
+   "anno": 2020,
+   "titulo": "New Data on an Old Weapon: Is APC Adequate Treatment for Dysplastic Barrett\u2019s Esophagus?",
+   "fecha_retractacion": "7/30/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.injury.2020.07.009",
+   "record": "23840",
+   "anno": 2020,
+   "titulo": "Operative versus nonoperative treatment of multiple simple rib fractures: A systematic review and meta-analysis",
+   "fecha_retractacion": "7/3/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.maturitas.2020.06.018",
+   "record": "23673",
+   "anno": 2020,
+   "titulo": "Viewing Symptoms Associated With Vulvovaginal Atrophy (VVA)/Genitourinary Syndrome of Menopause (GSM) Through the Estro-",
+   "fecha_retractacion": "6/25/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ajog.2020.06.021",
+   "record": "23624",
+   "anno": 2020,
+   "titulo": "An Effective Protective Equipment to Use in the Vaginal Delivery of the Pregnant Women With suspected/diagnosed COVID-19",
+   "fecha_retractacion": "6/25/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.annonc.2020.05.029",
+   "record": "23572",
+   "anno": 2020,
+   "titulo": "Response to the letter to the editor: \u201cConceptual and Clinical interpretation 2 of 2007 WCRF/AICR score in relation to c",
+   "fecha_retractacion": "6/6/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1101/2020.04.08.20058578v2",
+   "record": "23474",
+   "anno": 2020,
+   "titulo": "The Role of Vitamin D in Suppressing Cytokine Storm in COVID-19 Patients and Associated Mortality",
+   "fecha_retractacion": "4/15/2020 0:00",
+   "veredicto": "silencio, y ni siquiera tiene el DOI",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.annonc.2020.04.478",
+   "record": "23427",
+   "anno": 2020,
+   "titulo": "Updated Overall Survival and Final Progression-Free Survival Data for Patients With Treatment-Na\u00efve Advanced ALK-positiv",
+   "fecha_retractacion": "5/11/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.annonc.2020.02.012",
+   "record": "23082",
+   "anno": 2020,
+   "titulo": "Aspirin and the Risk of Colorectal and Other Digestive Tract Cancers: an Updated Meta-Analysis Through 2019",
+   "fecha_retractacion": "4/1/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jsxm.2020.02.004",
+   "record": "23068",
+   "anno": 2020,
+   "titulo": "Birth Order and Sibling Sex Ratio in Androphilic Males and Gynephilic Females Diagnosed With Gender Dysphoria From Iran",
+   "fecha_retractacion": "3/5/2020 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jsxm.2020.01.030",
+   "record": "23067",
+   "anno": 2020,
+   "titulo": "Sexual Behavior, Desire, and Psychosexual Experience in Gynephilic and Androphilic Trans Women: A Cross-Sectional Multic",
+   "fecha_retractacion": "3/5/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1136/bjsports-2019-100886",
+   "record": "22834",
+   "anno": 2019,
+   "titulo": "Which specific modes of exercise training are most effective for treating low back pain? Network meta-analysis",
+   "fecha_retractacion": "2/5/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1016/j.biocon.2020.108412",
+   "record": "22426",
+   "anno": 2020,
+   "titulo": "Where there are girls, there are cats",
+   "fecha_retractacion": "2/10/2020 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1093/annonc/mdy520",
+   "record": "22290",
+   "anno": 2019,
+   "titulo": "Reply to the letter to the Editor Reply to 'Man against machine: diagnostic performance of a deep learning convolutional",
+   "fecha_retractacion": "12/24/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.4314/jfas.v10i6s.125",
+   "record": "22028",
+   "anno": 2018,
+   "titulo": "Proposed efficient method for ticket booking (PEMTB)",
+   "fecha_retractacion": "12/1/2018 0:00",
+   "veredicto": "silencio, y ni siquiera tiene el DOI",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.4314/jfas.v10i6s.124",
+   "record": "22027",
+   "anno": 2018,
+   "titulo": "Peak to average power ratio (PAPR) reduction technique in orthogonal frequency division multiplexing (OFDM) using block ",
+   "fecha_retractacion": "12/1/2018 0:00",
+   "veredicto": "silencio, y ni siquiera tiene el DOI",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.4314/jfas.v10i6s.122",
+   "record": "22026",
+   "anno": 2018,
+   "titulo": "Wide dynamic range tranimpedance amplifier using peaking capacitance technique for high speed optical wireless communica",
+   "fecha_retractacion": "12/1/2018 0:00",
+   "veredicto": "silencio, y ni siquiera tiene el DOI",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.apmr.2019.08.468",
+   "record": "21607",
+   "anno": 2019,
+   "titulo": "Rehabilitation Is a Global Health Priority",
+   "fecha_retractacion": "11/6/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.phymed.2019.152981",
+   "record": "21603",
+   "anno": 2019,
+   "titulo": "Comment on A. annua and A. afra infusions vs. Artesunate-amodiaquine (ASAQ) in treating Plasmodium falciparum malaria in",
+   "fecha_retractacion": "6/25/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.phymed.2018.12.027",
+   "record": "21602",
+   "anno": 2018,
+   "titulo": "Comment on Effect of Artemisia annua and Artemisia afra tea infusions on schistosomiasis in a large clinical trial",
+   "fecha_retractacion": "12/25/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.clinph.2019.09.008",
+   "record": "21543",
+   "anno": 2019,
+   "titulo": "Event-related potentials following contraction of respiratory muscles in pre-term and full-term infants",
+   "fecha_retractacion": "10/15/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ijrobp.2018.07.001",
+   "record": "21539",
+   "anno": 2019,
+   "titulo": "Offer Hypofractionated SRS. If Her Performance Status Is Good",
+   "fecha_retractacion": "10/24/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/molbev/msz202",
+   "record": "21352",
+   "anno": 2019,
+   "titulo": "Molecular evolution of auxin-mediated root initiation in plants",
+   "fecha_retractacion": "10/4/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.ijmm.2019.03.007",
+   "record": "21250",
+   "anno": 2019,
+   "titulo": "A nanopore array in the septal peptidoglycan hosts gated septal junctions for cell-cell communication in multicellular c",
+   "fecha_retractacion": "3/26/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.bmcl.2019.08.015",
+   "record": "21107",
+   "anno": 2019,
+   "titulo": "Identification of a novel allosteric GLP-1R antagonist HTL26119 using structure- based drug design",
+   "fecha_retractacion": "8/9/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ajog.2019.08.003",
+   "record": "21071",
+   "anno": 2019,
+   "titulo": "Pelvic floor muscle strength and the incidence of pelvic floor disorders after vaginal and cesarean childbirth",
+   "fecha_retractacion": "8/8/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.diabres.2019.04.007",
+   "record": "21037",
+   "anno": 2019,
+   "titulo": "Correlates of low-adherence to oral hypoglycemic medications among Hispanic/Latinos of Mexican heritage with Type 2 Diab",
+   "fecha_retractacion": "4/8/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.healthplace.2019.102169",
+   "record": "20958",
+   "anno": 2019,
+   "titulo": "Clearing the air: why a link between Alzheimer's disease and air quality cannot be validly determined using prescription",
+   "fecha_retractacion": "7/24/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ijrobp.2019.04.016",
+   "record": "20390",
+   "anno": 2019,
+   "titulo": "Evolution of Radiation Oncology In Pakistan",
+   "fecha_retractacion": "4/25/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.reprotox.2019.02.014",
+   "record": "20140",
+   "anno": 2019,
+   "titulo": "Can oxybenzone cause Hirschsprung's disease",
+   "fecha_retractacion": "3/1/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.addbeh.2019.01.025",
+   "record": "20117",
+   "anno": 2019,
+   "titulo": "The war on antidepressants: What we can, and can't conclude, from the systematic review of antidepressant withdrawal eff",
+   "fecha_retractacion": "3/14/2019 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1093/ptj/pzz025",
+   "record": "20064",
+   "anno": 2019,
+   "titulo": "The interdependence of motor and social skill development: Influence on participation",
+   "fecha_retractacion": "2/25/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/ptj/pzz022",
+   "record": "20063",
+   "anno": 2019,
+   "titulo": "Validating accelerometry as a measure of arm movement for children with hemiplegic cerebral palsy",
+   "fecha_retractacion": "2/26/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/ptj/pzz027",
+   "record": "20062",
+   "anno": 2019,
+   "titulo": "An Eye-Tracking Method for Directly Assessing Children's Visual-Motor Integration",
+   "fecha_retractacion": "2/26/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/ptj/pzz028",
+   "record": "20061",
+   "anno": 2019,
+   "titulo": "Safety and feasibility of transcranial magnetic stimulation as an exploratory assessment of corticospinal connectivity i",
+   "fecha_retractacion": "2/26/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/ptj/pzz021",
+   "record": "20060",
+   "anno": 2019,
+   "titulo": "Assessment of Parent-Child Interaction Is Important With Infants in Rehabilitation and Can Use High-Tech or Low-Tech Met",
+   "fecha_retractacion": "2/26/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/ptj/pzz026",
+   "record": "20059",
+   "anno": 2019,
+   "titulo": "Development Through the Lens of a Perception-Action-Cognition Connection: Recognizing the Need for a Paradigm Shift in C",
+   "fecha_retractacion": "2/27/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/ptj/pzz031",
+   "record": "20058",
+   "anno": 2019,
+   "titulo": "Embodied Cognition in Practice: Exploring Effects of a Motor-Based Problem Solving Intervention",
+   "fecha_retractacion": "2/27/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/ptj/pzz024",
+   "record": "20057",
+   "anno": 2019,
+   "titulo": "Wearables for Pediatric Rehabilitation: How to Optimally Design and Utilize Products to Meet the Needs of Users",
+   "fecha_retractacion": "2/27/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jamcollsurg.2019.01.018",
+   "record": "20012",
+   "anno": 2019,
+   "titulo": "Twenty-Five Year Trends in the Incidence of Ductal Carcinoma in Situ in US Women",
+   "fecha_retractacion": "2/15/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.mayocp.2018.11.016",
+   "record": "19930",
+   "anno": 2019,
+   "titulo": "Androgens and Blood Pressure Control: Sex Differences and Mechanisms",
+   "fecha_retractacion": "2/1/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.annemergmed.2018.11.032",
+   "record": "19801",
+   "anno": 2019,
+   "titulo": "Managing Opioid Withdrawal in the Emergency Department With Buprenorphine",
+   "fecha_retractacion": "1/4/2019 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.atherosclerosis.2018.10.011",
+   "record": "19504",
+   "anno": 2018,
+   "titulo": "Association of elevated circulating fibroblast growth factor 21 levels with prevalent and incident metabolic syndrome: T",
+   "fecha_retractacion": "11/13/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jaad.2018.09.052",
+   "record": "19376",
+   "anno": 2018,
+   "titulo": "Future considerations for clinical dermatology in the setting of 21st century American policy reform: corporatization an",
+   "fecha_retractacion": "10/5/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.placenta.2018.08.003",
+   "record": "19217",
+   "anno": 2018,
+   "titulo": "Chorion laeve accreta-Another manifestation of morbid adherence",
+   "fecha_retractacion": "8/17/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.rser.2017.02.003",
+   "record": "19121",
+   "anno": 2017,
+   "titulo": "A Review of Technical Issues on the Development of Solar Photovoltaic Systems",
+   "fecha_retractacion": "8/23/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.socscimed.2018.04.043",
+   "record": "18878",
+   "anno": 2018,
+   "titulo": "The Frontier Framework (and its eight Frontier Archetypes): A new conceptual approach to representing staff and patient ",
+   "fecha_retractacion": "7/1/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "erratum",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.18632/oncotarget.3701",
+   "record": "18832",
+   "anno": 2015,
+   "titulo": "A novel derivative of betulinic acid, SYK023, suppresses lung cancer growth and malignancy",
+   "fecha_retractacion": "7/19/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1016/j.echo.2018.05.009",
+   "record": "18802",
+   "anno": 2018,
+   "titulo": "Continuing Education and Meeting Calendar",
+   "fecha_retractacion": "7/3/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1007/bf01488952",
+   "record": "18531",
+   "anno": 1940,
+   "titulo": "Naturwissenschaft und reale Aussenwelt",
+   "fecha_retractacion": "12/23/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1007/bf01475382",
+   "record": "18529",
+   "anno": 1942,
+   "titulo": "Sinn und Grenzen der exakten Wissenschaft",
+   "fecha_retractacion": "12/23/2011 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ajem.2018.04.034",
+   "record": "18329",
+   "anno": 2018,
+   "titulo": "Facial nerve palsy following mild mastoid trauma on trampoline",
+   "fecha_retractacion": "4/18/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.freeradbiomed.2018.04.579",
+   "record": "18142",
+   "anno": 2018,
+   "titulo": "Metal exposure and oxidative stress markers in pregnant Navajo Birth Cohort Study participants",
+   "fecha_retractacion": "4/30/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.eeh.2016.08.001",
+   "record": "17697",
+   "anno": 2016,
+   "titulo": "Social mobility in the early middle ages",
+   "fecha_retractacion": "8/24/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1001/jamapsychiatry.2014.1193",
+   "record": "17545",
+   "anno": 2014,
+   "titulo": "Gamma ventral capsulotomy for obsessive-compulsive disorder: a randomized clinical trial",
+   "fecha_retractacion": "10/28/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "correction"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.7547/14-084.1",
+   "record": "17540",
+   "anno": 2015,
+   "titulo": "Effect of Vibram FiveFingers Minimalist Shoes on the Abductor Hallucis Muscle",
+   "fecha_retractacion": "8/10/2015 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/intqhc/mzy021",
+   "record": "17437",
+   "anno": 2018,
+   "titulo": "Practical recommendations for the evaluation of improvement initiatives",
+   "fecha_retractacion": "2/16/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/intqhc/mzy020",
+   "record": "17436",
+   "anno": 2018,
+   "titulo": "Salzburg Global Seminar Session 565 Better Health Care: how do we learn about improvement",
+   "fecha_retractacion": "2/16/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/intqhc/mzy018",
+   "record": "17435",
+   "anno": 2018,
+   "titulo": "Research versus practice in quality improvement Understanding how we can bridge the gap",
+   "fecha_retractacion": "2/16/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1093/intqhc/mzy009",
+   "record": "17434",
+   "anno": 2018,
+   "titulo": "Unpacking the black box of improvement",
+   "fecha_retractacion": "2/16/2018 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.rser.2010.08.018",
+   "record": "17368",
+   "anno": 2010,
+   "titulo": "A review on the performance of nanoparticles suspended with refrigerants and lubricating oils in refrigeration systems",
+   "fecha_retractacion": "2/8/2018 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "correction",
+    "erratum"
+   ],
+   "peor": 1
+  },
+  {
+   "doi": "10.1136/bcr-2013-008960",
+   "record": "17097",
+   "anno": 2013,
+   "titulo": "Autologous human cardiac stem cells transplantation for the treatment of ischaemic cardiomyopathy: first study of human-",
+   "fecha_retractacion": "8/1/2013 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.21595/jve.2016.17226",
+   "record": "16994",
+   "anno": 2016,
+   "titulo": "Rapid early damage detection using transmissibility with distance measure analysis under unknown excitation in long-term",
+   "fecha_retractacion": "12/31/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.21595/jve.2016.17026",
+   "record": "16993",
+   "anno": 2016,
+   "titulo": "Multiple damage detection and localization in beam-like and complex structures using co-ordinate modal assurance criteri",
+   "fecha_retractacion": "12/31/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.toxlet.2017.08.005",
+   "record": "16332",
+   "anno": 2017,
+   "titulo": "The therapeutic effects of Longikaurin A, a natural ent-kauranoid, in esophageal squamous cell carcinoma depend on ROS a",
+   "fecha_retractacion": "10/5/2017 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1080/15592324.2017.1293217",
+   "record": "15581",
+   "anno": 2017,
+   "titulo": "Involvement of nitric oxide in enhanced germination and seedling growth of magnetoprimed maize seeds",
+   "fecha_retractacion": "11/7/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.15761/jts.1000186",
+   "record": "13649",
+   "anno": 2017,
+   "titulo": "Pilot comparative study on the health of vaccinated and unvaccinated 6- to 12- year old U.S. children",
+   "fecha_retractacion": "5/8/2017 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.jesp.2011.08.012",
+   "record": "12406",
+   "anno": 2011,
+   "titulo": "When any Worx looks typical to you: Global relative to local processing increases prototypicality and liking",
+   "fecha_retractacion": "9/27/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "erratum",
+    "expression_of_concern"
+   ],
+   "peor": 2
+  },
+  {
+   "doi": "10.1017/cem.2017.354",
+   "record": "12294",
+   "anno": 2017,
+   "titulo": "Assessing Efficacy of Lipid in Unstable, Non-LAST Overdose Patients",
+   "fecha_retractacion": "9/18/2017 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.forsciint.2017.07.010",
+   "record": "11237",
+   "anno": 2017,
+   "titulo": "Rapid screening of abused drugs by direct analysis in real time (DART) coupled to time-of-flight mass spectrometry (TOF-",
+   "fecha_retractacion": "7/13/2017 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.hrthm.2016.05.028",
+   "record": "10345",
+   "anno": 2016,
+   "titulo": "EHRA/HRS/APHRS/SOLAECE expert consensus on atrial cardiomyopathies: Definition, characterization, and clinical implicati",
+   "fecha_retractacion": "6/10/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1001/jamapsychiatry.2014.1054",
+   "record": "9006",
+   "anno": 2014,
+   "titulo": "Effect of cognitive therapy with antidepressant medications vs antidepressants alone on the rate of recovery in major de",
+   "fecha_retractacion": "4/20/2016 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.annemergmed.2016.12.006",
+   "record": "8788",
+   "anno": 2017,
+   "titulo": "Comparing Utilization and Costs of Care in Freestanding Emergency Departments, Hospital Emergency Departments, and Urgen",
+   "fecha_retractacion": "2/15/2017 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.contraception.2016.08.011",
+   "record": "4190",
+   "anno": 2016,
+   "titulo": "Use of intrauterine devices in nulliparous women",
+   "fecha_retractacion": "8/31/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.neuroimage.2016.05.048",
+   "record": "3609",
+   "anno": 2016,
+   "titulo": "Decoupling of large-scale brain networks supports the consolidation of durable episodic memories",
+   "fecha_retractacion": "5/25/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.marpolbul.2016.07.017",
+   "record": "3430",
+   "anno": 2016,
+   "titulo": "DNA Barcoding of Macrofauna Act as a Tool for Assessing Marine Ecosystem",
+   "fecha_retractacion": "7/15/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.ejps.2016.10.001",
+   "record": "3267",
+   "anno": 2016,
+   "titulo": "Pharmaceutical Development of Novel Lactate-based 6-fluoro-l-DOPA Formulations",
+   "fecha_retractacion": "10/4/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.4103/0974-1208.97779",
+   "record": "2456",
+   "anno": 2012,
+   "titulo": "Sample Size Estimation and Power Analysis for Clinical Research Studies",
+   "fecha_retractacion": "9/11/2015 0:00",
+   "veredicto": "avisado",
+   "registro": "crossref",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1136/heartjnl-2011-301156.29",
+   "record": "2373",
+   "anno": 2011,
+   "titulo": "29 Inorganic polyphosphate is a potent activator of the mitochondrial permeability transition pore in cardiac myocytes",
+   "fecha_retractacion": "5/1/2013 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.anai.2016.03.032",
+   "record": "1186",
+   "anno": 2016,
+   "titulo": "The Importance of Knowing How Allergen Extracts Are Manufactured",
+   "fecha_retractacion": "4/19/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1136/jnnp.2004.048363",
+   "record": "813",
+   "anno": 2005,
+   "titulo": "Psychiatric Side Effects During Methysergide Treatment",
+   "fecha_retractacion": "2/16/2006 0:00",
+   "veredicto": "avisado",
+   "registro": "pubmed",
+   "exacto": false,
+   "dice": [
+    "retraction"
+   ],
+   "peor": 3
+  },
+  {
+   "doi": "10.1016/j.ienj.2015.12.001",
+   "record": "676",
+   "anno": 2016,
+   "titulo": "African Emergency Nursing Curriculum: Development of a Curriculum Model",
+   "fecha_retractacion": "1/8/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  },
+  {
+   "doi": "10.1016/j.brainres.2016.06.011",
+   "record": "333",
+   "anno": 2016,
+   "titulo": "SDF-1 and CXCR4 play an important role in adult SVZ lineage cell proliferation and differentiation",
+   "fecha_retractacion": "6/8/2016 0:00",
+   "veredicto": "silencio",
+   "registro": "",
+   "exacto": false,
+   "dice": [],
+   "peor": -1
+  }
+ ]
+}
