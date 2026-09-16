@@ -588,8 +588,12 @@ where a retracted version really was superseded by a corrected one; the rest wer
 simply restored.
 
 **This is not a bug in refcheck, and saying so is not an excuse — it is the
-finding.** Crossref has no `reinstatement` in its vocabulary of update types, and
-publishers do not deposit the reversal as a relation. Take
+finding.** Crossref has no `reinstatement` in its vocabulary of update types —
+checked against the schema, not from memory: `cm_update_type` in
+[`common5.3.1.xsd`](https://data.crossref.org/schemas/common5.3.1.xsd)
+enumerates exactly twelve values, all twelve of which this tool handles, and none
+of them undoes another. Publishers therefore cannot deposit the reversal as a
+relation even if they want to. Take
 `10.1080/21655979.2021.2005742`, retracted in error by Taylor & Francis and
 reinstated. Crossref still serves one `updated-by`, a `retraction`, deposited by
 the publisher. The notice restoring the paper exists — `10.1080/21655979.2024.2326361`

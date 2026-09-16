@@ -9,6 +9,7 @@ reported below a correction).
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 import time
@@ -215,6 +216,33 @@ class ContraLaRealidad(unittest.TestCase):
         self.assertEqual(por["10.1016/j.nbd.2012.05.020"]["avisos"][0]["gravedad"], 3)
         self.assertEqual(por["10.1038/nature12373"]["avisos"], [])
         self.assertEqual(por["10.9999/no.existe.9999"]["estado"], "desconocido")
+
+    def test_la_tabla_de_gravedad_cubre_el_esquema_entero(self):
+        """Every update type Crossref defines has a severity here, and no more.
+
+        The severity table was written from what turned up in practice. This
+        checks it against the authoritative list — `cm_update_type` in
+        common5.3.1.xsd — rather than against my memory of it. On 2026-09-16 the
+        two match exactly at twelve values.
+
+        It fails in both directions on purpose. A type added upstream would
+        otherwise fall to GRAVEDAD.get(tipo, 1) and be announced as "CORRECTED"
+        whatever it really is — silently, and for as long as nobody looked. And
+        an extra entry here means I invented vocabulary, which is what I decided
+        not to do about `reinstatement`.
+        """
+        xsd = refcheck.urllib.request.urlopen(
+            "https://data.crossref.org/schemas/common5.3.1.xsd", timeout=30
+        ).read().decode("utf-8", "replace")
+        bloque = xsd.split('name="cm_update_type"', 1)[1].split("</xsd:simpleType>", 1)[0]
+        del_esquema = set(re.findall(r'<xsd:enumeration value="([^"]+)"', bloque))
+        self.assertEqual(len(del_esquema), 12, "the enumeration changed size")
+        self.assertEqual(del_esquema, set(refcheck.GRAVEDAD),
+                         "severity table and Crossref's schema have drifted apart")
+        self.assertNotIn("reinstatement", del_esquema,
+                         "Crossref now has a reinstatement type: see the note in "
+                         "GRAVEDAD, the README census, and research/"
+                         "crossref_reinstatement.md, which can now be dropped")
 
     def test_una_retractacion_revertida_sigue_llegando_como_retractacion(self):
         """The limit this tool cannot fix from here — asserted, so it can expire.
