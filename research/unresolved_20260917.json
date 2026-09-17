@@ -1,0 +1,49 @@
+{
+ "cuenta": {
+  "crossref_no_devuelto": 3,
+  "en_crossref": 2495,
+  "otra_agencia": 2
+ },
+ "detalle": [
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2015",
+   "citado_por": "10.1159/000431314",
+   "clase": "crossref_no_devuelto",
+   "doi": "10.1001/archderm.112.10.1451"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2015",
+   "citado_por": "10.1186/s12866-015-0563-9",
+   "clase": "crossref_no_devuelto",
+   "doi": "10.1128/mmbr.43.1.73-102.1979"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "citado_por": "10.1109/tai.2023.3283488",
+   "clase": "otra_agencia",
+   "doi": "10.48550/arxiv.1706.03762"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "citado_por": "10.3897/rio.10.e133474",
+   "clase": "otra_agencia",
+   "doi": "10.5281/zenodo.10912141"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2015",
+   "citado_por": "10.3917/cont.041.0085",
+   "clase": "crossref_no_devuelto",
+   "doi": "10.1001/jama.276.22.1805"
+  }
+ ],
+ "fecha": "2026-09-17",
+ "n": 2500,
+ "otras_agencias": {
+  "DataCite": 2
+ }
+}

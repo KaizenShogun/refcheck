@@ -181,7 +181,41 @@ CONFLICTO = ("CONTRADICTORY NOTICES — check this one by hand, Crossref disagre
 DISCREPANCIA = ("REGISTERS DISAGREE — Crossref and PubMed file the same notice "
                 "under different names")
 
+# `<>` and `[]` are in here because real DOIs contain them — the Wiley SICI
+# family, e.g. 10.1002/(sici)1097-0258(19970515)16:9<1041::aid-sim521>3.0.co;2-f
+# — and dropping them would lose those references outright. The cost of that
+# permission is paid in _limpia_doi, which has to tell a SICI's brackets from
+# somebody's markup.
 DOI_RE = re.compile(r"10\.\d{4,9}/[-._;()/:A-Za-z0-9<>\[\]]+")
+
+# Where a DOI ends and someone else's markup begins.
+#
+# Bibliography text arrives with HTML and JATS still in it — `</ext-link>`,
+# `</a></li>`, a bare `<br>` — and because DOI_RE allows both angle brackets and
+# letters, the extractor ran straight through the tag and kept going:
+# `10.21248/contrib.entomol.68.1.1-29<br>riedel` was a real capture. Crossref
+# has no such record, so refcheck said "not found in Crossref — not checked"
+# about a paper that exists and might be retracted. Silence reads as clean; this
+# is that failure, in my own house.
+#
+# The pattern has to be this fussy rather than just cutting at the first `<`:
+# of 82 real SICI DOIs sampled on 2026-09-17, several do NOT have a digit after
+# the bracket — `…4:1<ii::aid-sd36>3.3.co;2-e`, and three with an empty `<>`.
+# So a tag is recognised by its SHAPE: optional slash, a name, hyphen- or
+# colon-separated parts, then attributes or the close. `<ii::aid-sd36>` fails it
+# because `::` is not a single separator followed by a name.
+#
+# Measured on 145 non-existent DOIs pulled from real author-typed citations:
+# 62 become existing Crossref DOIs, and 0 of 82 SICI DOIs plus 0 of 2.141 DOIs
+# from a 1.000-record PubMed export are changed at all.
+MARCADO = re.compile(r"</?[a-zA-Z][a-zA-Z0-9]*(?:[-:][a-zA-Z0-9]+)*(?:\s[^<>]*)?/?>")
+
+# Platform path suffixes that ride along when a DOI is copied out of a URL:
+# frontiersin.org/…/10.3389/fpubh.2020.00383/full. A whitelist, because a DOI
+# genuinely ending in a word is none of my business to guess at.
+COLA_RUTA = re.compile(
+    r"/(?:full|fulltext|abstract|pdf|epub|html|meta|short|long|summary|"
+    r"citation|references|figures|supplemental)$", re.I)
 
 # Only where the text says so. A bibliography is full of bare numbers — years,
 # pages, volumes, ISBNs — and guessing that one of them is a PMID would send a
@@ -323,7 +357,30 @@ def registros_medline(texto):
 
 
 def _limpia_doi(bruto):
-    return bruto.rstrip(".,;)}\"'").rstrip("}").lower()
+    """Trim what the surrounding document glued onto a DOI.
+
+    Order matters: the markup cut comes first, because a `10.x/y.</a></li>`
+    still has a full stop to lose once the tags are gone.
+    """
+    d = bruto
+    m = MARCADO.search(d)
+    if m:
+        d = d[:m.start()]
+    # Brackets are stripped only when UNBALANCED, never merely because they sit
+    # at the end. A trailing `>` with no `<` before it closed a
+    # `<https://doi.org/…>`, which is how several citation styles print a URL —
+    # whereas a SICI DOI's brackets come as a pair, and `10.1234/abc[1]` keeps
+    # its own. Counting tells the two apart without a list of citation styles,
+    # and without betting that no real DOI ends in a bracket: 1.200 sampled on
+    # 2026-09-17 ended in none, but absence of evidence is a bad thing to build
+    # on when the balanced test costs the same.
+    for abre, cierra in (("<", ">"), ("(", ")"), ("[", "]"), ("{", "}")):
+        while d.endswith(cierra) and d.count(abre) < d.count(cierra):
+            d = d[:-1]
+        while d.startswith(abre) and d.count(abre) > d.count(cierra):
+            d = d[1:]
+    d = d.rstrip(".,;\"'")
+    return COLA_RUTA.sub("", d).lower()
 
 
 # Crossref serves titles with the publisher's JATS inline markup still in them

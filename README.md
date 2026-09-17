@@ -70,7 +70,7 @@ HTML file with no dependencies, no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 100-check battery in a real headless browser against the real APIs.
+is driven by a 130-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -334,6 +334,74 @@ One good side effect — the file already states every article's own DOI *and*
 PMID, so a `.nbib` needs **no lookup at all** to work out what you are asking
 about. No round trip to NCBI, and the references with no DOI keep their title and
 year straight from your file, so they can be named back to you offline.
+
+## My own extractor was inventing DOIs that do not exist
+
+A reference this tool cannot find is reported as *"not found in Crossref —
+these were not checked, which is not the same as clean"*. That sentence is
+carefully worded and it was, in a number of cases, describing a problem I had
+created two steps earlier.
+
+Bibliography text does not arrive clean. It arrives with HTML and JATS still in
+it, because that is how publishers deposit it and how it survives a copy-paste
+out of a web page. The DOI pattern has to allow angle brackets, since a whole
+family of real Wiley DOIs contains them —
+
+```
+10.1002/(sici)1097-0258(19970515)16:9<1041::aid-sim521>3.0.co;2-f
+```
+
+— and that same permission let the extractor run straight through a closing tag
+and keep going. These are real captures:
+
+```
+10.1007/978-981-19-6561-6</ext-link>
+10.32471/umj.1680-3051.153.237930.</a></li>
+10.21248/contrib.entomol.68.1.1-29<br>riedel     ← it kept the next word, too
+10.21083/surg.v11i0.4389>                        ← from <https://doi.org/…>
+10.3389/fpubh.2020.00383/full                    ← from the publisher's URL
+```
+
+Crossref holds no record under any of those strings, so the tool answered "not
+found — not checked" about papers that exist, are indexed, and may well be
+retracted. **In a tool whose silence reads as "clean", that is the expensive
+kind of wrong**, and it is the exact failure this project exists to catch in
+other people's data.
+
+**Measured, not guessed.** `research/measure_unresolved.py` takes DOIs the way a
+person actually supplies them — pulled with refcheck's *own* extractor out of
+the `unstructured` citation text authors deposit at Crossref, not out of the
+clean `DOI` field a publisher's pipeline fills in — and asks
+[doi.org](https://doi.org) whether each one exists. Of 529 such DOIs, **145 did
+not exist**. Of those 145, **62 were DOIs this extractor had mangled**.
+
+The control matters more than the rescue, because a DOI is not something to be
+clever with. `research/measure_extraction.py` compares the old cleaner against
+the new one and looks both up, so "damage" means *resolved before and does not
+resolve now* rather than merely "changed":
+
+| | DOIs | the new cleaner differs | broken |
+|---|---:|---:|---:|
+| real Wiley SICI DOIs, sampled live | 84 | 0 | **0** |
+| real DOIs in a 1,000-record PubMed export | 2,141 | 0 | **0** |
+
+It only touches what was already broken. Two details worth stating because both
+nearly went the other way:
+
+- **It matches the *shape* of a tag, not the first `<`.** Of the SICI DOIs
+  sampled, several have no digit after the bracket —
+  `…4:1<ii::aid-sd36>3.3.co;2-e`, and three with an empty `<>`. The obvious
+  shortcut would have corrupted real references.
+- **Brackets are removed only when unbalanced.** A trailing `>` with no `<`
+  before it closed a `<https://doi.org/…>`; a SICI's come as a pair and stay.
+  I sampled 1,200 real DOIs and none ended in `]`, `:` or `)` — but absence of
+  evidence is a poor thing to build on when the balanced test costs the same.
+
+And the CLI and the page now clean a DOI with the same rule, which until today
+they did not: the page stripped a trailing `:` and `]` and the CLI did not. Same
+input, same tool, two verdicts, decided by whether you own a terminal. A test
+extracts the page's JavaScript and runs it under node against the Python on the
+same inputs, so the two cannot drift apart again in silence.
 
 ## What else is out there
 
@@ -723,14 +791,14 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 140 offline, 6 network cases skipped
-REFCHECK_RED=1 python3 test_refcheck.py   # all 146, adding the live-API cases
+python3 test_refcheck.py                  # 167 offline, 8 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 175, adding the live-API cases
 ```
 
 "Offline" is checked rather than promised:
 
 ```
-REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 140 must pass
+REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 167 must pass
 ```
 
 That caught two tests on 2026-09-15. A mocked batch that finds nothing now sends
@@ -748,7 +816,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 126 checks driving the real page in
+The browser version has its own battery — 130 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:

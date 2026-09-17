@@ -370,13 +370,56 @@
     return d === 1 ? "1 day" : d + " days";
   }
 
+  // Where a DOI ends and somebody else's markup begins. Bibliography text
+  // arrives with HTML and JATS still in it — </ext-link>, </a></li>, a bare
+  // <br> — and because DOI_RE allows angle brackets AND letters, the extractor
+  // ran straight through the tag: "10.21248/contrib.entomol.68.1.1-29<br>riedel"
+  // was a real capture. Crossref holds no such record, so the page answered
+  // "not found in Crossref" about a paper that exists and might be retracted.
+  //
+  // It has to match the SHAPE of a tag rather than cut at the first "<",
+  // because real Wiley SICI DOIs contain brackets too and several sampled on
+  // 2026-09-17 have no digit after them: …4:1<ii::aid-sd36>3.3.co;2-e, and
+  // three with an empty <>. "::" is not one separator plus a name, so a SICI
+  // fails this pattern and survives.
+  // test_refcheck.py pulls the block between the two markers below out and runs
+  // it under node against refcheck.py's _limpia_doi on the same inputs. Move it
+  // and that test fails loudly, which is the point: the CLI and the page
+  // silently disagreeing about what a DOI is would be invisible.
+  // <doi-cleaner>
+  var MARCADO = /<\/?[a-zA-Z][a-zA-Z0-9]*(?:[-:][a-zA-Z0-9]+)*(?:\s[^<>]*)?\/?>/;
+  var COLA_RUTA = /\/(?:full|fulltext|abstract|pdf|epub|html|meta|short|long|summary|citation|references|figures|supplemental)$/i;
+  var PARES = [["<", ">"], ["(", ")"], ["[", "]"], ["{", "}"]];
+
+  function cuenta(s, c) {
+    var n = 0;
+    for (var i = 0; i < s.length; i++) { if (s.charAt(i) === c) n++; }
+    return n;
+  }
+
+  // Kept byte-for-byte equivalent to refcheck.py's _limpia_doi: the CLI and
+  // the page disagreeing about what a DOI is would be a bug nobody could see.
+  function limpiaDoi(bruto) {
+    var d = bruto, m = MARCADO.exec(d);
+    if (m) { d = d.slice(0, m.index); }
+    // Brackets go only when UNBALANCED. A trailing ">" with no "<" before it
+    // closed a <https://doi.org/…>, which is how several citation styles print
+    // a URL; a SICI's brackets come as a pair and stay.
+    for (var i = 0; i < PARES.length; i++) {
+      var a = PARES[i][0], b = PARES[i][1];
+      while (d.slice(-1) === b && cuenta(d, a) < cuenta(d, b)) { d = d.slice(0, -1); }
+      while (d.charAt(0) === a && cuenta(d, a) > cuenta(d, b)) { d = d.slice(1); }
+    }
+    d = d.replace(/[.,;'"]+$/, "");
+    return d.replace(COLA_RUTA, "").toLowerCase();
+  }
+  // </doi-cleaner>
+
   function extractDois(text) {
     var seen = Object.create(null), list = [], m;
     DOI_RE.lastIndex = 0;
     while ((m = DOI_RE.exec(text)) !== null) {
-      // Trim trailing punctuation that belongs to the sentence, not the DOI,
-      // and the closing brace of a BibTeX  doi = {10.xxxx/yyy},  field.
-      var d = m[0].replace(/[.,;:'"\)\]}]+$/, "").toLowerCase();
+      var d = limpiaDoi(m[0]);
       if (d && !seen[d]) { seen[d] = 1; list.push(d); }
     }
     return list;
@@ -415,9 +458,8 @@
     return headers >= 1 && own && tagged >= 5;
   }
 
-  function cleanDoi(raw) {
-    return raw.replace(/[.,;:'"\)\]}]+$/, "").replace(/}+$/, "").toLowerCase();
-  }
+  // (the single DOI cleaner lives above, as limpiaDoi — the MEDLINE path uses
+  // the very same one, because two cleaners is two answers to "what is a DOI")
 
   // Crossref serves titles with the publisher's JATS inline markup still in
   // them and with the line breaks of the original XML. Measured 2026-09-13 on a
@@ -452,7 +494,7 @@
           if (/\[doi\]\s*$/i.test(list[i])) {
             DOI_RE.lastIndex = 0;
             hit = DOI_RE.exec(list[i]);
-            if (hit) { doi = cleanDoi(hit[0]); break; }
+            if (hit) { doi = limpiaDoi(hit[0]); break; }
           }
         }
       }
@@ -463,7 +505,7 @@
         for (i = 0; i < v.length && !doi; i++) {
           DOI_RE.lastIndex = 0;
           hit = DOI_RE.exec(v[i]);
-          if (hit) doi = cleanDoi(hit[0]);
+          if (hit) doi = limpiaDoi(hit[0]);
         }
       }
       cur.doi = doi;

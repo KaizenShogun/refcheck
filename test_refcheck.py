@@ -10,6 +10,8 @@ import io
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -58,6 +60,150 @@ class Extraccion(unittest.TestCase):
 
     def test_texto_sin_dois(self):
         self.assertEqual(refcheck.dois_de("no hay ningún identificador aquí"), [])
+
+
+class ExtraccionConMarcado(unittest.TestCase):
+    """The extractor must not invent DOIs out of somebody else's markup.
+
+    Measured 2026-09-17 on 529 DOIs taken from real author-typed citation text:
+    145 did not exist at doi.org, and 62 of those were DOIs this extractor had
+    mangled. A mangled DOI is not a harmless miss — Crossref has no record for
+    it, so refcheck answers "not found in Crossref — not checked" about a paper
+    that exists and may well be retracted, and in this tool silence reads clean.
+    """
+
+    def test_cierra_ext_link_de_jats(self):
+        # Capturado tal cual de una referencia real depositada en Crossref.
+        self.assertEqual(
+            refcheck.dois_de("Springer, 2022. <ext-link>10.1007/978-981-19-6561-6</ext-link>"),
+            ["10.1007/978-981-19-6561-6"])
+
+    def test_html_de_lista(self):
+        self.assertEqual(
+            refcheck.dois_de('<li><a href="x">10.32471/umj.1680-3051.153.237930.</a></li>'),
+            ["10.32471/umj.1680-3051.153.237930"])
+
+    def test_br_no_arrastra_la_palabra_siguiente(self):
+        # El caso peor: <br> no cierra nada, así que el extractor seguía
+        # capturando el texto de detrás y salía ".1-29<br>riedel".
+        self.assertEqual(
+            refcheck.dois_de("10.21248/contrib.entomol.68.1.1-29<br>Riedel, A. (2019)"),
+            ["10.21248/contrib.entomol.68.1.1-29"])
+
+    def test_url_entre_angulos(self):
+        # <https://doi.org/…> es como varios estilos de cita imprimen una URL.
+        self.assertEqual(
+            refcheck.dois_de("SURG Journal <https://doi.org/10.21083/surg.v11i0.4389>"),
+            ["10.21083/surg.v11i0.4389"])
+
+    def test_cola_de_ruta_de_la_plataforma(self):
+        self.assertEqual(
+            refcheck.dois_de("frontiersin.org/articles/10.3389/fpubh.2020.00383/full"),
+            ["10.3389/fpubh.2020.00383"])
+
+    # --- y ahora lo que NO debe tocar ------------------------------------
+    #
+    # Estos cinco son DOIs SICI de Wiley REALES, muestreados de la API el
+    # 2026-09-17, no escritos de memoria: el primer intento de este control
+    # usaba cuatro que me inventé y doi.org decía que los cuatro no existían,
+    # así que no demostraba nada.
+
+    SICI = [
+        "10.1002/(sici)1097-0339(199803)18:3<171::aid-dc1>3.0.co;2-h",
+        "10.1002/(sici)1099-1085(19981015)12:12<1851::aid-hyp670>3.0.co;2-p",
+        "10.1002/(sici)1097-458x(199801)36:1<1::aid-omr164>3.0.co;2-j",
+        # Sin dígito tras el '<': tumba el atajo de "tras < siempre viene un número".
+        "10.1002/(sici)1099-1719(199603)4:1<ii::aid-sd36>3.3.co;2-e",
+        # Y con el '<>' vacío, que también existe de verdad.
+        "10.1002/(sici)1098-2736(199610)33:8<>1.0.co;2-2",
+    ]
+
+    def test_sici_reales_salen_enteros(self):
+        for d in self.SICI:
+            with self.subTest(doi=d):
+                self.assertEqual(refcheck.dois_de(f"Véase {d} para el detalle."), [d])
+
+    def test_sici_dentro_de_html_conserva_sus_angulos(self):
+        # El corte tiene que caer en la etiqueta, no en los ángulos del SICI.
+        d = self.SICI[0]
+        self.assertEqual(refcheck.dois_de(f'<a href="#">{d}</a>'), [d])
+
+    def test_corchetes_de_un_doi_real_no_se_pierden(self):
+        self.assertEqual(refcheck.dois_de("10.1234/abc[1]"), ["10.1234/abc[1]"])
+
+
+# Cases that both implementations have to answer identically. Kept next to the
+# parity test so adding one covers the CLI and the page at the same time.
+CASOS_LIMPIEZA = [
+    "10.1007/978-981-19-6561-6</ext-link>",
+    '<li><a href="x">10.32471/umj.1680-3051.153.237930.</a></li>',
+    "10.21248/contrib.entomol.68.1.1-29<br>riedel",
+    "10.21083/surg.v11i0.4389>",
+    "10.3389/fpubh.2020.00383/full",
+    "10.1002/(sici)1097-0339(199803)18:3<171::aid-dc1>3.0.co;2-h",
+    "10.1002/(sici)1099-1719(199603)4:1<ii::aid-sd36>3.3.co;2-e",
+    "10.1002/(sici)1098-2736(199610)33:8<>1.0.co;2-2",
+    "10.1234/abc[1]",
+    "10.1016/j.cell.2019.01.001.",
+    "10.1371/journal.pone.0161231},",
+    "10.6133/apjcn.202403_33(1).0002",
+    "10.1038/NaTuRe12373",
+    "10.1234/plain",
+    # Los tres caracteres donde el CLI y la página discrepaban ANTES de hoy. Sin
+    # ellos la prueba de paridad pasaba con las dos versiones divergentes, que
+    # es como descubrí que faltaban: mutar la página y ver que nadie protesta.
+    "10.1234/abc:",
+    "10.1234/abc]",
+    "10.1234/abc}",
+]
+
+
+class ParidadCliPagina(unittest.TestCase):
+    """The CLI and the web page must clean a DOI the same way.
+
+    They are two codebases answering one question, and until today they did NOT
+    agree: the page stripped a trailing ':' and ']' unconditionally, the CLI did
+    not. Nobody could have seen that — same input, same tool, two verdicts,
+    depending only on whether you had a terminal.
+    """
+
+    @staticmethod
+    def _bloque_js():
+        ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "docs", "index.html")
+        with open(ruta, encoding="utf-8") as fh:
+            html = fh.read()
+        m = re.search(r"// <doi-cleaner>(.*?)// </doi-cleaner>", html, re.S)
+        return m.group(1) if m else None
+
+    def test_el_bloque_sigue_delimitado(self):
+        self.assertIsNotNone(self._bloque_js(),
+                             "los marcadores <doi-cleaner> han desaparecido de "
+                             "docs/index.html: la paridad ya no se está probando")
+
+    def test_misma_respuesta_que_la_pagina(self):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node no está instalado")
+        bloque = self._bloque_js()
+        self.assertIsNotNone(bloque)
+        guion = (bloque + "\nconst casos = " + json.dumps(CASOS_LIMPIEZA) + ";\n"
+                 "console.log(JSON.stringify(casos.map(limpiaDoi)));\n")
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False,
+                                         encoding="utf-8") as fh:
+            fh.write(guion)
+            tmp = fh.name
+        try:
+            salida = subprocess.run([node, tmp], capture_output=True, text=True,
+                                    timeout=30)
+            self.assertEqual(salida.returncode, 0, salida.stderr)
+            js = json.loads(salida.stdout)
+        finally:
+            os.unlink(tmp)
+        py = [refcheck._limpia_doi(c) for c in CASOS_LIMPIEZA]
+        for caso, a, b in zip(CASOS_LIMPIEZA, py, js):
+            with self.subTest(caso=caso):
+                self.assertEqual(a, b, f"CLI dice {a!r} y la página {b!r}")
 
 
 class Gravedad(unittest.TestCase):

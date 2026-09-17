@@ -841,5 +841,54 @@
   ok("and it still counts as checked", /1 reference checked/.test(txt()), txt().slice(0, 300));
   window.fetch = realFetch;
 
+  // --- A bibliography with markup still in it -----------------------------
+  //
+  // Measured 2026-09-17 on 529 DOIs taken from real author-typed citations:
+  // 145 did not exist at doi.org, and 62 of those were DOIs the extractor had
+  // mangled on tags like </ext-link>, </a></li> and a bare <br>. Crossref holds
+  // no record for a mangled DOI, so the page said "not found in Crossref" about
+  // papers that exist and might be retracted — and here silence reads as clean.
+  //
+  // The assertion is about the REQUEST, not the report: the report can look
+  // right for the wrong reason, but a DOI that never left the browser in its
+  // broken form is the actual claim.
+  var pedidos = [];
+  coldTab();
+  window.fetch = function (u, o) {
+    var url = String(u);
+    pedidos.push(decodeURIComponent(url + " " + ((o && o.body) ? String(o.body) : "")));
+    if (/api\.crossref\.org/.test(url)) return reply({ message: { items: [
+      { DOI: "10.1007/978-981-19-6561-6", title: ["Multi-dimensional control"], "updated-by": [] },
+      { DOI: "10.3389/fpubh.2020.00383", title: ["Public health"], "updated-by": [] }] } });
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+    if (/esummary\.fcgi/.test(url)) return reply({ result: {} });
+    return reply({});
+  };
+  s = await check(
+    'Springer, 2022. <ext-link>10.1007/978-981-19-6561-6</ext-link>\n' +
+    'frontiersin.org/articles/10.3389/fpubh.2020.00383/full\n');
+  var enviados = pedidos.join(" ").toLowerCase();
+  ok("the DOI closed by a JATS tag is asked about cleanly",
+     enviados.indexOf("10.1007/978-981-19-6561-6") !== -1 &&
+     enviados.indexOf("978-981-19-6561-6<") === -1 &&
+     enviados.indexOf("ext-link") === -1, enviados.slice(0, 300));
+  ok("the platform's /full suffix never reaches Crossref",
+     enviados.indexOf("10.3389/fpubh.2020.00383") !== -1 &&
+     enviados.indexOf("00383/full") === -1, enviados.slice(0, 300));
+  ok("both come back as checked rather than not found",
+     /2 references checked/.test(txt()), txt().slice(0, 300));
+
+  // And the other half of the same rule: a real Wiley SICI DOI keeps the angle
+  // brackets it is entitled to. Several sampled on 2026-09-17 have no digit
+  // after the "<", so "cut at the first bracket" would have corrupted them.
+  pedidos = [];
+  coldTab();
+  s = await check("10.1002/(sici)1099-1719(199603)4:1<ii::aid-sd36>3.3.co;2-e");
+  ok("a real SICI DOI is asked about with its brackets intact",
+     pedidos.join(" ").toLowerCase().indexOf("4:1<ii::aid-sd36>3.3.co;2-e") !== -1,
+     pedidos.join(" ").slice(0, 300));
+  window.fetch = realFetch;
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()
