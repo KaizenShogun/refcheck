@@ -7,6 +7,14 @@
   const ok = (n, c, extra) => (c ? out.pass : out.fail).push(extra ? n + " :: " + extra : n);
   const $ = (s) => document.querySelector(s);
   const txt = () => document.getElementById("out").innerText;
+  // The report folds its lists into <details>, and a closed <details> does NOT
+  // expose its contents through innerText. A check that reads txt() and looks
+  // for a DOI inside one of those lists is reading something that is not there,
+  // and would pass or fail for the wrong reason. This opens them all first.
+  const txtAbierto = () => {
+    document.querySelectorAll("#out details").forEach((d) => { d.open = true; });
+    return document.getElementById("out").innerText;
+  };
 
   // Waits for the page to be idle BEFORE clicking, and treats the button coming
   // back as the end of the run. Both halves were missing until 2026-09-15 and
@@ -92,18 +100,22 @@
   const body = txt();
   // Six lines, one a case-folded duplicate, so five distinct references — and
   // four *checked*, because the arXiv preprint is a DataCite DOI that Crossref
-  // does not hold. It is counted in the not-found bucket asserted just below,
-  // not in the checked total: since 2026-09-15 a reference nobody could look up
-  // stopped being counted as one that was looked up.
+  // does not hold. Until 2026-09-18 that fact lived only in this comment and
+  // the page called it "not found in Crossref"; now the page says it itself.
+  // Either way it is not counted in the checked total: since 2026-09-15 a
+  // reference nobody could look up stopped counting as one that was looked up.
   ok("the duplicate is merged and only what was really checked is counted",
-     /\b4 references checked\b/.test(body) && /Not found in Crossref \(1\)/.test(body),
+     /\b4 references checked\b/.test(body) && /Registered outside Crossref \(1\)/.test(body),
      body.split("\n")[1]);
   ok("reports the retraction", /RETRACTED — do not cite this as evidence/.test(body));
   ok("reports the correction", /CORRECTED — check the number/.test(body));
   ok("DOI from a BibTeX field was parsed", /10\.1038\/nature12373/.test(body) || true);
-  ok("not-found bucket is shown and named", /Not found in Crossref \(1\)/.test(body), body);
+  ok("the arXiv preprint is named as DataCite's, not as missing",
+     /Registered outside Crossref \(1\)/.test(body) && /DataCite/.test(body), body);
+  ok("and the DOI itself is listed under it",
+     txtAbierto().indexOf("10.48550/arxiv.1706.03762") >= 0, txtAbierto().slice(0, 900));
   ok("not-found is not sold as clean",
-     /not the same as clean/.test(body) || /not a clean bill of health/.test(body));
+     /not the same as clean/.test(body) || /cannot speak for/.test(body));
   ok("notice links point at doi.org",
      [...document.querySelectorAll("ul.notices a")].length > 0 &&
      [...document.querySelectorAll("ul.notices a")].every((a) => a.href.startsWith("https://doi.org/")));
@@ -888,6 +900,98 @@
   ok("a real SICI DOI is asked about with its brackets intact",
      pedidos.join(" ").toLowerCase().indexOf("4:1<ii::aid-sd36>3.3.co;2-e") !== -1,
      pedidos.join(" ").slice(0, 300));
+  // ---- which drawer an unfound reference falls into (2026-09-18) ----
+  // Until today a mistyped DOI, an arXiv preprint and a genuine Crossref
+  // indexing gap all printed the same sentence. The strong claim here is not
+  // about the wording: it is about WHICH REQUESTS THE PAGE MAKES. A DOI that
+  // doi.org says belongs to DataCite must never cost a second Crossref lookup,
+  // because that lookup cannot succeed and the second is spent on a free
+  // service that did not ask for it.
+  var raAsked = [], xrefByName = [];
+  const raStub = function (mapa) {
+    return function (u, o) {
+      var url = String(u);
+      if (/doi\.org\/ra\//.test(url)) {
+        raAsked.push(url);
+        var pedidos = decodeURIComponent(url.split("/ra/")[1]).split(",");
+        return reply(pedidos.map(function (d) {
+          var ra = mapa[d.toLowerCase()];
+          // Exactly what doi.org sends for a DOI nobody registered: a row with
+          // a `status` and NO `RA` key at all.
+          return ra === null || ra === undefined
+            ? { DOI: d, status: "DOI does not exist" }
+            : { DOI: d, RA: ra };
+        }));
+      }
+      if (/api\.crossref\.org/.test(url)) {
+        if (isBatch(url)) return reply({ message: { items: [] } });
+        xrefByName.push(url);
+        return reply({ message: null });
+      }
+      if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+      if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+      if (/esummary\.fcgi/.test(url)) return reply({ result: {} });
+      return reply({});
+    };
+  };
+
+  raAsked = []; xrefByName = [];
+  coldTab();
+  window.fetch = raStub({ "10.5555/gap": "Crossref",
+                          "10.48550/arxiv.2301.00001": "DataCite",
+                          "10.9999/typo": null });
+  s = await check("10.5555/gap\n10.48550/arXiv.2301.00001\n10.9999/typo\n");
+  ok("a DOI nobody registered is called out as not existing",
+     /do not exist at all|does not exist at all/.test(txt()) &&
+     txt().indexOf("10.9999/typo") >= 0, txt().slice(0, 900));
+  ok("a DataCite DOI is named as someone else's, not as missing",
+     /DataCite/.test(txt()) && /cannot speak for/.test(txt()) &&
+     txtAbierto().indexOf("10.48550/arxiv.2301.00001") >= 0, txtAbierto().slice(0, 900));
+  ok("the genuine Crossref gap is still reported as not found",
+     /not found in Crossref/.test(txt()) && txtAbierto().indexOf("10.5555/gap") >= 0,
+     txtAbierto().slice(0, 900));
+  ok("doi.org was asked once, in one batch, not once per DOI",
+     raAsked.length === 1, raAsked.join(" | "));
+  ok("only the DOI that could plausibly be Crossref's cost a second lookup",
+     xrefByName.length === 1 && /10\.5555/.test(xrefByName[0]),
+     xrefByName.join(" | "));
+  ok("none of the three is counted as checked",
+     /0 references checked/.test(txt()), txt().slice(0, 300));
+  ok("and no clean bill is printed",
+     !/Nothing found/.test(txt()), txt().slice(0, 400));
+
+  // If doi.org cannot be reached the page must do exactly what it did before
+  // today — ask Crossref by name and say "not found". Telling someone their
+  // citation is fabricated because a third service timed out would be the
+  // worst thing this tool could say.
+  raAsked = []; xrefByName = [];
+  coldTab();
+  window.fetch = function (u, o) {
+    var url = String(u);
+    if (/doi\.org\/ra\//.test(url)) { raAsked.push(url); return Promise.reject(new Error("down")); }
+    return raStub({})(u, o);
+  };
+  s = await check("10.9999/typo\n");
+  ok("doi.org being down never becomes 'this DOI does not exist'",
+     !/does not exist/.test(txt()) && /not found in Crossref/.test(txt()),
+     txt().slice(0, 700));
+  ok("and the DOI still gets its by-name second chance",
+     xrefByName.length === 1, xrefByName.join(" | "));
+
+  // The classified answers must not be remembered, or the second run in the
+  // same tab would say LESS than the first: the stored shape has only
+  // "found / not found" and would flatten them back into one drawer.
+  raAsked = []; xrefByName = [];
+  coldTab();
+  window.fetch = raStub({ "10.48550/arxiv.2301.00001": "DataCite" });
+  s = await check("10.48550/arXiv.2301.00001\n");
+  var primera = /DataCite/.test(txt());
+  s = await check("10.48550/arXiv.2301.00001\n");
+  ok("a second run in the same tab still names the agency",
+     primera && /DataCite/.test(txt()), txt().slice(0, 700));
+  ok("and it asked doi.org again rather than serving a flattened memory",
+     raAsked.length === 2, String(raAsked.length));
+
   window.fetch = realFetch;
 
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };

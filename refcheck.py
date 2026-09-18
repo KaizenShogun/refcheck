@@ -374,12 +374,25 @@ def _limpia_doi(bruto):
     # and without betting that no real DOI ends in a bracket: 1.200 sampled on
     # 2026-09-17 ended in none, but absence of evidence is a bad thing to build
     # on when the balanced test costs the same.
-    for abre, cierra in (("<", ">"), ("(", ")"), ("[", "]"), ("{", "}")):
-        while d.endswith(cierra) and d.count(abre) < d.count(cierra):
-            d = d[:-1]
-        while d.startswith(abre) and d.count(abre) > d.count(cierra):
-            d = d[1:]
-    d = d.rstrip(".,;\"'")
+    # Punctuation and brackets are peeled in ALTERNATION, to a fixed point,
+    # because either one can be hiding behind the other. A citation that writes
+    # "(doi: 10.1609/aimag.v20i2.1456)." ends in a full stop, so the bracket
+    # test — which only looks at the last character — saw nothing to do; the
+    # rstrip then took the stop away and left the unbalanced ")" exposed with
+    # nobody left to look at it. Measured 2026-09-18 on 5.590 real bibliography
+    # lines: five DOIs that resolve at Crossref came out broken that way, all of
+    # them from the "(doi: …)" style, and every one was reported to the reader
+    # as "not found". Balanced brackets still survive: the SICI
+    # 10.1061/(asce)0733-9399(1998)124:3(285) keeps all three pairs.
+    previo = None
+    while d != previo:
+        previo = d
+        for abre, cierra in (("<", ">"), ("(", ")"), ("[", "]"), ("{", "}")):
+            while d.endswith(cierra) and d.count(abre) < d.count(cierra):
+                d = d[:-1]
+            while d.startswith(abre) and d.count(abre) > d.count(cierra):
+                d = d[1:]
+        d = d.rstrip(".,;\"'")
     return COLA_RUTA.sub("", d).lower()
 
 
@@ -884,6 +897,99 @@ def consulta_lote(dois, reintentos=3):
     raise ConnectionError(f"Crossref lookup failed: {ultimo}")
 
 
+# ---------------------------------------------------------------------------
+# Which drawer an unfound reference falls into.
+#
+# Until today all three of these printed the same sentence — "not found in
+# Crossref, not checked" — and for the person holding the bibliography they are
+# not remotely the same news:
+#
+#   · the DOI does not exist. Mistyped, mangled by a PDF copy-paste, or wrong.
+#     It is the one thing in the report they can act on this afternoon, and it
+#     was the one we whispered.
+#   · it is registered at another agency — DataCite (every arXiv preprint),
+#     mEDRA, JaLC, KISTI… Crossref will NEVER hold it. Nothing is broken; this
+#     tool simply cannot speak for that reference, and should say so plainly
+#     instead of implying something is missing.
+#   · it is a Crossref DOI the batch filter did not return. That one is worth a
+#     second, single lookup, and now it is the only one that gets one.
+#
+# The DOI Foundation answers this for free, with no key, in batches, and with
+# CORS open. Measured 2026-09-17: the limit is URI LENGTH, not count — 200 DOIs
+# (5.7 kB) answer in 7.6 s, 400 (11.5 kB) get a 414.
+#
+# It also pays for itself. A second chance costs a second at Crossref's 1/s, and
+# spending it on a DataCite preprint was always doomed: the register being asked
+# does not have it and never will. One RA request per ~150 DOIs replaces all of
+# those.
+RA_API = "https://doi.org/ra/"
+RA_URL_MAX = 3000   # well under the 5.7 kB that worked, let alone the 11.5 kB 414
+RA_PAUSA = 0.5      # doi.org declares no rate limit in its headers; go slower anyway
+
+
+def _lotes_ra(dois, tope=RA_URL_MAX):
+    """Batch by URL length, not by count: DOI lengths vary by an order of magnitude."""
+    lote, largo = [], len(RA_API)
+    for d in dois:
+        cod = urllib.parse.quote(d, safe="")
+        extra = len(cod) + (1 if lote else 0)
+        if lote and largo + extra > tope:
+            yield lote
+            lote, largo = [], len(RA_API)
+            extra = len(cod)
+        lote.append(d)
+        largo += extra
+    if lote:
+        yield lote
+
+
+def agencias_de(dois, reintentos=2):
+    """{doi: 'Crossref' | 'DataCite' | … | None}. None means the DOI does not exist.
+
+    A DOI absent from the reply is absent from the result too, and the caller
+    treats that as "unknown", not as "does not exist": if doi.org is down or
+    slow, refcheck falls back to exactly what it did before today. Telling
+    someone their citation is fabricated because a third service timed out
+    would be the worst thing this tool could say.
+    """
+    fuera = {}
+    for lote in _lotes_ra(dois):
+        url = RA_API + ",".join(urllib.parse.quote(d, safe="") for d in lote)
+        for intento in range(reintentos):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": UA})
+                with urllib.request.urlopen(req, timeout=60) as r:
+                    datos = json.load(r)
+                for fila in datos:
+                    d = str(fila.get("DOI", "")).lower()
+                    if d:
+                        # "RA" is absent when the body is {"status": "DOI does
+                        # not exist"} — that absence is the answer, not a gap.
+                        fuera[d] = fila.get("RA")
+                break
+            except Exception:  # noqa: BLE001 — a missing verdict is handled above
+                if intento < reintentos - 1:
+                    time.sleep(1 + intento)
+        time.sleep(RA_PAUSA)
+    return fuera
+
+
+def _sin_registro(doi, agencia):
+    """The verdict for a DOI the batch missed, once its agency is known.
+
+    Returns None when the DOI still deserves a single lookup at Crossref.
+    """
+    if doi not in agencia:
+        return None                       # doi.org said nothing; ask as before
+    ra = agencia[doi]
+    if ra is None:
+        return {"doi": doi, "estado": "no_existe", "avisos": []}
+    if str(ra).strip().lower() != "crossref":
+        return {"doi": doi, "estado": "otra_agencia", "agencia": str(ra).strip(),
+                "avisos": []}
+    return None
+
+
 # How many DOIs the batch missed are worth asking about one at a time. Each is
 # its own request at Crossref's 1/s, and a bibliography of arXiv preprints —
 # whose DOIs live at DataCite, so the filter finds none of them — would otherwise
@@ -936,14 +1042,18 @@ def segunda_oportunidad(doi):
             "avisos": avisos}
 
 
-def revisa_lote(dois, pausa=None, avisa=None):
+def revisa_lote(dois, pausa=None, avisa=None, usar_ra=True):
     """Check every DOI, in batches. Never reports a failed lookup as 'not found'.
 
     Pacing is handled by RITMO, which follows the rate the server declares.
     `pausa` is an extra courtesy delay on top, for anyone who wants to go slower
     still; it is not the thing keeping us inside the limit.
+
+    `usar_ra=False` skips doi.org entirely, for anyone who would rather send
+    their DOIs to two services than three. The cost of skipping is not accuracy
+    but silence: the misses go back to sharing one "not found" drawer.
     """
-    resultados, hechos, segundas = [], 0, 0
+    resultados, hechos, ausentes = [], 0, []
     for i in range(0, len(dois), LOTE):
         trozo = dois[i:i + LOTE]
         try:
@@ -959,17 +1069,34 @@ def revisa_lote(dois, pausa=None, avisa=None):
                 w = obras.get(d.lower())
                 if w:
                     resultados.append(ficha(d, w))
-                elif segundas < SEGUNDAS_MAX:
-                    segundas += 1
-                    resultados.append(segunda_oportunidad(d))
                 else:
-                    resultados.append({"doi": d, "estado": "desconocido",
-                                       "sin_segunda": True, "avisos": []})
+                    # Held open until every batch is in, so all the misses can
+                    # be asked about in one or two requests instead of one each.
+                    hueco = {"doi": d, "estado": "desconocido", "avisos": []}
+                    resultados.append(hueco)
+                    ausentes.append((len(resultados) - 1, d))
         hechos += len(trozo)
         if avisa:
             avisa(hechos, len(dois))
         if pausa and i + LOTE < len(dois):
             time.sleep(pausa)
+
+    if ausentes:
+        agencia = agencias_de([d for _, d in ausentes]) if usar_ra else {}
+        segundas = 0
+        for pos, d in ausentes:
+            veredicto = _sin_registro(d.lower(), agencia)
+            if veredicto is not None:
+                # Nothing to gain from asking Crossref: it is not Crossref's DOI,
+                # or it is nobody's.
+                resultados[pos] = veredicto
+            elif segundas < SEGUNDAS_MAX:
+                segundas += 1
+                resultados[pos] = segunda_oportunidad(d)
+            else:
+                resultados[pos]["sin_segunda"] = True
+            if avisa:
+                avisa(hechos, len(dois))
     return resultados
 
 
@@ -1047,7 +1174,13 @@ def fusiona_pubmed(resultados, avisa=None):
             # Crossref had no record at all, but PubMed does and it has something
             # to say. The reference HAS been checked — saying "not found" now
             # would file a real warning under "nothing to report".
-            if r["estado"] in ("desconocido", "sin_comprobar"):
+            # `no_existe` and `otra_agencia` are in this list on purpose. If
+            # doi.org says a DOI is nobody's and PubMed then produces a
+            # retraction for it, the retraction is the thing that matters and
+            # the drawer it arrived in is not. Under-warning because a third
+            # service disagreed would be the old 9-sep mistake with a new mask.
+            if r["estado"] in ("desconocido", "sin_comprobar", "no_existe",
+                               "otra_agencia"):
                 r["estado"] = "ok"
                 r["solo_pubmed"] = True
     return resultados
@@ -1138,6 +1271,12 @@ def nombre(r):
 def informe(resultados, ancho=78):
     con = [r for r in resultados if r["avisos"]]
     desc = [r for r in resultados if r["estado"] == "desconocido"]
+    # Two drawers that used to sit inside `desc` and print its sentence. They
+    # are separated because they are different news: one is a broken citation
+    # the reader can go and fix, the other is a perfectly good reference this
+    # tool has no standing to judge.
+    inexistentes = [r for r in resultados if r["estado"] == "no_existe"]
+    ajenos = [r for r in resultados if r["estado"] == "otra_agencia"]
     sinc = [r for r in resultados if r["estado"] == "sin_comprobar"]
     sin_doi = [r for r in resultados if r["estado"] == "pmid_sin_doi"]
     pmid_desc = [r for r in resultados if r["estado"] == "pmid_desconocido"]
@@ -1210,7 +1349,7 @@ def informe(resultados, ancho=78):
     # count is 0 and the "Nothing found" line — which is gated on this number —
     # stays away.
     comprobadas = (len(resultados) - len(sinc) - len(sin_doi) - len(pmid_desc)
-                   - len(desc) - len(sust))
+                   - len(desc) - len(sust) - len(inexistentes) - len(ajenos))
     cab = [f"  {comprobadas} reference(s) checked · {len(con)} carry a change notice"]
     # An answer read off the disk is an answer about the day it was fetched, and
     # a notice published since then is invisible. Say it, do not let it pass as
@@ -1228,8 +1367,20 @@ def informe(resultados, ancho=78):
         cab.append(f"  {len(a_medias)} {fue} asked of Crossref ONLY — PubMed did not answer.")
         cab.append("  Crossref is silent on 21% of corrected papers (measured 2026-09-11),")
         cab.append("  so those are half-checked, not clean.")
+    if inexistentes:
+        uno = len(inexistentes) == 1
+        cab.append(f"  {len(inexistentes)} DOI{'' if uno else 's'} "
+                   f"{'DOES' if uno else 'DO'} NOT EXIST at all (doi.org has no such "
+                   "record) — fix the citation")
+    if ajenos:
+        agn = sorted({r.get("agencia") or "another agency" for r in ajenos})
+        ellos = "it" if len(ajenos) == 1 else "them"
+        cab.append(f"  {len(ajenos)} registered at {', '.join(agn[:3])}"
+                   f"{'…' if len(agn) > 3 else ''}, not Crossref — nothing is wrong")
+        cab.append(f"  with {ellos}, this tool just cannot speak for {ellos}")
     if desc:
-        cab.append(f"  {len(desc)} not found in Crossref (preprints, books, bad DOI) — not checked")
+        cab.append(f"  {len(desc)} not found in Crossref (indexing gap, or doi.org did not "
+                   "answer) — not checked")
         recortados = [r for r in desc if r.get("sin_segunda")]
         if recortados:
             cab.append(f"  of those, {len(recortados)} were not asked about one by one "
@@ -1246,8 +1397,14 @@ def informe(resultados, ancho=78):
     if not con and comprobadas > 0:
         cab.append("  Nothing found. That is the expected result most of the time;")
         cab.append("  it is the 1-in-N that this exists for.")
-    if sinc or sin_doi or pmid_desc or a_medias or sust:
+    if sinc or sin_doi or pmid_desc or a_medias or sust or inexistentes or ajenos:
         lineas.append("")           # do not let these hang off the last notice
+    # Named first among the unchecked: of everything in this report, a citation
+    # pointing at a DOI that does not exist is the one the reader can fix today.
+    for r in inexistentes:
+        lineas.append(f"      ✗ no such DOI: {nombre(r)}")
+    for r in ajenos:
+        lineas.append(f"      · {r.get('agencia') or 'other agency'}, not Crossref: {nombre(r)}")
     # Named so they can be rerun, but capped: a dead batch is 50 DOIs and a
     # 1,000-reference report that ends in 50 identical lines gets skipped whole.
     for r in a_medias[:10]:
@@ -1416,6 +1573,11 @@ def main():
                    help="never contact NCBI: no PMID translation and no second "
                         "opinion. Faster and quieter, but measured on 2026-09-11 "
                         "it misses about one corrected paper in five")
+    p.add_argument("--no-ra", action="store_true",
+                   help="never contact doi.org. Only the DOIs Crossref did not "
+                        "return are ever sent there, and only to learn which "
+                        "register owns them; without it, a mistyped DOI and an "
+                        "arXiv preprint go back to sharing one 'not found' line")
     a = p.parse_args()
 
     if a.fichero == "-":
@@ -1447,7 +1609,8 @@ def main():
         if ruidoso:
             print(f"\r  checking {hechos}/{total}…", end="", file=sys.stderr, flush=True)
 
-    frescos = revisa_lote(nuevos, pausa=a.pausa, avisa=avisa) if nuevos else []
+    frescos = (revisa_lote(nuevos, pausa=a.pausa, avisa=avisa, usar_ra=not a.no_ra)
+               if nuevos else [])
     if frescos and not a.no_pubmed:
         if ruidoso:
             print("\r  asking PubMed too…            ", end="", file=sys.stderr, flush=True)

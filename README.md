@@ -61,11 +61,15 @@ aside rather than shown, because displaying it is the slow part. See
 
 There is no server behind that page: your text stays in the browser and only the
 identifiers found in it are sent — straight from your machine to Crossref and to
-NCBI, both of which are asked about every reference. (Until 2026-09-11 only your
-PMIDs reached NCBI. That changed when the tool started asking both registers, and
-it is better said plainly than left as a tidier old sentence.) Nothing passes
-through me. Save the page and it keeps working from your own disk — it is one
-HTML file with no dependencies, no cookies and no analytics.
+NCBI, both of which are asked about every reference, and, since 2026-09-18, to
+**doi.org** for the DOIs Crossref did not return, to find out which register owns
+them. That third one only ever sees DOIs that already failed, never your whole
+bibliography. (Until 2026-09-11 only your PMIDs reached NCBI. That changed when
+the tool started asking both registers, and it is better said plainly than left
+as a tidier old sentence — this is the third time this paragraph has had to be
+corrected rather than quietly kept.) Nothing passes through me. Save the page and
+it keeps working from your own disk — it is one HTML file with no dependencies,
+no cookies and no analytics.
 
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
@@ -372,8 +376,38 @@ other people's data.
 person actually supplies them — pulled with refcheck's *own* extractor out of
 the `unstructured` citation text authors deposit at Crossref, not out of the
 clean `DOI` field a publisher's pipeline fills in — and asks
-[doi.org](https://doi.org) whether each one exists. Of 529 such DOIs, **145 did
-not exist**. Of those 145, **62 were DOIs this extractor had mangled**.
+[doi.org](https://doi.org) whether each one exists.
+
+> **Correction, 18 September 2026.** This paragraph first published "of 529 such
+> DOIs, 145 did not exist". **That number described a population it had not
+> measured.** The filter that defines the population — keep only the lines the
+> publisher could *not* match to a DOI — was added to the script after the run
+> that produced the figure, and it shrinks the corpus about 25-fold. The
+> reasoning behind the filter was wrong as well: Crossref does not rewrite
+> `unstructured`, so a matched line is not a "normalised" one, and the unmatched
+> lines are unmatched largely *because* their DOI is broken — measuring only
+> those and publishing the rate as everyone's is the mistake this tool exists to
+> catch. The corpus is now frozen on disk
+> (`research/corpus_crudo_20260918.json`, 5,590 lines from 400 works across four
+> years) so that any two runs are comparable at all, and it keeps every line
+> with a flag for which stratum it came from.
+
+Re-measured on that frozen corpus, with the extractor fixed:
+
+| of 705 DOIs written by authors | |
+|---|---:|
+| the Crossref batch returns it | 94.5% |
+| is Crossref's, but the batch did not give it | 1.1% |
+| registered at another agency (DataCite ×11, mEDRA ×1) | 1.7% |
+| **the DOI does not exist** | **2.7%** |
+
+Run over the *same lines* with the extractor as it stood before 17 September,
+that last figure is **4.9%**; before today's fix, **3.5%**. So of the DOIs this
+tool used to declare nonexistent, **nearly half were broken by refcheck itself**
+rather than by the person who wrote the bibliography. The bias that remains is
+stated rather than hidden: these lines survived a publisher's pipeline, so they
+are cleaner than a bibliography typed out of a PDF, and the "does not exist" rate
+here is a floor for hand-typed ones, not an estimate of them.
 
 The control matters more than the rescue, because a DOI is not something to be
 clever with. `research/measure_extraction.py` compares the old cleaner against
@@ -402,6 +436,54 @@ they did not: the page stripped a trailing `:` and `]` and the CLI did not. Same
 input, same tool, two verdicts, decided by whether you own a terminal. A test
 extracts the page's JavaScript and runs it under node against the Python on the
 same inputs, so the two cannot drift apart again in silence.
+
+### The bracket the full stop was hiding (18 September 2026)
+
+Yesterday's balanced-bracket rule had a hole in it, and the corpus above is what
+found it. The rule only looks at the **last** character, so a citation written
+in the very common `(doi: 10.1609/aimag.v20i2.1456).` style slipped past it: the
+string ends in a full stop, so the bracket test saw nothing to do — and the
+punctuation strip that ran afterwards took the stop away and left the unbalanced
+`)` exposed, with nobody left to look at it.
+
+Six DOIs in the corpus, all of them resolving perfectly well at Crossref, were
+being reported to the reader as not found. The fix peels punctuation and
+brackets **in alternation until nothing changes**, and the control is the same
+one as before — resolved before and does not resolve now:
+
+| | DOIs produced | damage | repaired |
+|---|---:|---:|---:|
+| against the extractor as it stood before 17 Sep | 705 | **0** | — |
+| against the version published yesterday | 705 | 0 | **6** |
+
+There is also a test asserting that cleaning a DOI twice gives the same answer
+as cleaning it once. That property is exactly what yesterday's rule lacked: it
+stopped while it still had work to do, and said it was finished.
+
+## An unfound reference now says *which kind* of unfound
+
+Three very different facts used to print one sentence — "not found in Crossref,
+not checked":
+
+- **the DOI does not exist**, at any agency. A typo, a line broken across a PDF
+  column, a DOI copied with the sentence around it. Of everything in this
+  report, it is the one thing you can fix this afternoon.
+- **it is registered somewhere else** — DataCite holds every arXiv preprint,
+  plus datasets and theses; mEDRA, JaLC and KISTI cover other regions. Crossref
+  will never hold it, so silence here means nothing at all.
+- **it is Crossref's and the index did not return it.** A genuine gap, and the
+  only one of the three worth a second lookup.
+
+[doi.org](https://www.doi.org/) answers this for free, with no key, in batches,
+and with CORS open so the page can use it too. Only DOIs Crossref already failed
+on are sent there — never your whole bibliography — and if doi.org cannot be
+reached the tool does exactly what it did before, because telling someone their
+citation is fabricated on the strength of a timeout would be the worst thing
+here. `--no-ra` skips it entirely.
+
+It also pays for itself in time. A second chance costs a second at Crossref's
+1/s, and spending it on a DataCite DOI was always doomed; one request per ~150
+DOIs now replaces all of those.
 
 ## What else is out there
 

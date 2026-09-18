@@ -1,0 +1,512 @@
+{
+ "cuenta": {
+  "crossref_no_devuelto": 8,
+  "en_crossref": 664,
+  "no_existe": 35,
+  "otra_agencia": 12
+ },
+ "detalle": [
+  {
+   "agencia": null,
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1038/s43247-024-01868-9",
+   "clase": "no_existe",
+   "crudo": "Andreadis, K. M. et al. Urbanizing the floodplain: global changes of imperviousness in flood-prone areas. Environ. Res. Lett. 17, https://doi.org/10.1088/1748-9326/ac919 (2022)",
+   "doi": "10.1088/1748-9326/ac919"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1038/s43247-024-01868-9",
+   "clase": "otra_agencia",
+   "crudo": "Chen, A. et al. Supplementary data to: Flood risk shifts due to tropical cyclones and population exposure in the Mekong region. Zenodo https://doi.org/10.5281/zenodo.13318626 (2024).",
+   "doi": "10.5281/zenodo.13318626"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1038/s43247-024-01868-9",
+   "clase": "otra_agencia",
+   "crudo": "Chen, A. & Liu, J. Supplementary code to: Flood risk shifts due to tropical cyclones and population exposure in the Mekong Region. Zenodo https://doi.org/10.5281/zenodo.13318603 (2024).",
+   "doi": "10.5281/zenodo.13318603"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.21203/rs.3.rs-4240652/v1",
+   "clase": "crossref_no_devuelto",
+   "crudo": "Doyle, J., and Thomason, R. H. 1999. \u201cBackground to Qualitative Decision Theory,\u201d AI Magazine (20:22), pp. 55\u201368 (doi: 10.1609/aimag.v20i2.1456).",
+   "doi": "10.1609/aimag.v20i2.1456"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.21203/rs.3.rs-4240652/v1",
+   "clase": "otra_agencia",
+   "crudo": "Hermann, M., Pentek, T., & Otto, B. (2015). Design Principles for Industrie 4.0 Scenarios: A Literature Review, Working Paper\u00b7 January 2015, DOI: 10.13140/RG.2.2.29269.22248",
+   "doi": "10.13140/rg.2.2.29269.22248"
+  },
+  {
+   "agencia": "mEDRA",
+   "anio_citante": "2024",
+   "casado": false,
+   "citado_por": "10.55073/2024.2.85-100",
+   "clase": "otra_agencia",
+   "crudo": "Biemans, W. (2022) \u2018An Ambitious and Challenging New Document: Catechumenal Itineraries for Married Life: Pastoral Guidelines for Particular Churches\u2019, Marriage, Families & Spirituality, 28(2), pp. 285\u2013290; https://doi.org/10.2143/INT.28.2.3291377.",
+   "doi": "10.2143/int.28.2.3291377"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s40964-024-00843-2",
+   "clase": "otra_agencia",
+   "crudo": "Marascio MGM (2018) 3D printing and supercritical foaming of hierarchical cellular materials. PhD thesis, EPFL. https://doi.org/10.5075/epfl-thesis-8388",
+   "doi": "10.5075/epfl-thesis-8388"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.29026/oea.2024.230121",
+   "clase": "no_existe",
+   "crudo": "<p>Blakley GR. Safeguarding cryptographic keys. In <i>1979 International Workshop on Managing Requirements Knowledge</i> 313\u2013318 (IEEE, 1979);<a href=\"http://doi.org/10.1109/MARK.1979.8817296\">http://doi.org/10.1109/MARK.1979.8817296</a>.</p>",
+   "doi": "10.1109/mark.1979.8817296</a>.</p>"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s42484-024-00179-8",
+   "clase": "otra_agencia",
+   "crudo": "Boothby K, Bunyk P, Raymond J, Roy A (2020) Next-generation topology of d-wave quantum processors. https://doi.org/10.48550/arXiv.2003.00133",
+   "doi": "10.48550/arxiv.2003.00133"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s42484-024-00179-8",
+   "clase": "otra_agencia",
+   "crudo": "Cai J, Macready WG, Roy A (2014) A practical heuristic for finding graph minors. arXiv e-prints arXiv:1406.2741. https://doi.org/10.48550/arXiv.1406.2741",
+   "doi": "10.48550/arxiv.1406.2741"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s42484-024-00179-8",
+   "clase": "otra_agencia",
+   "crudo": "Mirkarimi P, Hoyle DC, Williams R, Chancellor N (2024) Experimental demonstration of improved quantum optimization with linear Ising penalties. https://doi.org/10.48550/arXiv.2404.05476",
+   "doi": "10.48550/arxiv.2404.05476"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s42484-024-00179-8",
+   "clase": "otra_agencia",
+   "crudo": "Ottaviani D, Amendola A (2018) Low rank non-negative matrix factorization with d-wave 2000q. https://doi.org/10.48550/arXiv.1808.08721",
+   "doi": "10.48550/arxiv.1808.08721"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s42484-024-00179-8",
+   "clase": "otra_agencia",
+   "crudo": "Snoek J, Larochelle H, Adams RP (2012) Practical Bayesian optimization of machine learning algorithms. https://doi.org/10.48550/arXiv.1206.2944",
+   "doi": "10.48550/arxiv.1206.2944"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s42484-024-00179-8",
+   "clase": "otra_agencia",
+   "crudo": "Streif M, Neukart F, Leib M (2019) Solving quantum chemistry problems with a d-wave quantum annealer. https://doi.org/10.48550/arXiv.1811.05256",
+   "doi": "10.48550/arxiv.1811.05256"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1177/21582440231219312",
+   "clase": "no_existe",
+   "crudo": "Musil C. M., Jones S. L., Warner C. D. (1998). Structural equation modeling and its relationship to multiple regression and factor analysis. Research in Nursing & Health, 21(3), 271\u2013281. https://doi.org/10.1002/(SICI)1098-240X(199806)21:3<271:aid-nur10>3.0.CO;2-G",
+   "doi": "10.1002/(sici)1098-240x(199806)21:3<271:aid-nur10>3.0.co;2-g"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s11440-024-02377-x",
+   "clase": "crossref_no_devuelto",
+   "crudo": "Fannin RJ, Moffat R (2006) Observations on internal stability of cohesionless soils. G\u00e9otechnique 7(56):497\u2013500. https://doi.org/10.1680/geot.56.7.497",
+   "doi": "10.1680/geot.56.7.497"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s11440-024-02377-x",
+   "clase": "no_existe",
+   "crudo": "Iwashita KI, Oda M (1998) Rolling resistance at contacts in simulation of shear band development by DEM. J Eng Mech 124(3):25\u2013292. https://doi.org/10.1061/(ASCE)0733-9399(1998)124:3(285)",
+   "doi": "10.1061/(asce)0733-9399(1998)124:3(285"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s11440-024-02377-x",
+   "clase": "no_existe",
+   "crudo": "Wan CF, Fell R (2008) Assessing the potential of internal instability and suffusion in embankment dams and their foundations. J Geotech Geoenviron Eng 134(3):401\u2013407. https://doi.org/10.1061/(ASCE)1090-0241(2008)134:3(401)",
+   "doi": "10.1061/(asce)1090-0241(2008)134:3(401"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1007/s11440-024-02377-x",
+   "clase": "no_existe",
+   "crudo": "Wu H, Zhong QM, Deng Z, Shan YB, Zhao KP (2024) Numerical investigation of the effect of landslide relative density on the impulse wave amplitude. Ocean Eng 309:118563. https://doi.org/10.1016/j.oceaneng.2024.11856",
+   "doi": "10.1016/j.oceaneng.2024.11856"
+  },
+  {
+   "agencia": "DataCite",
+   "anio_citante": "2024",
+   "casado": true,
+   "citado_por": "10.1038/s41597-024-03213-3",
+   "clase": "otra_agencia",
+   "crudo": "Gomez, F. M. et al. A dataset for soil organic carbon in agricultural systems for the Southeast Asia region. Figshare https://doi.org/10.6084/m9.figshare.23736891.v2 (2023).",
+   "doi": "10.6084/m9.figshare.23736891.v2"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Boethius, A. M. S. T. De consolatione Philosophiae. Opuscula theologica, ed. Claudio Moreschini. M\u00fcnchen: K. G. Saur Verlag, 2005. <a href=\"https://doi.org/10.1515/9783110950274\">https://doi.org/10.1515/9783110950274</a>.",
+   "doi": "10.1515/9783110950274</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": false,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "William of Malmesbury. Gesta regum Anglorum / The History of the English Kings, ed. Roger A. B. Mynors. Oxford: Clarendon Press, 1998. <a href=\"https://doi.org/10.1093/actrade/9780198206828.book.1\">https://doi.org/10.1093/actrade/9780198206828.book.1</a>.",
+   "doi": "10.1093/actrade/9780198206828.book.1</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Evans, Gillian R., and Alison M. Peden. \u201cNatural Science and Liberal Arts in Abbo of Fleury\u2019s Commentary on the Calculus of Victorius of Aquitaine.\u201d Viatorr 16 (1985): 109\u201327. <a href=\"https://doi.org/10.1484/J.VIATOR.2.301420\">https://doi.org/10.1484/J.VIATOR.2.301420</a>.",
+   "doi": "10.1484/j.viator.2.301420</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Folkerts, Menso. \u201cEarly Texts on Hindu-Arabic Calculation.\u201d Science in Contextt 14, no. 1\u20132 (2001): 13\u201338. <a href=\"https://doi.org/10.1017/S0269889701000023\">https://doi.org/10.1017/S0269889701000023</a>.",
+   "doi": "10.1017/s0269889701000023</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Huglo, Michel. \u201cGerbert, th\u00e9oricien de la musique, vu de l\u2019an 2000.\u201d Cahiers de civilisation m\u00e9di\u00e9vale 43, no. 170 (2000): 143\u201360. <a href=\"https://doi.org/10.3406/ccmed.2000.2776\">https://doi.org/10.3406/ccmed.2000.2776</a>.",
+   "doi": "10.3406/ccmed.2000.2776</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "La Rocca, Cristina. \u201cA Man for All Seasons: Pacificus of Verona and the Creation of a Local Carolingian Past.\u201d In The Uses of the Past in the Early Middle Ages, eds. Yitzak Hen and Matthew Innes, 250\u201379. Cambridge: Cambridge University Press, 2004. <a href=\"https://doi.org/10.1017/CBO9780511496332.012\">https://doi.org/10.1017/CBO9780511496332.012</a>.",
+   "doi": "10.1017/cbo9780511496332.012</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Marenbon, John. \u201cThe Latin Tradition of Logic to 1100.\u201d In Handbook of the History of Logic. Volume 2: Mediaeval and Renaissance Logic, eds. Dov M. Gabbay and John Woods, 1\u201363. Amsterdam: North-Holland, 2008. <a href=\"https://doi.org/10.1016/S1874-5857(08)80022-2\">https://doi.org/10.1016/S1874-5857(08)80022-2</a>.",
+   "doi": "10.1016/s1874-5857(08)80022-2</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Matthews, Michael R. Time for Science Education: How Teaching the History and Philosophy of Pendulum Motion Can Contribute to Science Literacy. Berlin: Springer, 2000. <a href=\"https://doi.org/10.1007/978-94-011-3994-6\">https://doi.org/10.1007/978-94-011-3994-6</a>.",
+   "doi": "10.1007/978-94-011-3994-6</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Rollo, David. Kiss My Relics: Hermaphroditic Fictions of the Middle Ages. Chicago: University of Chicago Press, 2011. <a href=\"https://doi.org/10.7208/chicago/9780226724607.001.0001\">https://doi.org/10.7208/chicago/9780226724607.001.0001</a>.",
+   "doi": "10.7208/chicago/9780226724607.001.0001</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Sachs, Klaus-J\u00fcrgen. \u201cGerbertus cognomento musicus. Zur musikgeschichtlichen Stellung des Gerbert von Reims (nachmaligen Papstes Silvester II).\u201d Archiv f\u00fcr Musikwissenschaft 29, no. 4 (1972): 257\u201374. <a href=\"https://doi.org/10.2307/930368\">https://doi.org/10.2307/930368</a>.",
+   "doi": "10.2307/930368</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Sigismondi, Costantino. \u201cGerbert of Aurillac: Astronomy and Geometry in Tenth Century Europe.\u201d International Journal of Modern Physics 23 (2013): 467\u201371. <a href=\"https://doi.org/10.1142/S201019451301177X\">https://doi.org/10.1142/S201019451301177X</a>.",
+   "doi": "10.1142/s201019451301177x</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "Thorndike, Lynn. \u201cInvention of the Mechanical Clock about 1271 A. D.\u201d Speculum 16, no. 2 (1941): 242\u201343. <a href=\"https://doi.org/10.2307/2853618\">https://doi.org/10.2307/2853618</a>.",
+   "doi": "10.2307/2853618</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.46938/tv.2020.477",
+   "clase": "no_existe",
+   "crudo": "van de Vyver, Andr\u00e9. \u201cLes plus anciennes Traductions latines m\u00e9di\u00e9vales (Xe\u2013XIe si\u00e8cles) de Trait\u00e9s d\u2019Astronomie et d\u2019Astrologie.\u201d Osiris 1, no. 1 (1936): 658\u201391. <a href=\"https://doi.org/10.9783/9780812291407\">https://doi.org/10.9783/9780812291407</a>.",
+   "doi": "10.9783/9780812291407</a>"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.1007/s00035-020-00234-7",
+   "clase": "no_existe",
+   "crudo": "Howe HF, Miriti MN (2004) When seed dispersal matters. Bioscience 54:651\u2013660. https://doi.org/10.1641/0006-3568(2004)054%5b0651:WSDM%5d2.0.CO;2",
+   "doi": "10.1641/0006-3568(2004)054"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.1007/s11882-020-00907-7",
+   "clase": "crossref_no_devuelto",
+   "crudo": "\u2022 Yeager H Jr, Powell D, Weinberg RM, Bauer H, Bellanti JA, Katz S. Idiopathic pulmonary hemosiderosis: ultrastructural studies and responses to azathioprine. Arch Intern Med. 1976;136(10):1145\u20139. https://doi.org/10.1001/archinte.136.10.1145. Report of basement membrane changes in IPH.",
+   "doi": "10.1001/archinte.136.10.1145"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.1007/s11882-020-00907-7",
+   "clase": "crossref_no_devuelto",
+   "crudo": "Fischer EG, Lager DJ. Anti-glomerular basement membrane glomerulonephritis: a morphologic study of 80 cases. Am J Clin Pathol. 2006;125(3):445\u201350. https://doi.org/10.1309/nptp-4ukv-7ju3-elmq.",
+   "doi": "10.1309/nptp-4ukv-7ju3-elmq"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Boman KK, Lindblad F, Hjern A: Long-term outcomes of childhood cancer survivors in Sweden: a population-based study of education, employment, and income. Cancer 116:1385\u20131391, 201010.1002/cncr.2484020087961",
+   "doi": "10.1002/cncr.2484020087961"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "C\u00e2mara-Costa H, Resch A, Kieffer V, Lalande C, Poggi G, Kennedy C, : Neuropsychological outcome of children treated for standard risk medulloblastoma in the PNET4 European randomized controlled trial of hyperfractionated versus standard radiation therapy and maintenance chemotherapy. Int J Radiat Oncol Biol Phys 92:978\u2013985, 201510.1016/j.ijrobp.2015.04.02326194675",
+   "doi": "10.1016/j.ijrobp.2015.04.02326194675"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Doxey D, Bruce D, Sklar F, Swift D, Shapiro K: Posterior fossa syndrome: identifiable risk factors and irreversible complications. Pediatr Neurosurg 31:131\u2013136, 199910.1159/00002884810708354",
+   "doi": "10.1159/00002884810708354"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Gajjar A, Sanford RA, Bhargava R, Heideman R, Walter A, Li Y, : Medulloblastoma with brain stem involvement: the impact of gross total resection on outcome. Pediatr Neurosurg 25:182\u2013187, 199610.1159/0001211219293545",
+   "doi": "10.1159/0001211219293545"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Gudrunardottir T, Morgan AT, Lux AL, Walker DA, Walsh KS, Wells EM, : Consensus paper on post-operative pediatric cerebellar mutism syndrome: the Iceland Delphi results. Childs Nerv Syst 32:1195\u20131203, 201610.1007/s00381-016-3093-327142103",
+   "doi": "10.1007/s00381-016-3093-327142103"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Huber JF, Bradley K, Spiegler B, Dennis M: Long-term neuromotor speech deficits in survivors of childhood posterior fossa tumors: effects of tumor type, radiation, age at diagnosis, and survival years. J Child Neurol 22:848\u2013854, 200710.1177/088307380730399517715277",
+   "doi": "10.1177/088307380730399517715277"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Lannering B, Rutkowski S, Doz F, Pizer B, Gustafsson G, Navajas A, : Hyperfractionated versus conventional radiotherapy followed by chemotherapy in standard-risk medulloblastoma: results from the randomized multicenter HIT-SIOP PNET 4 trial. J Clin Oncol 30:3187\u20133193, 201210.1200/JCO.2011.39.871922851561",
+   "doi": "10.1200/jco.2011.39.871922851561"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Sabel M, Fleischhack G, Tippelt S, Gustafsson G, Doz F, Kortmann R, : Relapse patterns and outcome after relapse in standard risk medulloblastoma: a report from the HIT-SIOP-PNET4 study. J Neurooncol 129:515\u2013524, 201610.1007/s11060-016-2202-127423645",
+   "doi": "10.1007/s11060-016-2202-127423645"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Schwalbe EC, Lindsey JC, Nakjang S, Crosier S, Smith AJ, Hicks D, : Novel molecular subgroups for clinical classification and outcome prediction in childhood medulloblastoma: a cohort study. Lancet Oncol 18:958\u2013971, 201710.1016/S1470-2045(17)30243-728545823",
+   "doi": "10.1016/s1470-2045(17)30243-728545823"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Schwalbe EC, Williamson D, Lindsey JC, Hamilton D, Ryan SL, Megahed H, : DNA methylation profiling of medulloblastoma allows robust subclassification and improved outcome prediction using formalin-fixed biopsies. Acta Neuropathol 125:359\u2013371, 201310.1007/s00401-012-1077-223291781",
+   "doi": "10.1007/s00401-012-1077-223291781"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Schwartz CL: Long-term survivors of childhood cancer: the late effects of therapy. Oncologist 4:45\u201354, 199910.1634/theoncologist.4-1-4510337370",
+   "doi": "10.1634/theoncologist.4-1-4510337370"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "S\u00f8nderkaer S, Schmiegelow M, Carstensen H, Nielsen LB, M\u00fcller J, Schmiegelow K: Long-term neurological outcome of childhood brain tumors treated by surgery only. J Clin Oncol 21:1347\u20131351, 200310.1200/JCO.2003.08.00912663725",
+   "doi": "10.1200/jco.2003.08.00912663725"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Thompson EM, Bramall A, Herndon JE II, Taylor MD, Ramaswamy V: The clinical importance of medulloblastoma extent of resection: a systematic review. J Neurooncol 139:523\u2013539, 201810.1007/s11060-018-2906-529796724",
+   "doi": "10.1007/s11060-018-2906-529796724"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "Thompson EM, Hielscher T, Bouffet E, Remke M, Luu B, Gururangan S, : Prognostic value of medulloblastoma extent of resection after accounting for molecular subgroup: a retrospective integrated clinical and molecular analysis. Lancet Oncol 17:484\u2013495, 201610.1016/S1470-2045(15)00581-126976201",
+   "doi": "10.1016/s1470-2045(15)00581-126976201"
+  },
+  {
+   "agencia": null,
+   "anio_citante": "2020",
+   "casado": true,
+   "citado_por": "10.3171/2019.11.peds19349",
+   "clase": "no_existe",
+   "crudo": "van Veelen-Vincent ML, Pierre-Kahn A, Kalifa C, Sainte-Rose C, Zerah M, Thorne J, : Ependymoma in childhood: prognostic factors, extent of surgery, and adjuvant therapy. J Neurosurg 97:827\u2013835, 200210.3171/jns.2002.97.4.082712405370",
+   "doi": "10.3171/jns.2002.97.4.082712405370"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2010",
+   "casado": true,
+   "citado_por": "10.1186/1748-5908-5-18",
+   "clase": "crossref_no_devuelto",
+   "crudo": "Cook BL, McGuire T, Miranda J: Measuring trends in mental health care disparities, 2000 2004. Psychiatr Serv. 2007, 58 (12): 1533-1540. 10.1176/appi.ps.58.12.1533.",
+   "doi": "10.1176/appi.ps.58.12.1533"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2010",
+   "casado": true,
+   "citado_por": "10.1186/1748-5908-5-18",
+   "clase": "crossref_no_devuelto",
+   "crudo": "Alegria M, Chatterji P, Wells K, Cao Z, Chen CN, Takeuchi D, Jackson J, Meng XL: Disparity in depression treatment among racial and ethnic minority populations in the United States. Psychiatr Serv. 2008, 59 (11): 1264-1272. 10.1176/appi.ps.59.11.1264.",
+   "doi": "10.1176/appi.ps.59.11.1264"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2010",
+   "casado": true,
+   "citado_por": "10.1186/1748-5908-5-18",
+   "clase": "crossref_no_devuelto",
+   "crudo": "Roter DL, Stewart M, Putnam SM, Lipkin M, Stiles W, Inui TS: Communication patterns of primary care physicians. JAMA. 1997, 277 (4): 350-356. 10.1001/jama.277.4.350.",
+   "doi": "10.1001/jama.277.4.350"
+  },
+  {
+   "agencia": "Crossref",
+   "anio_citante": "2010",
+   "casado": true,
+   "citado_por": "10.1186/1748-5908-5-18",
+   "clase": "crossref_no_devuelto",
+   "crudo": "Ewing JA: Detecting alcoholism. The CAGE questionnaire. JAMA. 1984, 252 (14): 1905-1907. 10.1001/jama.252.14.1905.",
+   "doi": "10.1001/jama.252.14.1905"
+  }
+ ],
+ "fecha": "2026-09-18",
+ "fuente": "crudo",
+ "n": 719,
+ "otras_agencias": {
+  "DataCite": 11,
+  "mEDRA": 1
+ }
+}

@@ -131,6 +131,36 @@ class ExtraccionConMarcado(unittest.TestCase):
     def test_corchetes_de_un_doi_real_no_se_pierden(self):
         self.assertEqual(refcheck.dois_de("10.1234/abc[1]"), ["10.1234/abc[1]"])
 
+    def test_parentesis_escondido_detras_del_punto(self):
+        """"(doi: 10.x/y)." — el estilo que rompió 5 DOIs buenos hasta hoy.
+
+        El punto final tapaba el paréntesis: el test de balance sólo mira el
+        último carácter, así que no veía nada que hacer, y el rstrip posterior
+        dejaba el ")" al aire sin nadie detrás que volviera a mirarlo.
+        """
+        self.assertEqual(refcheck.dois_de("(doi: 10.1609/aimag.v20i2.1456)."),
+                         ["10.1609/aimag.v20i2.1456"])
+        self.assertEqual(refcheck.dois_de("Hansson 2011 (doi: 10.1007/978-3-642-04898-2_22)."),
+                         ["10.1007/978-3-642-04898-2_22"])
+        self.assertEqual(refcheck.dois_de("ver (10.1234/abc),"), ["10.1234/abc"])
+        self.assertEqual(refcheck.dois_de("[10.1234/abc]."), ["10.1234/abc"])
+
+    def test_el_pelado_repetido_no_se_come_un_sici(self):
+        """Los paréntesis EQUILIBRADOS sobreviven a las vueltas que hagan falta."""
+        for d in ("10.1061/(asce)0733-9399(1998)124:3(285)",
+                  "10.1061/(asce)1090-0241(2008)134:3(401)"):
+            self.assertEqual(refcheck.dois_de(f"ver {d} fin"), [d])
+
+    def test_limpiar_es_idempotente(self):
+        """Limpiar dos veces da lo mismo que limpiar una.
+
+        Es la propiedad que faltaba: el fallo de hoy era exactamente una regla
+        que aún tenía trabajo pendiente cuando dijo que había terminado.
+        """
+        for c in CASOS_LIMPIEZA:
+            una = refcheck._limpia_doi(c)
+            self.assertEqual(refcheck._limpia_doi(una), una, c)
+
 
 # Cases that both implementations have to answer identically. Kept next to the
 # parity test so adding one covers the CLI and the page at the same time.
@@ -155,6 +185,17 @@ CASOS_LIMPIEZA = [
     "10.1234/abc:",
     "10.1234/abc]",
     "10.1234/abc}",
+    # Punctuation hiding a bracket and vice versa. Measured 2026-09-18 on 5.590
+    # real bibliography lines: the "(doi: …)." style broke five DOIs that
+    # resolve at Crossref, and every one was shown to the reader as "not found".
+    "(doi: 10.1609/aimag.v20i2.1456).",
+    "10.1007/978-3-642-04898-2_22).",
+    "10.1016/s0167-4870(02)00207-6).",
+    "(10.1234/abc),",
+    "[10.1234/abc].",
+    # …and the balanced ones that must survive all that peeling.
+    "10.1061/(asce)0733-9399(1998)124:3(285)",
+    "10.1061/(asce)1090-0241(2008)134:3(401)",
 ]
 
 
@@ -280,6 +321,7 @@ class Lotes(unittest.TestCase):
         # y seguía saliendo en verde: 95 misses inventados descargados sobre un
         # servicio público gratuito, desde la batería que presume de no usar red.
         with mock.patch.object(refcheck, "consulta_lote", side_effect=falso), \
+             mock.patch.object(refcheck, "agencias_de", return_value={}), \
              mock.patch.object(refcheck, "consulta", return_value=None):
             refcheck.revisa_lote([f"10.1234/x{i}" for i in range(95)], pausa=0)
         self.assertEqual([len(v) for v in vistos], [40, 40, 15])
@@ -291,6 +333,7 @@ class Lotes(unittest.TestCase):
         # api.crossref.org de verdad. Una batería que promete funcionar sin red
         # y la usa a escondidas no está midiendo lo que dice medir.
         with mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "agencias_de", return_value={}), \
              mock.patch.object(refcheck, "consulta", return_value=None) as c:
             r = refcheck.revisa_lote(["10.9999/nada"], pausa=0)
         self.assertEqual(r[0]["estado"], "desconocido")
@@ -361,7 +404,31 @@ class ContraLaRealidad(unittest.TestCase):
                             for a in por["10.1371/journal.pone.0161231"]["avisos"]))
         self.assertEqual(por["10.1016/j.nbd.2012.05.020"]["avisos"][0]["gravedad"], 3)
         self.assertEqual(por["10.1038/nature12373"]["avisos"], [])
-        self.assertEqual(por["10.9999/no.existe.9999"]["estado"], "desconocido")
+        # Hasta el 18-sep-2026 esto era «desconocido», que es lo único que se
+        # podía decir. Ahora doi.org lo arbitra contra TODAS las agencias, así
+        # que la afirmación es más fuerte: nadie ha registrado ese DOI.
+        self.assertEqual(por["10.9999/no.existe.9999"]["estado"], "no_existe")
+
+    def test_un_preprint_de_arxiv_se_atribuye_a_datacite(self):
+        """Contra la API real: un DOI de arXiv no es un fallo, es de otro registro.
+
+        Si algún día arXiv pasara a depositar en Crossref, esta prueba se pone
+        roja, que es como quiero enterarme.
+        """
+        r = refcheck.revisa_lote(["10.48550/arXiv.1706.03762"])
+        self.assertEqual(r[0]["estado"], "otra_agencia")
+        self.assertEqual(r[0]["agencia"], "DataCite")
+
+    def test_doi_org_distingue_las_tres_cosas_de_verdad(self):
+        ra = refcheck.agencias_de(["10.1371/journal.pone.0161231",
+                                   "10.48550/arXiv.1706.03762",
+                                   "10.9999/no.existe.9999"])
+        self.assertEqual(ra["10.1371/journal.pone.0161231"], "Crossref")
+        self.assertEqual(ra["10.48550/arxiv.1706.03762"], "DataCite")
+        # Presente en la respuesta con valor None: «lo pregunté y no existe»,
+        # que no es lo mismo que ausente, que sería «no lo sé».
+        self.assertIn("10.9999/no.existe.9999", ra)
+        self.assertIsNone(ra["10.9999/no.existe.9999"])
 
     def test_la_tabla_de_gravedad_cubre_el_esquema_entero(self):
         """Every update type Crossref defines has a severity here, and no more.
@@ -1179,6 +1246,7 @@ class SegundaOportunidadEnElLote(unittest.TestCase):
     def test_no_se_vuelve_a_preguntar_por_lo_que_el_lote_encontro(self):
         obras = {"10.1/a": {"DOI": "10.1/a", "title": ["t"], "updated-by": []}}
         with mock.patch.object(refcheck, "consulta_lote", return_value=obras), \
+             mock.patch.object(refcheck, "agencias_de", return_value={}), \
              mock.patch.object(refcheck, "consulta") as c:
             refcheck.revisa_lote(["10.1/a"], pausa=0)
         self.assertEqual(c.call_count, 0, "una petición de más por cada referencia sana")
@@ -1191,6 +1259,7 @@ class SegundaOportunidadEnElLote(unittest.TestCase):
         dois = [f"10.1/x{i}" for i in range(5)]
         with mock.patch.object(refcheck, "SEGUNDAS_MAX", 2), \
              mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "agencias_de", return_value={}), \
              mock.patch.object(refcheck, "consulta", return_value=None) as c:
             r = refcheck.revisa_lote(dois, pausa=0)
         self.assertEqual(c.call_count, 2, "el tope no se respetó")
@@ -1207,6 +1276,7 @@ class SegundaOportunidadEnElLote(unittest.TestCase):
         with mock.patch.object(refcheck, "LOTE", 20), \
              mock.patch.object(refcheck, "SEGUNDAS_MAX", 25), \
              mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "agencias_de", return_value={}), \
              mock.patch.object(refcheck, "consulta", return_value=None) as c:
             refcheck.revisa_lote(dois, pausa=0)
         self.assertEqual(c.call_count, 25)
@@ -1218,6 +1288,113 @@ class SegundaOportunidadEnElLote(unittest.TestCase):
         texto = refcheck.informe(r)
         self.assertIn("0 reference(s) checked", texto)
         self.assertNotIn("Nothing found", texto)
+
+
+class CajonDeLosNoEncontrados(unittest.TestCase):
+    """Un DOI mal tecleado y un preprint de arXiv no son la misma noticia.
+
+    Hasta hoy los dos imprimían «not found in Crossref — not checked», que para
+    quien tiene la bibliografía delante junta lo único accionable del informe
+    con algo que no tiene nada de malo.
+    """
+
+    RA = {"10.1/existe": "Crossref", "10.1/arxiv": "DataCite", "10.1/nada": None}
+
+    def _corre(self, dois, ra=None, **kw):
+        with mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "agencias_de",
+                               return_value=self.RA if ra is None else ra) as a, \
+             mock.patch.object(refcheck, "consulta", return_value=None) as c:
+            r = refcheck.revisa_lote(dois, pausa=0, **kw)
+        return r, a, c
+
+    def test_los_tres_cajones_se_separan(self):
+        r, _, _ = self._corre(["10.1/existe", "10.1/arxiv", "10.1/nada"])
+        estados = {x["doi"]: x["estado"] for x in r}
+        self.assertEqual(estados["10.1/nada"], "no_existe")
+        self.assertEqual(estados["10.1/arxiv"], "otra_agencia")
+        # El de Crossref sí merece la segunda consulta, y la tuvo.
+        self.assertEqual(estados["10.1/existe"], "desconocido")
+
+    def test_la_agencia_se_conserva_para_poder_nombrarla(self):
+        r, _, _ = self._corre(["10.1/arxiv"])
+        self.assertEqual(r[0]["agencia"], "DataCite")
+
+    def test_no_se_gasta_una_segunda_consulta_en_lo_condenado(self):
+        """El ahorro: preguntarle a Crossref por un DOI de DataCite no puede salir bien.
+
+        Cada segunda oportunidad cuesta un segundo al ritmo de 1/s de Crossref,
+        y una bibliografía de preprints los gastaba todos para nada.
+        """
+        _, _, c = self._corre(["10.1/existe", "10.1/arxiv", "10.1/nada"])
+        self.assertEqual(c.call_count, 1, "se preguntó por algo que Crossref no puede tener")
+
+    def test_una_sola_tanda_de_preguntas_a_doi_org(self):
+        """Los ausentes de TODOS los lotes se preguntan juntos, no lote a lote."""
+        dois = [f"10.1/x{i}" for i in range(60)]
+        with mock.patch.object(refcheck, "LOTE", 20), \
+             mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "agencias_de", return_value={}) as a, \
+             mock.patch.object(refcheck, "consulta", return_value=None):
+            refcheck.revisa_lote(dois, pausa=0)
+        self.assertEqual(a.call_count, 1)
+        self.assertEqual(len(a.call_args[0][0]), 60)
+
+    def test_si_doi_org_calla_se_hace_lo_de_siempre(self):
+        """Nunca decirle a alguien que su cita es inventada porque un tercero falló.
+
+        doi.org sin respuesta = «no lo sé», que es el comportamiento anterior a
+        hoy, no «no existe». Es la diferencia entre callar y difamar.
+        """
+        r, _, c = self._corre(["10.1/existe", "10.1/arxiv"], ra={})
+        self.assertTrue(all(x["estado"] == "desconocido" for x in r))
+        self.assertEqual(c.call_count, 2)
+
+    def test_no_ra_no_habla_con_doi_org(self):
+        with mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "agencias_de") as a, \
+             mock.patch.object(refcheck, "consulta", return_value=None):
+            refcheck.revisa_lote(["10.1/x"], pausa=0, usar_ra=False)
+        self.assertEqual(a.call_count, 0)
+
+    def test_el_informe_los_dice_por_separado_y_nombra_los_rotos(self):
+        r = [{"doi": "10.1/nada", "estado": "no_existe", "avisos": []},
+             {"doi": "10.1/arxiv", "estado": "otra_agencia", "agencia": "DataCite",
+              "avisos": []}]
+        texto = refcheck.informe(r)
+        self.assertIn("DOES NOT EXIST", texto)
+        self.assertIn("no such DOI: 10.1/nada", texto)
+        self.assertIn("DataCite", texto)
+        # Ninguno de los dos se comprobó, así que ninguno cuenta como comprobado.
+        self.assertIn("0 reference(s) checked", texto)
+        self.assertNotIn("Nothing found", texto)
+
+    def test_un_aviso_de_pubmed_gana_al_cajon(self):
+        """Si doi.org dice «no existe» y PubMed sirve una retractación, manda la retractación.
+
+        Bajar la voz porque un tercer servicio discrepa sería el fallo del
+        9-sep con careta nueva.
+        """
+        res = [{"doi": "10.1/nada", "estado": "no_existe", "avisos": []}]
+        rec = {"10.1/nada": {"pmid": "1", "titulo": "t", "avisos": [
+            {"gravedad": 4, "etiqueta": "Retracted", "fecha": "2020",
+             "doi_aviso": "10.1/r", "pmid_aviso": None, "fuente": "pubmed",
+             "contradice": []}]}}
+        with mock.patch.object(refcheck, "avisos_pubmed", return_value=rec):
+            refcheck.fusiona_pubmed(res)
+        self.assertEqual(res[0]["estado"], "ok")
+        self.assertTrue(res[0]["avisos"])
+
+    def test_los_lotes_de_doi_org_van_por_longitud(self):
+        # El límite medido el 17-sep es la longitud de la URI, no la cuenta:
+        # 200 DOIs (5,7 kB) contestan, 400 (11,5 kB) dan un 414.
+        dois = [f"10.1234/{'x' * 200}{i}" for i in range(40)]
+        lotes = list(refcheck._lotes_ra(dois))
+        self.assertGreater(len(lotes), 1)
+        for lote in lotes:
+            url = refcheck.RA_API + ",".join(lote)
+            self.assertLessEqual(len(url), refcheck.RA_URL_MAX + 210)
+        self.assertEqual([d for l in lotes for d in l], dois, "se perdió alguno")
 
 
 class LaCuentaDeLaCabecera(unittest.TestCase):

@@ -212,7 +212,11 @@
     registers get asked: every DOI and PMID goes to <a href="https://api.crossref.org">Crossref&rsquo;s
     public API</a> and to <a href="https://www.ncbi.nlm.nih.gov/books/NBK25501/">NCBI&rsquo;s public
     E-utilities</a>. It used to be that only your PMIDs reached NCBI; that is no longer true, and
-    saying so plainly matters more than the sentence looking tidy. Both are public services with
+    saying so plainly matters more than the sentence looking tidy. Since 18 September 2026 there is
+    a third destination, and a much narrower one: any DOI Crossref did <em>not</em> return is sent to
+    <a href="https://www.doi.org/">doi.org</a> to ask which register owns it — that is how this page
+    can tell a mistyped DOI from an arXiv preprint. Only the DOIs that already failed go there, never
+    your whole bibliography. All three are public services with
     their own privacy policies; nothing goes through me. No account, no cookies, no analytics, nothing logged by me.
     You can save this page and run it offline from your own disk — it is one HTML file with no
     dependencies.
@@ -405,12 +409,20 @@
     // Brackets go only when UNBALANCED. A trailing ">" with no "<" before it
     // closed a <https://doi.org/…>, which is how several citation styles print
     // a URL; a SICI's brackets come as a pair and stay.
-    for (var i = 0; i < PARES.length; i++) {
-      var a = PARES[i][0], b = PARES[i][1];
-      while (d.slice(-1) === b && cuenta(d, a) < cuenta(d, b)) { d = d.slice(0, -1); }
-      while (d.charAt(0) === a && cuenta(d, a) > cuenta(d, b)) { d = d.slice(1); }
+    // Alternated with the punctuation strip to a fixed point, because either
+    // can hide behind the other: "(doi: 10.x/y)." ends in a stop, so the
+    // bracket test sees nothing, and the strip then leaves ")" exposed with
+    // nobody left to look at it.
+    var prev = null;
+    while (d !== prev) {
+      prev = d;
+      for (var i = 0; i < PARES.length; i++) {
+        var a = PARES[i][0], b = PARES[i][1];
+        while (d.slice(-1) === b && cuenta(d, a) < cuenta(d, b)) { d = d.slice(0, -1); }
+        while (d.charAt(0) === a && cuenta(d, a) > cuenta(d, b)) { d = d.slice(1); }
+      }
+      d = d.replace(/[.,;'"]+$/, "");
     }
-    d = d.replace(/[.,;'"]+$/, "");
     return d.replace(COLA_RUTA, "").toLowerCase();
   }
   // </doi-cleaner>
@@ -1017,6 +1029,59 @@
   // out loud, because an unstated limit is silence wearing a hat.
   var SECOND_CHANCES = 100;
 
+  // Which register owns a DOI the batch did not return — and whether anyone
+  // owns it at all. Until today "not found in Crossref" was one sentence for
+  // three unrelated facts: a citation pointing at a DOI that does not exist
+  // (the one thing here the reader can go and fix), an arXiv preprint whose
+  // DOI lives at DataCite and never will live here, and a genuine gap in
+  // Crossref's index. The DOI Foundation answers this free, with no key, in
+  // batches, and with CORS open to any origin. Measured 2026-09-17: the limit
+  // is URI LENGTH, not count — 200 DOIs (5.7 kB) answer in 7.6 s, 400 (11.5 kB)
+  // get a 414. It also pays for itself: a second chance costs a second at
+  // Crossref's 1/s, and spending it on a DataCite DOI was always doomed.
+  var RA_API = "https://doi.org/ra/";
+  var RA_URL_MAX = 3000;
+
+  function raBatches(dois) {
+    var out = [], cur = [], len = RA_API.length;
+    for (var i = 0; i < dois.length; i++) {
+      var enc = encodeURIComponent(dois[i]);
+      var extra = enc.length + (cur.length ? 1 : 0);
+      if (cur.length && len + extra > RA_URL_MAX) {
+        out.push(cur); cur = []; len = RA_API.length; extra = enc.length;
+      }
+      cur.push(dois[i]); len += extra;
+    }
+    if (cur.length) out.push(cur);
+    return out;
+  }
+
+  // Resolves to {doi: "Crossref" | "DataCite" | … | null}. A DOI absent from
+  // the result is UNKNOWN, not nonexistent: if doi.org is slow or down the page
+  // falls back to exactly what it did before. Telling someone their citation is
+  // fabricated because a third service timed out would be the worst thing this
+  // tool could say.
+  function registrationAgencies(dois) {
+    var out = Object.create(null);
+    return raBatches(dois).reduce(function (chain, b, i) {
+      return chain.then(function () {
+        return sleep(i ? 500 : 0);
+      }).then(function () {
+        return fetch(RA_API + b.map(encodeURIComponent).join(","))
+          .then(function (r) { return r.ok ? r.json() : []; })
+          .then(function (rows) {
+            (rows || []).forEach(function (row) {
+              var d = String(row.DOI || "").toLowerCase();
+              // "RA" is absent when the body is {"status":"DOI does not
+              // exist"} — that absence is the answer, not a gap.
+              if (d) out[d] = row.RA || null;
+            });
+          })
+          .catch(function () { /* unknown, and unknown is the safe answer */ });
+      });
+    }, Promise.resolve()).then(function () { return out; });
+  }
+
   function secondChance(doi) {
     var path = doi.split("/").map(encodeURIComponent).join("/");
     return fetch(API + "/" + path, { headers: { Accept: "application/json" } })
@@ -1055,7 +1120,7 @@
   }
 
   function render(found, notFound, unchecked, total, sueltos, half, fromCache,
-                  superseded, notRetried) {
+                  superseded, notRetried, nonexistent, elsewhere) {
     out.textContent = "";
     lastReport = "";
     sueltos = sueltos || [];
@@ -1063,6 +1128,8 @@
     fromCache = fromCache || { n: 0, oldest: 0 };
     superseded = superseded || [];
     notRetried = notRetried || 0;
+    nonexistent = nonexistent || [];
+    elsewhere = elsewhere || [];
     var noDoi = sueltos.filter(function (s) { return s.estado === "pmid_no_doi"; });
     var noPmid = sueltos.filter(function (s) { return s.estado === "pmid_not_found"; });
     // notFound and superseded come off the count too, and until 2026-09-15 they
@@ -1071,7 +1138,8 @@
     // "Nothing found". Whoever skims the top of that walks away with a clean
     // bill for a reference nobody managed to look up. Nothing was checked, so
     // it says 0 — and the "Nothing found" line, gated on this number, stays out.
-    var checked = total - unchecked.length - notFound.length - superseded.length;
+    var checked = total - unchecked.length - notFound.length - superseded.length -
+                  nonexistent.length - elsewhere.length;
 
     var box = el("div", "summary");
     var h = el("h2");
@@ -1107,10 +1175,30 @@
         (lastError ? " (" + lastError + ")" : "") + ". Run those again before you " +
         "rely on this; they are not clean, they are unknown."));
     }
+    if (nonexistent.length) {
+      var np = el("p", null,
+        nonexistent.length + (nonexistent.length === 1 ? " DOI does" : " DOIs do") +
+        " not exist at all — doi.org has no record of " +
+        (nonexistent.length === 1 ? "it" : "them") + ", at any register. " +
+        "Fix the citation; nothing can be checked until you do.");
+      np.style.fontWeight = "600";
+      box.appendChild(np);
+    }
+    if (elsewhere.length) {
+      var ags = [];
+      elsewhere.forEach(function (x) {
+        if (ags.indexOf(x.agency) === -1) ags.push(x.agency);
+      });
+      box.appendChild(el("p", null,
+        elsewhere.length + " registered at " + ags.sort().join(", ") + ", not " +
+        "Crossref. Nothing is wrong with " + (elsewhere.length === 1 ? "it" : "them") +
+        " — this tool just cannot speak for " +
+        (elsewhere.length === 1 ? "it" : "them") + "."));
+    }
     if (notFound.length) {
       box.appendChild(el("p", null,
-        notFound.length + " not found in Crossref (preprints, books, chapters, or a " +
-        "mistyped DOI) — these were not checked, which is not the same as clean."));
+        notFound.length + " not found in Crossref (an indexing gap, or doi.org did " +
+        "not answer) — these were not checked, which is not the same as clean."));
     }
     if (notRetried) {
       box.appendChild(el("p", null,
@@ -1311,13 +1399,57 @@
       out.appendChild(det0);
     }
 
+    if (nonexistent.length) {
+      // Open by default, and first: of everything in this report it is the one
+      // thing the reader can act on without leaving the page.
+      var detX = el("details");
+      detX.open = true;
+      detX.appendChild(el("summary", null,
+        "These DOIs do not exist (" + nonexistent.length + ")"));
+      detX.appendChild(el("p", "hint",
+        "doi.org resolves every DOI ever registered, at any agency, and has no " +
+        "record of these. Usually a typo, a line broken across a PDF column, or " +
+        "a DOI copied with the sentence around it. Check them against the paper."));
+      var ulX = el("ul");
+      lines.push("");
+      lines.push("These DOIs do not exist:");
+      nonexistent.forEach(function (d) {
+        ulX.appendChild(el("li", "meta", d));
+        lines.push("  " + d);
+      });
+      detX.appendChild(ulX);
+      out.appendChild(detX);
+    }
+
+    if (elsewhere.length) {
+      var detE = el("details");
+      detE.appendChild(el("summary", null,
+        "Registered outside Crossref (" + elsewhere.length + ")"));
+      detE.appendChild(el("p", "hint",
+        "These DOIs belong to another registration agency — DataCite handles " +
+        "arXiv preprints, datasets and theses; mEDRA, JaLC and KISTI cover other " +
+        "regions. Crossref will never hold them, so their silence here means " +
+        "nothing at all. To check these, look them up at their own register."));
+      var ulE = el("ul");
+      lines.push("");
+      lines.push("Registered outside Crossref (not checked):");
+      elsewhere.forEach(function (x) {
+        ulE.appendChild(el("li", "meta", x.doi + " — " + x.agency));
+        lines.push("  " + x.doi + " — " + x.agency);
+      });
+      detE.appendChild(ulE);
+      out.appendChild(detE);
+    }
+
     if (notFound.length) {
       var det = el("details");
       det.appendChild(el("summary", null,
         "Not found in Crossref (" + notFound.length + ")"));
       var p = el("p", "hint",
-        "Not an error and not a clean bill of health — Crossref simply has no record " +
-        "under this DOI. Common for preprints, books, chapters and theses.");
+        "These DOIs are registered AT Crossref — doi.org says so — but Crossref's " +
+        "own filter did not return them, and asking about each one by name did not " +
+        "help either. An indexing gap. (If doi.org could not be reached, unclassified " +
+        "DOIs land here too.) Not an error, and not a clean bill of health.");
       det.appendChild(p);
       var ul2 = el("ul");
       lines.push("");
@@ -1437,6 +1569,11 @@
     // DOIs Crossref has merged into another record without saying why, and the
     // count of the ones the cap left unasked. Both go on screen.
     var superseded = [], notRetried = 0;
+    // The two drawers that used to hide inside "not found in Crossref":
+    // `nonexistent` is a citation pointing at a DOI nobody registered — the one
+    // thing in this report the reader can fix today — and `elsewhere` is a
+    // perfectly good reference this tool has no standing to judge.
+    var nonexistent = [], elsewhere = [];
     // A DOI that moved is not written to the tab's memory. The stored shape has
     // no room for "this now lives somewhere else", and an entry that loses that
     // would come back on the next run as an ordinary clean answer — which is
@@ -1496,7 +1633,7 @@
     // ever loosen it, this is the line to change.
     var GAP_MS = 1000;
     var firstBatch = true;
-    batches.reduce(function (chain, b) {
+    var flujo = batches.reduce(function (chain, b) {
       return chain.then(function () {
         var wait = firstBatch ? 0 : GAP_MS;
         firstBatch = false;
@@ -1537,15 +1674,43 @@
         var pendiente = Object.create(null);
         unchecked.forEach(function (d) { pendiente[d] = 1; });
         var huerfanos = ask.filter(function (d) { return !seen[d] && !pendiente[d]; });
-        if (huerfanos.length > SECOND_CHANCES) {
-          notRetried = huerfanos.length - SECOND_CHANCES;
-          huerfanos = huerfanos.slice(0, SECOND_CHANCES);
-        }
         if (!huerfanos.length) return;
-        return huerfanos.reduce(function (chain, d, i) {
+        // Ask WHO owns them first, in one or two requests, and only then spend
+        // a second each on the ones Crossref could plausibly hold. A DOI the
+        // page skips here is not silently dropped: it lands in `nonexistent` or
+        // `elsewhere`, both of which are on screen with their own sentence.
+        status.textContent = "Asking which register owns " + huerfanos.length +
+          " DOI" + (huerfanos.length === 1 ? "" : "s") + " Crossref did not return…";
+        return registrationAgencies(huerfanos).then(function (ra) {
+          var quedan = huerfanos.filter(function (d) {
+            if (!(d in ra)) return true;          // doi.org said nothing: ask as before
+            if (ra[d] === null) { nonexistent.push(d); return false; }
+            if (String(ra[d]).toLowerCase() !== "crossref") {
+              elsewhere.push({ doi: d, agency: String(ra[d]) });
+              return false;
+            }
+            return true;
+          });
+          if (quedan.length > SECOND_CHANCES) {
+            notRetried = quedan.length - SECOND_CHANCES;
+            quedan = quedan.slice(0, SECOND_CHANCES);
+          }
+          if (!quedan.length) return;
+          return preguntaUnaAUna(quedan);
+        });
+      })
+      .then(function () {
+        return null;
+      });
+
+    // One request per DOI, and only for DOIs that got past the agency check —
+    // so a bibliography of arXiv preprints no longer spends a second each
+    // asking a register that cannot have them.
+    function preguntaUnaAUna(quedan) {
+      return quedan.reduce(function (chain, d, i) {
           return chain.then(function () {
             status.textContent = "Asking about " + (i + 1) + " of " +
-              huerfanos.length + " Crossref's filter could not express…";
+              quedan.length + " Crossref's filter could not express…";
             return sleep(i ? GAP_MS : 0);
           }).then(function () {
             return secondChance(d);
@@ -1587,7 +1752,9 @@
             // already "not found, not checked", which is not a clean bill.
           });
         }, Promise.resolve());
-      })
+    }
+
+    flujo
       .then(function () {
         // Now ask the other register. Measured 2026-09-11: one corrected paper
         // in five is invisible to Crossref, so skipping this would hand back a
@@ -1629,7 +1796,20 @@
       .then(function () {
         var pending = Object.create(null);
         unchecked.forEach(function (d) { pending[d] = 1; });
-        var notFound = dois.filter(function (d) { return !seen[d] && !pending[d]; });
+        // The two classified drawers come out of notFound: they are answers,
+        // not silence, and printing them under the same sentence was the whole
+        // point of today's work.
+        var clasificado = Object.create(null);
+        nonexistent.forEach(function (d) { clasificado[d] = 1; });
+        elsewhere.forEach(function (x) { clasificado[x.doi] = 1; });
+        var notFound = dois.filter(function (d) {
+          return !seen[d] && !pending[d] && !clasificado[d];
+        });
+        // Neither drawer is written to the tab's memory. The stored shape has
+        // only "found / not found", so a classified answer would come back on
+        // the next run as a plain "not found" — the page would say LESS the
+        // second time. One request to doi.org per run is a fair price.
+        Object.keys(clasificado).forEach(function (d) { noCache[d] = 1; });
         // Only worth saying about references that WERE otherwise checked; the
         // ones Crossref lost are already reported as unknown.
         var halfList = dois.filter(function (d) {
@@ -1672,7 +1852,7 @@
         // failed PMIDs are in the unchecked list but not in `dois`.
         render(found, notFound, unchecked, dois.length + fallados.length, sueltos,
                halfList, { n: cacheCount, oldest: cacheOldest },
-               superseded, notRetried);
+               superseded, notRetried, nonexistent, elsewhere);
       })
       .then(function () { go.disabled = false; });
   }

@@ -72,6 +72,85 @@ def _get(url, intentos=3, timeout=60):
     raise ConnectionError(f"{url[:80]}… failed: {ultimo}")
 
 
+def carga_extractor(ruta):
+    """Load another refcheck.py and return its `dois_de`.
+
+    This exists so the fix can be measured against ITS OWN predecessor on the
+    SAME lines. Crossref's `sample=` is server-side random, so re-running the
+    sampler never gives the same bibliography twice: comparing yesterday's
+    27.4% with today's would be comparing two different populations and calling
+    the difference a fix. `--corpus-out` freezes the lines; `--extractor` runs
+    the old code over them. Anything else is a story, not a control.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("refcheck_control", ruta)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.dois_de
+
+
+def muestra_crudos(n_obras, anios, semilla):
+    """The author's bibliography lines, kept as text and nothing else.
+
+    Saved before any extractor touches them, which is what makes the corpus
+    reusable: every future version of `dois_de` gets asked the same question.
+
+    EVERY unstructured line is kept, and each is flagged with whether the
+    publisher managed to match it to a DOI (`casado`). The 2026-09-17 run took
+    only the UNMATCHED ones, on the reasoning that a matched deposit had been
+    "normalised" — and that reasoning was wrong twice over. Crossref does not
+    rewrite `unstructured`; matching adds a field beside it. And the unmatched
+    lines are unmatched largely BECAUSE their DOI is broken or absent, so
+    measuring only those is measuring the broken half and publishing the rate
+    as everyone's. It also shrinks the corpus about 25-fold, which is how the
+    mistake stayed invisible: 200 works gave 529 DOIs with every line kept and
+    22 with only the unmatched ones.
+
+    Neither stratum alone is "a bibliography as a person pastes it", so both
+    are kept and reported separately as well as together. The bias that
+    remains, said out loud: these lines survived a publisher's pipeline, so
+    they are cleaner than a draft typed from a PDF.
+    """
+    random.seed(semilla)
+    por_anio = max(1, n_obras // len(anios))
+    filas = []
+    for anio in anios:
+        rest = por_anio
+        while rest > 0:
+            pide = min(rest, 100)
+            filtro = (f"has-references:true,from-pub-date:{anio}-01-01,"
+                      f"until-pub-date:{anio}-12-31")
+            url = (f"{refcheck.API.rstrip('/')}?sample={pide}&filter={filtro}"
+                   f"&select=DOI,reference")
+            refcheck.RITMO.espera()
+            datos = _get(url)
+            for w in datos["message"].get("items") or []:
+                for ref in w.get("reference") or []:
+                    crudo = ref.get("unstructured") or ""
+                    if crudo.strip():
+                        filas.append({"crudo": crudo, "anio_citante": anio,
+                                      "citado_por": w.get("DOI"),
+                                      "casado": bool(ref.get("DOI"))})
+            rest -= pide
+            print(f"  {anio}: {len(filas)} líneas crudas acumuladas", file=sys.stderr)
+    return filas
+
+
+def extrae_de_crudos(crudos, extractor):
+    """Run one extractor over the frozen corpus, de-duplicating by DOI."""
+    vistos, filas = set(), []
+    for c in crudos:
+        for d in extractor(c["crudo"]):
+            d = d.lower()
+            if d and d not in vistos:
+                vistos.add(d)
+                filas.append({"doi": d, "anio_citante": c.get("anio_citante"),
+                              "citado_por": c.get("citado_por"),
+                              "casado": c.get("casado"),
+                              "crudo": c["crudo"]})
+    return filas
+
+
 def muestra_referencias(n_obras, anios, semilla, fuente):
     """Pull reference lists from random Crossref works, stratified by year.
 
@@ -186,20 +265,48 @@ def main():
                         "'crudo' = DOIs pulled from the author's unstructured "
                         "citation text, which is what people actually paste")
     p.add_argument("--dois-from", help="measure the DOIs in this file instead")
+    p.add_argument("--corpus-out",
+                   help="sample raw bibliography lines into this file and stop. "
+                        "Freezing them is what makes a before/after comparison "
+                        "mean anything: Crossref's sample= is random, so a "
+                        "re-run measures a different bibliography.")
+    p.add_argument("--corpus-from",
+                   help="measure the frozen corpus in this file")
+    p.add_argument("--extractor",
+                   help="path to another refcheck.py whose dois_de() to use "
+                        "(control: run the pre-fix code over the same lines)")
     p.add_argument("--max-dois", type=int, default=4000,
                    help="cap on DOIs actually queried (both APIs are free and public)")
     p.add_argument("--semilla", type=int, default=20260917)
     p.add_argument("--json", help="write the full per-DOI result here")
     args = p.parse_args()
 
-    if args.dois_from:
+    anios_l = [a.strip() for a in args.anios.split(",") if a.strip()]
+    if args.corpus_out:
+        crudos = muestra_crudos(args.works, anios_l, args.semilla)
+        with open(args.corpus_out, "w", encoding="utf-8") as fh:
+            json.dump({"fecha": time.strftime("%Y-%m-%d"), "anios": anios_l,
+                       "obras": args.works, "semilla": args.semilla,
+                       "crudos": crudos}, fh, indent=1)
+        print(f"{len(crudos)} líneas crudas en {args.corpus_out}", file=sys.stderr)
+        return
+
+    extractor = (carga_extractor(args.extractor) if args.extractor
+                 else refcheck.dois_de)
+    if args.corpus_from:
+        with open(args.corpus_from, encoding="utf-8") as fh:
+            corpus = json.load(fh)
+        filas = extrae_de_crudos(corpus["crudos"], extractor)
+        print(f"{len(filas)} DOIs distintos de {len(corpus['crudos'])} líneas "
+              f"crudas de {args.corpus_from} (extractor: "
+              f"{args.extractor or 'el actual'})", file=sys.stderr)
+    elif args.dois_from:
         filas = lee_dois(args.dois_from)
         print(f"{len(filas)} DOIs distintos en {args.dois_from}", file=sys.stderr)
     else:
-        anios = [a.strip() for a in args.anios.split(",") if a.strip()]
         print(f"Muestreando referencias [{args.fuente}] de {args.works} obras "
-              f"({', '.join(anios)})…", file=sys.stderr)
-        filas = muestra_referencias(args.works, anios, args.semilla, args.fuente)
+              f"({', '.join(anios_l)})…", file=sys.stderr)
+        filas = muestra_referencias(args.works, anios_l, args.semilla, args.fuente)
 
     if len(filas) > args.max_dois:
         random.seed(args.semilla)
@@ -258,6 +365,26 @@ def main():
     for clave, texto in etiquetas:
         n = cuenta.get(clave, 0)
         print(f"  {n:6d}  {100.0 * n / max(1, total):5.1f}%  {texto}")
+
+    # Split by stratum as well as pooled. The two halves answer different
+    # questions — "a DOI the publisher could match" vs "a DOI it could not" —
+    # and the pooled number hides that one of them is much worse.
+    porestrato = collections.defaultdict(collections.Counter)
+    clase_de = {x["doi"]: x["clase"] for x in detalle}
+    for f in filas:
+        if f.get("casado") is None:
+            continue
+        porestrato[bool(f["casado"])][clase_de.get(f["doi"], "en_crossref")] += 1
+    if porestrato:
+        print("\n  Por estrato (el editor casó la línea con un DOI, o no):")
+        for casado in (True, False):
+            c = porestrato.get(casado)
+            if not c:
+                continue
+            n = sum(c.values())
+            print(f"    {'casada' if casado else 'sin casar':<10} n={n:<5} "
+                  + "  ".join(f"{k}={100.0 * v / n:.1f}%"
+                              for k, v in sorted(c.items())))
 
     otras = collections.Counter(x["agencia"] for x in detalle
                                 if x["clase"] == "otra_agencia")
