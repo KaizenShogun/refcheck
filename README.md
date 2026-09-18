@@ -90,8 +90,9 @@ echo 10.1371/journal.pone.0161231 | python3 refcheck.py -
 Real output:
 
 ```
-  5 reference(s) checked · 3 carry a change notice
-  1 not found in Crossref (preprints, books, bad DOI) — not checked
+  5 reference(s) checked · 4 carry a change notice
+  1 registered at DataCite, not Crossref — nothing is wrong
+  with it, this tool just cannot speak for it
 
   RETRACTED — do not cite this as evidence
     RETRACTED: LRRK2 kinase activity mediates toxic interactions between genet
@@ -112,9 +113,15 @@ Real output:
     Virus-Like Nanoparticle Vaccine Confers Protection against Toxoplasma gond
     10.1371/journal.pone.0161231 (PMID 27548677)
       → Correction (2024-03-21): https://doi.org/10.1371/journal.pone.0301214
+
+      · DataCite, not Crossref: 10.48550/arxiv.1706.03762
 ```
 
-The middle one is the whole point of asking two registers: Crossref's record for
+The last line is the point of [asking doi.org too](#an-unfound-reference-now-says-which-kind-of-unfound):
+that arXiv preprint used to print as "not found in Crossref", which reads like
+something is missing. Nothing is. Crossref will never hold it.
+
+The `EXPRESSION OF CONCERN` one is the point of asking two registers: Crossref's record for
 `10.1093/jnci/djr419` is empty, and this tool used to call that reference clean.
 
 Exit codes, so it can gate a CI job — a journal checking submissions, a lab
@@ -705,7 +712,8 @@ Two of those four, live, where yesterday both read `not found in Crossref`:
 
 ```
   3 reference(s) checked · 2 carry a change notice
-  1 not found in Crossref (preprints, books, bad DOI) — not checked
+  1 registered at DataCite, not Crossref — nothing is wrong
+  with it, this tool just cannot speak for it
 
   RETRACTED — do not cite this as evidence
     Withdrawn abstracts, The FASEB Journal, issue 36:S1
