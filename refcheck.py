@@ -1093,8 +1093,12 @@ def revisa_lote(dois, pausa=None, avisa=None, usar_ra=True):
             elif segundas < SEGUNDAS_MAX:
                 segundas += 1
                 resultados[pos] = segunda_oportunidad(d)
+                if usar_ra:
+                    resultados[pos]["ra_consultado"] = True
             else:
                 resultados[pos]["sin_segunda"] = True
+                if usar_ra:
+                    resultados[pos]["ra_consultado"] = True
             if avisa:
                 avisa(hechos, len(dois))
     return resultados
@@ -1379,8 +1383,13 @@ def informe(resultados, ancho=78):
                    f"{'…' if len(agn) > 3 else ''}, not Crossref — nothing is wrong")
         cab.append(f"  with {ellos}, this tool just cannot speak for {ellos}")
     if desc:
-        cab.append(f"  {len(desc)} not found in Crossref (indexing gap, or doi.org did not "
-                   "answer) — not checked")
+        # Only blame doi.org when it was actually consulted. Under --no-ra it
+        # never was, and an explanation naming a service the run did not use is
+        # the small kind of lie that makes the rest harder to trust.
+        porque = ("indexing gap, or doi.org did not answer"
+                  if any(r.get("ra_consultado") for r in desc)
+                  else "preprints, books, bad DOI")
+        cab.append(f"  {len(desc)} not found in Crossref ({porque}) — not checked")
         recortados = [r for r in desc if r.get("sin_segunda")]
         if recortados:
             cab.append(f"  of those, {len(recortados)} were not asked about one by one "

@@ -1385,6 +1385,21 @@ class CajonDeLosNoEncontrados(unittest.TestCase):
         self.assertEqual(res[0]["estado"], "ok")
         self.assertTrue(res[0]["avisos"])
 
+    def test_no_se_culpa_a_doi_org_cuando_no_se_le_preguntó(self):
+        """Con --no-ra el informe no puede citar un servicio que la tirada no usó.
+
+        Es la clase pequeña de mentira que hace más difícil creerse el resto.
+        """
+        with mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "agencias_de") as a, \
+             mock.patch.object(refcheck, "consulta", return_value=None):
+            r = refcheck.revisa_lote(["10.1/x"], pausa=0, usar_ra=False)
+        self.assertEqual(a.call_count, 0)
+        self.assertNotIn("doi.org", refcheck.informe(r))
+        # Y al revés: si sí se preguntó, la explicación lo dice.
+        r2, _, _ = self._corre(["10.1/existe"])
+        self.assertIn("doi.org did not answer", refcheck.informe(r2))
+
     def test_los_lotes_de_doi_org_van_por_longitud(self):
         # El límite medido el 17-sep es la longitud de la URI, no la cuenta:
         # 200 DOIs (5,7 kB) contestan, 400 (11,5 kB) dan un 414.
