@@ -123,7 +123,8 @@
       PubMed’s “Send to → Citation manager”, a <code>.bib</code>, a <code>.ris</code>,
       a <code>.txt</code>. You can also drag it onto the box below.
       <strong>The file is read inside your browser and is never uploaded</strong>;
-      only the identifiers found in it are sent, to Crossref and PubMed.
+      only the identifiers found in it are sent, to Crossref and PubMed (and, for
+      the ones neither can find, to doi.org).
     </p>
     <p class="hint">
       <label for="file">Open a file</label>
@@ -216,7 +217,10 @@
     a third destination, and a much narrower one: any DOI Crossref did <em>not</em> return is sent to
     <a href="https://www.doi.org/">doi.org</a> to ask which register owns it — that is how this page
     can tell a mistyped DOI from an arXiv preprint. Only the DOIs that already failed go there, never
-    your whole bibliography. All three are public services with
+    your whole bibliography. And since 19 September 2026, when a DOI turns out not to exist, the
+    digits on its tail are sent to NCBI to ask whether they are a PubMed id — that is how this page
+    tells a broken citation from a DOI deposited with a PMID welded to the end of it. Again, only
+    for DOIs that already failed everywhere else. All three are public services with
     their own privacy policies; nothing goes through me. No account, no cookies, no analytics, nothing logged by me.
     You can save this page and run it offline from your own disk — it is one HTML file with no
     dependencies.
@@ -1082,6 +1086,79 @@
     }, Promise.resolve()).then(function () { return out; });
   }
 
+  // ---- a DOI with a PubMed id welded onto its tail -----------------------
+  //
+  //     10.1002/cncr.24840  +  20087961  →  10.1002/cncr.2484020087961
+  //
+  // Some journals deposit their reference lists that way. It is a style of
+  // deposit, not a mistake by whoever wrote the bibliography, and until today
+  // this page told them their DOI did not exist — about a paper that exists,
+  // is indexed, and may well be retracted.
+  //
+  // Same rule as the CLI, and the rule is a CHECK, never a guess: doi.org has
+  // already said the string does not exist, the tail has to read as a PubMed
+  // id, and PubMed asked about that id has to return THAT EXACT DOI. Chopping
+  // digits until something resolves would eventually land on a different real
+  // paper, and reporting a stranger's retraction against someone's reference is
+  // the worst thing this tool can do. Two confirmed splits → neither is used.
+  //
+  // Measured 2026-09-19 on the frozen corpus: 14 of 19 nonexistent DOIs were
+  // this, and a control over 600 resolving DOIs rewrote none of them.
+  // <glued-pmid>
+  var GLUED_MIN = 4, GLUED_MAX = 8;
+
+  function gluedPmidSplits(doi) {
+    var out = [];
+    for (var k = GLUED_MIN; k <= GLUED_MAX; k++) {
+      if (doi.length <= k) break;
+      var tail = doi.slice(-k), head = doi.slice(0, -k);
+      // No PubMed id has a leading zero, so a tail starting in one is part of
+      // the DOI — 10.1159/000028848 ends in three of them.
+      if (!/^[1-9][0-9]*$/.test(tail)) continue;
+      if (!/^10\.[0-9]{4,9}\/[-._;()/:A-Za-z0-9<>\[\]]+$/.test(head)) continue;
+      out.push({ doi: head, pmid: tail });
+    }
+    return out;
+  }
+  // </glued-pmid>
+
+  // Resolves to {brokenDoi: {doi, pmid}} for the ones PubMed confirms. Every
+  // candidate id for the whole bibliography goes in one batched question.
+  function rescueGluedPmids(dois) {
+    var pairs = Object.create(null), ids = Object.create(null);
+    dois.forEach(function (d) {
+      var s = gluedPmidSplits(d);
+      if (s.length) {
+        pairs[d] = s;
+        s.forEach(function (p) { ids[p.pmid] = 1; });
+      }
+    });
+    var todos = Object.keys(ids);
+    if (!todos.length) return Promise.resolve({});
+    return chunk(todos, PMID_BATCH).reduce(function (chain, b, i) {
+      return chain.then(function (acc) {
+        return sleep(i ? PUBMED_GAP_MS : 0).then(function () {
+          return fetchPmids(b).then(function (map) {
+            Object.keys(map).forEach(function (p) { acc[p] = map[p]; });
+            return acc;
+          });
+        });
+      });
+    }, Promise.resolve(Object.create(null))).then(function (known) {
+      var out = Object.create(null);
+      Object.keys(pairs).forEach(function (broken) {
+        var hit = pairs[broken].filter(function (p) {
+          var k = known[p.pmid];
+          return k && k.estado === "ok" && k.doi === p.doi;
+        });
+        if (hit.length === 1) out[broken] = hit[0];
+      });
+      return out;
+    }).catch(function () {
+      return {};            // a failed rescue is simply no rescue
+    });
+  }
+
   function secondChance(doi) {
     var path = doi.split("/").map(encodeURIComponent).join("/");
     return fetch(API + "/" + path, { headers: { Accept: "application/json" } })
@@ -1120,9 +1197,12 @@
   }
 
   function render(found, notFound, unchecked, total, sueltos, half, fromCache,
-                  superseded, notRetried, nonexistent, elsewhere) {
+                  superseded, notRetried, nonexistent, elsewhere, repaired,
+                  citedAs) {
     out.textContent = "";
     lastReport = "";
+    repaired = repaired || [];
+    citedAs = citedAs || Object.create(null);
     sueltos = sueltos || [];
     half = half || [];
     fromCache = fromCache || { n: 0, oldest: 0 };
@@ -1174,6 +1254,15 @@
         unchecked.length + " could NOT be checked — the connection to Crossref failed" +
         (lastError ? " (" + lastError + ")" : "") + ". Run those again before you " +
         "rely on this; they are not clean, they are unknown."));
+    }
+    if (repaired.length) {
+      box.appendChild(el("p", null,
+        repaired.length + (repaired.length === 1 ? " DOI in your file has" :
+                           " DOIs in your file have") +
+        " a PubMed id stuck on the end, so " +
+        (repaired.length === 1 ? "it was" : "they were") + " checked as the real " +
+        "article — PubMed confirms the id and the DOI belong to the same paper. " +
+        "Both strings are listed below: the citation still needs fixing."));
     }
     if (nonexistent.length) {
       var np = el("p", null,
@@ -1310,13 +1399,22 @@
         // Name it back the way it was cited, or the reader has to hunt for the
         // line this refers to.
         if (r.pmid) meta.appendChild(document.createTextNode(" · PMID " + r.pmid));
+        // A repaired DOI is shown both ways round: the line in their document
+        // spells it the broken way, and that is the string they have to search
+        // for to find it.
+        var comoLoEscribio = citedAs[r.doi];
+        if (comoLoEscribio) {
+          meta.appendChild(document.createTextNode(
+            " · your file says " + comoLoEscribio));
+        }
         li.appendChild(meta);
 
         var ul = el("ul", "notices");
         lines.push("");
         lines.push(titular);
         if (r.titulo) lines.push("  " + r.titulo);
-        lines.push("  https://doi.org/" + r.doi + (r.pmid ? "  (PMID " + r.pmid + ")" : ""));
+        lines.push("  https://doi.org/" + r.doi + (r.pmid ? "  (PMID " + r.pmid + ")" : "") +
+                   (comoLoEscribio ? "  (your file says " + comoLoEscribio + ")" : ""));
         r.notices.forEach(function (n) {
           var item = el("li");
           item.appendChild(document.createTextNode(
@@ -1397,6 +1495,31 @@
       unchecked.forEach(function (d) { ul0.appendChild(el("li", "meta", d)); });
       det0.appendChild(ul0);
       out.appendChild(det0);
+    }
+
+    if (repaired.length) {
+      // Open by default: the header promises both strings appear, and a
+      // repaired DOI that carried no notice still leaves a broken citation in
+      // the document. Silently swapping it would be worse than the bug.
+      var detR = el("details");
+      detR.open = true;
+      detR.appendChild(el("summary", null,
+        "These DOIs have a PubMed id stuck on the end (" + repaired.length + ")"));
+      detR.appendChild(el("p", "hint",
+        "Some journals deposit their reference lists with the DOI and the PMID " +
+        "run together, with no separator. Nothing is wrong with the article; the " +
+        "string is what is broken. Each was only checked as the article on the " +
+        "right because PubMed, asked about that id, returned that exact DOI."));
+      var ulR = el("ul");
+      lines.push("");
+      lines.push("These DOIs have a PubMed id stuck on the end:");
+      repaired.forEach(function (x) {
+        ulR.appendChild(el("li", "meta",
+          x.citedAs + "  →  " + x.doi + " + PMID " + x.pmid));
+        lines.push("  " + x.citedAs + "  ->  " + x.doi + " + PMID " + x.pmid);
+      });
+      detR.appendChild(ulR);
+      out.appendChild(detR);
     }
 
     if (nonexistent.length) {
@@ -1574,6 +1697,11 @@
     // thing in this report the reader can fix today — and `elsewhere` is a
     // perfectly good reference this tool has no standing to judge.
     var nonexistent = [], elsewhere = [];
+    // DOIs that turned out to be a real one with a PubMed id welded on. The
+    // reader is shown BOTH strings: the corrected one is what was checked, the
+    // one in their document is what they have to search for to find the line.
+    // Correcting it in silence would be worse than the bug.
+    var repaired = [], citedAs = Object.create(null);
     // A DOI that moved is not written to the tab's memory. The stored shape has
     // no room for "this now lives somewhere else", and an entry that loses that
     // would come back on the next run as an ordinary clean answer — which is
@@ -1691,12 +1819,46 @@
             }
             return true;
           });
-          if (quedan.length > SECOND_CHANCES) {
-            notRetried = quedan.length - SECOND_CHANCES;
-            quedan = quedan.slice(0, SECOND_CHANCES);
+          // Before any of those are written off as nonexistent, ask whether
+          // they are a real DOI with a PubMed id welded to the tail.
+          if (!nonexistent.length) return sigue(quedan);
+          status.textContent = "Checking whether " + nonexistent.length +
+            " of them are a DOI with a PubMed id stuck on the end…";
+          return rescueGluedPmids(nonexistent).then(function (salvados) {
+            var rotos = Object.keys(salvados);
+            if (rotos.length) {
+              nonexistent = nonexistent.filter(function (d) {
+                return !salvados[d];
+              });
+              rotos.forEach(function (roto) {
+                var bueno = salvados[roto].doi;
+                repaired.push({ doi: bueno, citedAs: roto,
+                                pmid: salvados[roto].pmid });
+                citedAs[bueno] = roto;
+                // The string in the document HAS been answered now. Without
+                // this it also falls into `notFound`, and the report says both
+                // "checked as the real article" and "not found in Crossref"
+                // about the same line.
+                seen[roto] = 1;
+                // The repaired DOI has to reach BOTH registers, exactly as if
+                // it had been written correctly. Leaving it out of `ask` would
+                // check it against Crossref only, and Crossref is silent on
+                // one corrected paper in five.
+                if (ask.indexOf(bueno) < 0) ask.push(bueno);
+                quedan.push(bueno);
+              });
+            }
+            return sigue(quedan);
+          });
+
+          function sigue(quedan) {
+            if (quedan.length > SECOND_CHANCES) {
+              notRetried = quedan.length - SECOND_CHANCES;
+              quedan = quedan.slice(0, SECOND_CHANCES);
+            }
+            if (!quedan.length) return;
+            return preguntaUnaAUna(quedan);
           }
-          if (!quedan.length) return;
-          return preguntaUnaAUna(quedan);
         });
       })
       .then(function () {
@@ -1852,7 +2014,7 @@
         // failed PMIDs are in the unchecked list but not in `dois`.
         render(found, notFound, unchecked, dois.length + fallados.length, sueltos,
                halfList, { n: cacheCount, oldest: cacheOldest },
-               superseded, notRetried, nonexistent, elsewhere);
+               superseded, notRetried, nonexistent, elsewhere, repaired, citedAs);
       })
       .then(function () { go.disabled = false; });
   }

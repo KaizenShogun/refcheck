@@ -992,6 +992,109 @@
   ok("and it asked doi.org again rather than serving a flattened memory",
      raAsked.length === 2, String(raAsked.length));
 
+  // ---- a DOI with a PubMed id welded to its tail (2026-09-19) -------------
+  // 10.1002/cncr.24840 + 20087961 arrives as one string. Measured the same day
+  // on the frozen corpus: 14 of the 19 DOIs doi.org says do not exist are this,
+  // so it is the single biggest bucket of "your citation is broken" that isn't.
+  //
+  // The claim worth defending is not the wording of the report, it is that the
+  // page never REWRITES A DOI IT HAS NOT CHECKED. So these assert on the
+  // requests: whether the candidate was ever asked about at Crossref at all.
+  var ncbiIds = [], askedByName = [], pubmedFor = [];
+  const gluedStub = function (raMap, pmidMap) {
+    return function (u, o) {
+      var url = String(u);
+      if (/doi\.org\/ra\//.test(url)) {
+        var pedidos = decodeURIComponent(url.split("/ra/")[1]).split(",");
+        return reply(pedidos.map(function (d) {
+          var ra = raMap[d.toLowerCase()];
+          return ra === null || ra === undefined
+            ? { DOI: d, status: "DOI does not exist" }
+            : { DOI: d, RA: ra };
+        }));
+      }
+      if (/esummary\.fcgi/.test(url)) {
+        var ids = decodeURIComponent((url.match(/[?&]id=([^&]*)/) || [, ""])[1]);
+        ncbiIds.push(ids);
+        var res = { uids: [] };
+        ids.split(",").filter(Boolean).forEach(function (p) {
+          if (!(p in pmidMap)) return;
+          res.uids.push(p);
+          res[p] = { uid: p, title: "Un artículo", pubdate: "2009",
+                     articleids: [{ idtype: "pubmed", value: p },
+                                  { idtype: "doi", value: pmidMap[p] }] };
+        });
+        return reply({ result: res });
+      }
+      if (/api\.crossref\.org/.test(url)) {
+        if (isBatch(url)) return reply({ message: { items: [] } });
+        askedByName.push(url);
+        if (/cncr\.24840/.test(url)) {
+          return reply({ message: { DOI: "10.1002/cncr.24840",
+            title: ["El artículo de verdad"],
+            "updated-by": [{ type: "retraction", label: "Retraction",
+                             DOI: "10.1002/cncr.9999",
+                             updated: { "date-parts": [[2012, 5, 1]] } }] } });
+        }
+        return reply({ message: null });
+      }
+      if (/esearch\.fcgi/.test(url)) {
+        // The term travels in the POST body, not in the URL. Reading the URL
+        // here made this check pass while proving nothing — found 19-sep by
+        // the check failing with an empty query string.
+        pubmedFor.push(decodeURIComponent(String((o && o.body) || url)));
+        return reply({ esearchresult: { idlist: [] } });
+      }
+      if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+      return reply({});
+    };
+  };
+
+  ncbiIds = []; askedByName = []; pubmedFor = [];
+  coldTab();
+  window.fetch = gluedStub({ "10.1002/cncr.2484020087961": null },
+                           { "20087961": "10.1002/cncr.24840" });
+  s = await check("10.1002/cncr.2484020087961\n");
+  ok("a DOI with a PMID glued on is checked as the real article",
+     /RETRACTED/.test(txt()), txt().slice(0, 700));
+  ok("and the report shows BOTH strings, so the line can be found in the file",
+     txtAbierto().indexOf("10.1002/cncr.2484020087961") >= 0 &&
+     txtAbierto().indexOf("10.1002/cncr.24840") >= 0, txtAbierto().slice(0, 900));
+  ok("it is no longer reported as a DOI that does not exist",
+     !/does not exist at all/.test(txt()), txt().slice(0, 700));
+  ok("the reader is told the citation still needs fixing",
+     /still needs fixing/.test(txtAbierto()), txtAbierto().slice(0, 900));
+  ok("every candidate id went to PubMed in ONE request, not one per split",
+     ncbiIds.length === 1, ncbiIds.join(" | "));
+  ok("the repaired DOI is asked of PubMed too, not Crossref only",
+     pubmedFor.some((u) => /cncr\.24840/.test(u)), pubmedFor.join(" | "));
+
+  // The one that separates checking from guessing. The split is plausible and
+  // the head would resolve — but PubMed says that id belongs to a different
+  // paper, so there is no rescue, and above all the page must never have gone
+  // to Crossref about it. Reporting a stranger's retraction against someone's
+  // reference is the worst thing this tool can do.
+  ncbiIds = []; askedByName = []; pubmedFor = [];
+  coldTab();
+  window.fetch = gluedStub({ "10.1002/cncr.2484020087961": null },
+                           { "20087961": "10.9999/otro-articulo" });
+  s = await check("10.1002/cncr.2484020087961\n");
+  ok("a split PubMed does not confirm is NOT rescued",
+     /does not exist at all/.test(txt()), txt().slice(0, 700));
+  ok("and the unconfirmed candidate was never asked about at Crossref",
+     !askedByName.some((u) => /cncr\.24840/.test(u)), askedByName.join(" | "));
+  ok("nor is a stranger's record shown to the reader",
+     !/RETRACTED/.test(txt()), txt().slice(0, 700));
+
+  // A tail that cannot be a PubMed id must not even be proposed: 000028848
+  // ends in digits, but no PMID has a leading zero.
+  ncbiIds = [];
+  coldTab();
+  window.fetch = gluedStub({ "10.1159/000028848": null }, {});
+  s = await check("10.1159/000028848\n");
+  ok("a DOI ending in zero-led digits costs no PubMed request at all",
+     ncbiIds.join("").indexOf("0000288") < 0, ncbiIds.join(" | "));
+
   window.fetch = realFetch;
 
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };

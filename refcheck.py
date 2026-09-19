@@ -188,6 +188,11 @@ DISCREPANCIA = ("REGISTERS DISAGREE — Crossref and PubMed file the same notice
 # somebody's markup.
 DOI_RE = re.compile(r"10\.\d{4,9}/[-._;()/:A-Za-z0-9<>\[\]]+")
 
+# The same shape, anchored: "is this WHOLE string a DOI?" rather than "is there
+# one in here?". Used when a candidate DOI is built by cutting characters off
+# another one, where an unanchored search would happily accept a stump.
+DOI_ENTERO = re.compile(DOI_RE.pattern + r"\Z")
+
 # Where a DOI ends and someone else's markup begins.
 #
 # Bibliography text arrives with HTML and JATS still in it — `</ext-link>`,
@@ -990,6 +995,87 @@ def _sin_registro(doi, agencia):
     return None
 
 
+# ---------------------------------------------------------------------------
+# A DOI with a PubMed id welded onto its tail.
+#
+#     10.1002/cncr.24840  +  20087961  →  10.1002/cncr.2484020087961
+#
+# Some journals deposit their reference lists that way: DOI and PMID
+# concatenated with no separator at all. It is a style of deposit, not a mistake
+# by whoever wrote the bibliography, and the reader can do nothing about it —
+# the line in their document is fine.
+#
+# Rescuing it is only defensible because it is a CHECK, never a guess. Three
+# independent things have to agree before a single character is changed:
+#
+#   1. doi.org has already said the string as written does not exist. A DOI that
+#      resolves is never touched, so this cannot break a working reference.
+#   2. the tail reads as a PubMed id, and the head still reads as a DOI.
+#   3. PubMed, asked about that id, returns THAT EXACT DOI.
+#
+# Point 3 is the whole argument. Without it this is string surgery: chopping
+# digits off until something resolves would eventually hit a different, real
+# paper — and reporting someone else's retraction against your reference is the
+# worst thing this tool can do, the same fault I found in the .nbib reader on
+# 2026-09-12. With it, two registers independently agree that these two ids
+# belong to one article, and nothing is invented.
+#
+# If two different splits were both confirmed, refcheck reports NEITHER. An
+# ambiguous rescue is a guess wearing a check's clothing.
+PMID_PEGADO_MIN = 4   # digits; measured 2026-09-19, see research/measure_pmid_glued.py
+PMID_PEGADO_MAX = 8   # PubMed ids are at most 8 digits (PMID_MAX)
+
+
+def candidatos_pmid_pegado(doi, minimo=PMID_PEGADO_MIN, maximo=PMID_PEGADO_MAX):
+    """Every (doi, pmid) split of `doi` that is worth ASKING PubMed about.
+
+    Generates possibilities; it confirms nothing. `rescata_pmid_pegado` is what
+    decides, and it decides with PubMed's answer, not with this list.
+    """
+    fuera = []
+    for k in range(minimo, maximo + 1):
+        if len(doi) <= k:
+            break
+        cola, cabeza = doi[-k:], doi[:-k]
+        if not cola.isdigit() or cola[0] == "0":
+            # A PubMed id has no leading zero, so a tail starting in one is
+            # part of the DOI — 10.1159/000028848 ends in three of them.
+            continue
+        if not DOI_ENTERO.match(cabeza):
+            continue
+        fuera.append((cabeza, cola))
+    return fuera
+
+
+def rescata_pmid_pegado(dois, resolutor=None):
+    """{roto: {'doi': …, 'pmid': …}} for the ones PubMed confirms. Asks in bulk.
+
+    Only DOIs already known not to exist should be passed in. Everything that
+    is not confirmed is simply absent from the result, and its caller keeps the
+    answer it already had.
+    """
+    pares = {}
+    for d in dois:
+        for cabeza, cola in candidatos_pmid_pegado(d):
+            pares.setdefault(d, []).append((cabeza, cola))
+    if not pares:
+        return {}
+    resolutor = resolutor or resuelve_pmids
+    pmids = sorted({cola for v in pares.values() for _, cola in v})
+    try:
+        sabido = resolutor(pmids)
+    except Exception:  # noqa: BLE001 — a failed rescue is just no rescue
+        return {}
+    fuera = {}
+    for roto, opciones in pares.items():
+        casan = [(cabeza, cola) for cabeza, cola in opciones
+                 if (sabido.get(cola) or {}).get("doi") == cabeza]
+        if len(casan) == 1:
+            cabeza, cola = casan[0]
+            fuera[roto] = {"doi": cabeza, "pmid": cola}
+    return fuera
+
+
 # How many DOIs the batch missed are worth asking about one at a time. Each is
 # its own request at Crossref's 1/s, and a bibliography of arXiv preprints —
 # whose DOIs live at DataCite, so the filter finds none of them — would otherwise
@@ -1083,10 +1169,32 @@ def revisa_lote(dois, pausa=None, avisa=None, usar_ra=True):
 
     if ausentes:
         agencia = agencias_de([d for _, d in ausentes]) if usar_ra else {}
+        veredictos = {pos: _sin_registro(d.lower(), agencia) for pos, d in ausentes}
+        # Before a DOI is written off as nonexistent, ask whether it is a real
+        # one with a PubMed id welded to its tail — in bulk, one request for the
+        # whole bibliography. Measured 2026-09-19 on the frozen corpus: 14 of
+        # the 19 nonexistent DOIs were exactly that, and the control over 600
+        # resolving DOIs rewrote none.
+        rotos = [d.lower() for pos, d in ausentes
+                 if (veredictos[pos] or {}).get("estado") == "no_existe"]
+        rescates = rescata_pmid_pegado(rotos) if rotos else {}
         segundas = 0
         for pos, d in ausentes:
-            veredicto = _sin_registro(d.lower(), agencia)
-            if veredicto is not None:
+            veredicto = veredictos[pos]
+            salvado = rescates.get(d.lower())
+            if salvado and segundas < SEGUNDAS_MAX:
+                # The reference is good and the DOI printed in the document is
+                # not. Check the real article, and never quietly: the reader is
+                # told both strings, because the one in their file is the one
+                # they have to go and find.
+                segundas += 1
+                nuevo = segunda_oportunidad(salvado["doi"])
+                nuevo["doi_citado"] = d.lower()
+                nuevo["pmid_pegado"] = salvado["pmid"]
+                if usar_ra:
+                    nuevo["ra_consultado"] = True
+                resultados[pos] = nuevo
+            elif veredicto is not None:
                 # Nothing to gain from asking Crossref: it is not Crossref's DOI,
                 # or it is nobody's.
                 resultados[pos] = veredicto
@@ -1268,7 +1376,14 @@ def edad_legible(segundos):
 def nombre(r):
     """How to name a reference back to the person who wrote it."""
     if r.get("doi"):
-        return f"{r['doi']} (PMID {r['pmid']})" if r.get("pmid") else r["doi"]
+        base = f"{r['doi']} (PMID {r['pmid']})" if r.get("pmid") else r["doi"]
+        # A DOI that was repaired is shown BOTH ways round. The corrected one is
+        # what was checked; the one in their document is the one they have to
+        # search for to find the line, and hiding it would make the report
+        # impossible to act on.
+        if r.get("doi_citado") and r["doi_citado"] != r["doi"]:
+            base += f" — your file says {r['doi_citado']}"
+        return base
     return f"PMID {r['pmid']}" if r.get("pmid") else "?"
 
 
@@ -1376,6 +1491,14 @@ def informe(resultados, ancho=78):
         cab.append(f"  {len(inexistentes)} DOI{'' if uno else 's'} "
                    f"{'DOES' if uno else 'DO'} NOT EXIST at all (doi.org has no such "
                    "record) — fix the citation")
+    reparados = [r for r in resultados if r.get("doi_citado")]
+    if reparados:
+        uno = len(reparados) == 1
+        cab.append(f"  {len(reparados)} DOI{'' if uno else 's'} in your file "
+                   f"{'has' if uno else 'have'} a PubMed id stuck on the end; "
+                   f"{'it was' if uno else 'they were'} checked as the real")
+        cab.append("  article (PubMed confirms the id and the DOI are the same paper).")
+        cab.append("  Both strings are printed below — the citation still needs fixing.")
     if ajenos:
         agn = sorted({r.get("agencia") or "another agency" for r in ajenos})
         ellos = "it" if len(ajenos) == 1 else "them"
@@ -1406,8 +1529,16 @@ def informe(resultados, ancho=78):
     if not con and comprobadas > 0:
         cab.append("  Nothing found. That is the expected result most of the time;")
         cab.append("  it is the 1-in-N that this exists for.")
-    if sinc or sin_doi or pmid_desc or a_medias or sust or inexistentes or ajenos:
+    if (sinc or sin_doi or pmid_desc or a_medias or sust or inexistentes
+            or ajenos or reparados):
         lineas.append("")           # do not let these hang off the last notice
+    # Named whatever the verdict, including a clean one: the header promises
+    # both strings appear, and a repaired DOI that turned out to carry no notice
+    # still leaves a broken citation in the document. If it also carries a
+    # notice it is named twice, in the list above and here, which is the right
+    # number of times to mention that the line needs fixing.
+    for r in reparados:
+        lineas.append(f"      ✎ PubMed id stuck to the DOI: {nombre(r)}")
     # Named first among the unchecked: of everything in this report, a citation
     # pointing at a DOI that does not exist is the one the reader can fix today.
     for r in inexistentes:
@@ -1460,6 +1591,9 @@ CACHE_DIAS = float(os.environ.get("REFCHECK_CACHE_DAYS", "7"))
 CACHE_MAX = 100_000        # entries; a 1.000-record run adds ~1.000
 CACHE_V = 2                # bump when an entry stops meaning what it meant
 REGISTROS = ("crossref", "pubmed")
+# Facts about the run and the reader's file, not about the article. Never stored.
+DE_LA_TIRADA = ("doi_citado", "pmid_pegado", "de_cache", "ra_consultado",
+                "sin_segunda")
 
 
 def ruta_cache():
@@ -1533,6 +1667,13 @@ def escribe_cache(fichas, ruta=None, ahora=None, registros=REGISTROS):
         if not cubre:
             continue
         clave = r["doi"].lower()
+        # Strip what belongs to THIS run rather than to the article. A rescued
+        # DOI carries the broken string the reader's own file spelled it with,
+        # and stored under the corrected DOI that would come back tomorrow in
+        # somebody else's bibliography as "your file says …" about a line that
+        # file does not contain. A cache may repeat an answer; it may not
+        # invent a claim about the document in front of it.
+        r = {k: v for k, v in r.items() if k not in DE_LA_TIRADA}
         antigua = crudo.get(clave)
         # Never trade a two-register answer for a one-register one, even a
         # fresher one. Fresh and half-blind loses to a day old and complete.
@@ -1628,6 +1769,13 @@ def main():
         escribe_cache(frescos, registros=quiere)
 
     por_doi = {r["doi"].lower(): r for r in frescos}
+    # A repaired DOI has to be findable under the string the document spells it
+    # with, which is the one being looked up here. Without this the lookup falls
+    # through to the cache branch for a DOI that was never cached, and the run
+    # dies on a KeyError.
+    for r in frescos:
+        if r.get("doi_citado"):
+            por_doi.setdefault(r["doi_citado"].lower(), r)
     resultados, edades = [], []
     for d in dois:
         clave = d.lower()

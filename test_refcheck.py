@@ -247,6 +247,90 @@ class ParidadCliPagina(unittest.TestCase):
                 self.assertEqual(a, b, f"CLI dice {a!r} y la página {b!r}")
 
 
+CASOS_PEGADO = [
+    "10.1002/cncr.2484020087961",          # el caso real medido el 19-sep
+    "10.1159/0001211219293545",            # cola de 7 dígitos, la única así
+    "10.1159/000028848",                   # acaba en dígitos con cero delante
+    "10.1016/s1470-2045(17)30243-728545823",   # paréntesis dentro del DOI
+    "10.3171/jns.2002.97.4.082712405370",
+    "10.1234/12345678",                    # la cabeza quedaría en muñón
+    "10.1088/1748-9326/ac919",             # truncado por el autor, sin cola
+    "10.1234/abc0012345678",               # cero en medio de la cola
+    "10.5555/1234",                        # cola exacta del mínimo
+    "10.5555/x123456789",                  # una cifra más que el máximo
+]
+
+
+class ParidadDelRescatePegado(unittest.TestCase):
+    """Los cortes que propone la página tienen que ser los mismos que los del CLI.
+
+    Es la segunda regla que vive en los dos sitios a la vez. La primera fue el
+    limpiador de DOIs, y el 17-sep resultó que llevaban meses discrepando sin
+    que nadie pudiera verlo: mismo texto, misma herramienta, dos veredictos,
+    decididos por si tienes terminal. Aquí la discrepancia sería peor, porque
+    la que propone de más acaba preguntándole a PubMed por ids de nadie.
+    """
+
+    @staticmethod
+    def _bloque():
+        ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "docs", "index.html")
+        with open(ruta, encoding="utf-8") as fh:
+            html = fh.read()
+        m = re.search(r"// <glued-pmid>(.*?)// </glued-pmid>", html, re.S)
+        return m.group(1) if m else None
+
+    def test_el_bloque_sigue_delimitado(self):
+        self.assertIsNotNone(self._bloque(),
+                             "los marcadores <glued-pmid> han desaparecido de "
+                             "docs/index.html: la paridad ya no se está probando")
+
+    def test_los_mismos_cortes(self):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node no está instalado")
+        bloque = self._bloque()
+        self.assertIsNotNone(bloque)
+        guion = (bloque + "\nconst casos = " + json.dumps(CASOS_PEGADO) + ";\n"
+                 "console.log(JSON.stringify(casos.map(function (c) {\n"
+                 "  return gluedPmidSplits(c).map(function (p) "
+                 "{ return [p.doi, p.pmid]; });\n"
+                 "})));\n")
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False,
+                                         encoding="utf-8") as fh:
+            fh.write(guion)
+            tmp = fh.name
+        try:
+            salida = subprocess.run([node, tmp], capture_output=True, text=True,
+                                    timeout=30)
+            self.assertEqual(salida.returncode, 0, salida.stderr)
+            js = json.loads(salida.stdout)
+        finally:
+            os.unlink(tmp)
+        py = [[list(p) for p in refcheck.candidatos_pmid_pegado(c)]
+              for c in CASOS_PEGADO]
+        for caso, a, b in zip(CASOS_PEGADO, py, js):
+            with self.subTest(caso=caso):
+                self.assertEqual(a, b, f"CLI dice {a!r} y la página {b!r}")
+
+    def test_los_casos_cubren_los_bordes(self):
+        """Una prueba de paridad sólo vale por los casos que tiene dentro.
+
+        El 17-sep muté la página para que volviera a quitar el ':' final y la
+        prueba pasó tan contenta: ninguno de mis catorce casos acababa en ':'.
+        El hueco estaba en los casos, no en la prueba. Así que aquí se afirma
+        que los bordes del rango están representados, en vez de confiar en que
+        me acordé.
+        """
+        largos = {len(p[1]) for c in CASOS_PEGADO
+                  for p in refcheck.candidatos_pmid_pegado(c)}
+        self.assertIn(refcheck.PMID_PEGADO_MIN, largos, "ningún caso corta al mínimo")
+        self.assertIn(refcheck.PMID_PEGADO_MAX, largos, "ningún caso corta al máximo")
+        sin_corte = [c for c in CASOS_PEGADO
+                     if not refcheck.candidatos_pmid_pegado(c)]
+        self.assertTrue(sin_corte, "ningún caso que NO deba proponer corte")
+
+
 class Gravedad(unittest.TestCase):
     def test_retractacion_manda_sobre_correccion(self):
         obra = {"title": ["x"], "container-title": ["y"], "updated-by": [
@@ -1410,6 +1494,189 @@ class CajonDeLosNoEncontrados(unittest.TestCase):
             url = refcheck.RA_API + ",".join(lote)
             self.assertLessEqual(len(url), refcheck.RA_URL_MAX + 210)
         self.assertEqual([d for l in lotes for d in l], dois, "se perdió alguno")
+
+
+class PmidPegadoAlDoi(unittest.TestCase):
+    """Un DOI con un PMID soldado a la cola: 10.1002/cncr.24840 + 20087961.
+
+    Es un estilo de depósito de algunas revistas, no un error de quien cita, y
+    hasta hoy refcheck le decía al lector que su DOI no existe — sobre un
+    artículo que existe, está indexado y puede estar retractado.
+
+    Lo que se defiende aquí NO es que rescate, es que sólo rescate cuando lo
+    ha COMPROBADO. Cortar dígitos hasta que algo resuelva acabaría casando con
+    otro artículo real, y contarle al lector la retractación de un extraño es
+    el peor fallo que esta herramienta puede cometer — el mismo que me
+    encontré en el lector de .nbib el 12-sep.
+    """
+
+    ROTO = "10.1002/cncr.2484020087961"
+    BUENO = "10.1002/cncr.24840"
+    PMID = "20087961"
+
+    def test_genera_el_corte_correcto(self):
+        pares = refcheck.candidatos_pmid_pegado(self.ROTO)
+        self.assertIn((self.BUENO, self.PMID), pares)
+
+    def test_no_corta_por_un_cero_inicial(self):
+        """10.1159/000028848 acaba en dígitos, pero ningún PMID empieza por 0."""
+        for cabeza, cola in refcheck.candidatos_pmid_pegado("10.1159/000028848"):
+            self.assertFalse(cola.startswith("0"), (cabeza, cola))
+
+    def test_la_cabeza_sigue_siendo_un_doi(self):
+        """Un muñón como «10.1002/» no es un DOI y no se pregunta por él."""
+        for cabeza, _ in refcheck.candidatos_pmid_pegado("10.1002/12345678"):
+            self.assertRegex(cabeza, r"^10\.\d{4,9}/.+")
+
+    def _pubmed(self, mapa):
+        def falso(pmids):
+            return {p: ({"estado": "ok", "doi": mapa[p]} if p in mapa
+                        else {"estado": "desconocido"}) for p in pmids}
+        return falso
+
+    def test_solo_rescata_lo_que_pubmed_confirma(self):
+        r = refcheck.rescata_pmid_pegado(
+            [self.ROTO], resolutor=self._pubmed({self.PMID: self.BUENO}))
+        self.assertEqual(r[self.ROTO], {"doi": self.BUENO, "pmid": self.PMID})
+
+    def test_si_pubmed_apunta_a_OTRO_doi_no_se_rescata(self):
+        """La prueba que separa comprobar de adivinar.
+
+        El corte es plausible y la cabeza resolvería; pero PubMed dice que ese
+        id es de otro artículo, así que no hay rescate. Sin esto, refcheck
+        comprobaría los avisos de un extraño y se los imprimiría al lector como
+        si fueran de su referencia.
+        """
+        r = refcheck.rescata_pmid_pegado(
+            [self.ROTO], resolutor=self._pubmed({self.PMID: "10.9999/otro"}))
+        self.assertEqual(r, {})
+
+    def test_pmid_sin_doi_en_pubmed_no_se_rescata(self):
+        """Medido el 19-sep: es el único de los 15 reales que no se pudo cerrar.
+
+        `10.1634/theoncologist.4-1-45` + PMID 10337370, un artículo de 1999.
+        PubMed no lista DOI para él —el 27,5% no lo lista, medido el 10-sep— y
+        sin ese dato la comprobación no cierra. Callarse es la respuesta.
+        """
+        r = refcheck.rescata_pmid_pegado(
+            ["10.1634/theoncologist.4-1-4510337370"],
+            resolutor=lambda p: {x: {"estado": "sin_doi"} for x in p})
+        self.assertEqual(r, {})
+
+    def test_dos_cortes_confirmados_no_dan_ninguno(self):
+        """Un rescate ambiguo es una adivinanza disfrazada de comprobación."""
+        roto = "10.1234/abc1234567812345678"
+        mapa = {}
+        for cabeza, cola in refcheck.candidatos_pmid_pegado(roto):
+            mapa[cola] = cabeza          # todos los cortes «confirmados» a la vez
+        self.assertGreater(len(mapa), 1)
+        r = refcheck.rescata_pmid_pegado([roto], resolutor=self._pubmed(mapa))
+        self.assertEqual(r, {})
+
+    def test_si_pubmed_no_contesta_no_pasa_nada(self):
+        def revienta(_):
+            raise ConnectionError("boom")
+        self.assertEqual(refcheck.rescata_pmid_pegado([self.ROTO], revienta), {})
+
+    def test_una_sola_tanda_para_toda_la_bibliografia(self):
+        """Los candidatos de todos los rotos van juntos a PubMed, no uno a uno."""
+        llamadas = []
+
+        def falso(pmids):
+            llamadas.append(list(pmids))
+            return {p: {"estado": "desconocido"} for p in pmids}
+        refcheck.rescata_pmid_pegado(
+            [f"10.1234/abc{i}12345678" for i in range(30)], resolutor=falso)
+        self.assertEqual(len(llamadas), 1)
+
+    # ---- dentro del flujo -------------------------------------------------
+
+    def _lote(self, dois, mapa_pmid, obras=None):
+        obras = obras or {}
+        with mock.patch.object(refcheck, "consulta_lote", return_value={}), \
+             mock.patch.object(refcheck, "agencias_de",
+                               return_value={d.lower(): None for d in dois}), \
+             mock.patch.object(refcheck, "resuelve_pmids", self._pubmed(mapa_pmid)), \
+             mock.patch.object(refcheck, "consulta",
+                               side_effect=lambda d, **k: obras.get(d.lower())):
+            return refcheck.revisa_lote(dois, pausa=0)
+
+    def test_el_rescatado_se_comprueba_como_el_articulo_de_verdad(self):
+        obra = {"DOI": self.BUENO, "title": ["El artículo"], "updated-by": [
+            {"type": "retraction", "label": "Retraction", "DOI": "10.1/r",
+             "updated": {"date-parts": [[2020, 1, 1]]}}]}
+        r = self._lote([self.ROTO], {self.PMID: self.BUENO}, {self.BUENO: obra})
+        self.assertEqual(r[0]["estado"], "ok")
+        self.assertEqual(r[0]["doi"], self.BUENO)
+        self.assertEqual(r[0]["doi_citado"], self.ROTO)
+        self.assertTrue(r[0]["avisos"], "se perdió la retractación del artículo real")
+
+    def test_sin_confirmacion_sigue_siendo_inexistente(self):
+        r = self._lote([self.ROTO], {})
+        self.assertEqual(r[0]["estado"], "no_existe")
+        self.assertNotIn("doi_citado", r[0])
+
+    def test_el_informe_dice_LAS_DOS_cadenas(self):
+        """Corregir en silencio sería peor que el fallo: la línea que el lector
+        tiene que buscar en su documento es la rota."""
+        obra = {"DOI": self.BUENO, "title": ["El artículo"]}
+        r = self._lote([self.ROTO], {self.PMID: self.BUENO}, {self.BUENO: obra})
+        texto = refcheck.informe(r)
+        self.assertIn(self.ROTO, texto, "no se nombra la cadena del documento")
+        self.assertIn(self.BUENO, texto, "no se nombra el DOI comprobado")
+        self.assertIn("PubMed id stuck on the end", texto)
+
+    def test_la_cache_NO_se_queda_con_el_fichero_ajeno(self):
+        """`doi_citado` es un hecho sobre ESTE documento, no sobre el artículo.
+
+        Guardado bajo el DOI corregido, mañana volvería en la bibliografía de
+        otra persona como «your file says 10.1002/cncr.2484020087961» sobre una
+        línea que ese fichero no contiene. Una caché puede repetir una
+        respuesta; no puede inventarse una afirmación sobre el documento que
+        tiene delante.
+        """
+        ruta = os.path.join(_tmpdir(self), "c.json")
+        ficha = {"doi": self.BUENO, "estado": "ok", "avisos": [],
+                 "doi_citado": self.ROTO, "pmid_pegado": self.PMID}
+        crudo = refcheck.escribe_cache([ficha], ruta=ruta)
+        self.assertNotIn("doi_citado", crudo[self.BUENO]["r"])
+        self.assertNotIn("pmid_pegado", crudo[self.BUENO]["r"])
+
+    def test_la_tirada_entera_no_revienta(self):
+        """La CLI busca el resultado por el DOI que el fichero escribió.
+
+        Sin indexarlo también por la cadena rota, la búsqueda cae a la rama de
+        caché con un DOI que nunca se cacheó y la tirada muere con un KeyError
+        — o sea que un solo DOI con PMID pegado se llevaba por delante el
+        informe entero. Encontrado leyendo main() el 19-sep, antes de que le
+        pasara a nadie.
+        """
+        d = _tmpdir(self)
+        refs = os.path.join(d, "refs.txt")
+        with open(refs, "w", encoding="utf-8") as f:
+            f.write(f"{self.ROTO}\n10.5555/bien\n")
+        obras = {"10.5555/bien": {"DOI": "10.5555/bien", "title": ["Otro"]},
+                 self.BUENO: {"DOI": self.BUENO, "title": ["El artículo"]}}
+        salida = io.StringIO()
+        with mock.patch.object(refcheck, "consulta_lote",
+                               lambda ds, reintentos=3: {x.lower(): obras[x.lower()]
+                                                         for x in ds
+                                                         if x.lower() in obras}), \
+             mock.patch.object(refcheck, "agencias_de",
+                               return_value={self.ROTO: None}), \
+             mock.patch.object(refcheck, "resuelve_pmids",
+                               self._pubmed({self.PMID: self.BUENO})), \
+             mock.patch.object(refcheck, "consulta",
+                               side_effect=lambda x, **k: obras.get(x.lower())), \
+             mock.patch.object(refcheck, "fusiona_pubmed", lambda r, avisa=None: None), \
+             mock.patch.object(refcheck, "ruta_cache",
+                               lambda: os.path.join(d, "cache.json")), \
+             mock.patch.object(sys, "argv", ["refcheck.py", refs]), \
+             mock.patch.object(sys, "stdout", salida):
+            codigo = refcheck.main()
+        self.assertEqual(codigo, 0)
+        self.assertIn(self.ROTO, salida.getvalue())
+        self.assertIn("2 reference(s) checked", salida.getvalue())
 
 
 class LaCuentaDeLaCabecera(unittest.TestCase):

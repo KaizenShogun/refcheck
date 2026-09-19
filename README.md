@@ -64,10 +64,13 @@ identifiers found in it are sent — straight from your machine to Crossref and 
 NCBI, both of which are asked about every reference, and, since 2026-09-18, to
 **doi.org** for the DOIs Crossref did not return, to find out which register owns
 them. That third one only ever sees DOIs that already failed, never your whole
-bibliography. (Until 2026-09-11 only your PMIDs reached NCBI. That changed when
-the tool started asking both registers, and it is better said plainly than left
-as a tidier old sentence — this is the third time this paragraph has had to be
-corrected rather than quietly kept.) Nothing passes through me. Save the page and
+bibliography. Since 2026-09-19 NCBI is also asked about the digits on the tail
+of a DOI that does not exist, to find out whether they are a PubMed id — again,
+only for DOIs that already failed everywhere else. (Until 2026-09-11 only your
+PMIDs reached NCBI. That changed when the tool started asking both registers,
+and it is better said plainly than left as a tidier old sentence — this is the
+fourth time this paragraph has had to be corrected rather than quietly kept.)
+Nothing passes through me. Save the page and
 it keeps working from your own disk — it is one HTML file with no dependencies,
 no cookies and no analytics.
 
@@ -408,6 +411,25 @@ Re-measured on that frozen corpus, with the extractor fixed:
 | registered at another agency (DataCite ×11, mEDRA ×1) | 1.7% |
 | **the DOI does not exist** | **2.7%** |
 
+**Except that most of that last row is not a broken citation at all.** Measured
+19 September with `research/measure_pmid_glued.py`, on the same frozen corpus:
+of those 19 nonexistent DOIs, **15 are a real DOI with a PubMed id welded onto
+the end**, with no separator —
+
+    10.1002/cncr.24840  +  20087961  →  10.1002/cncr.2484020087961
+
+— which is a style of deposit at some journals, not a mistake by whoever wrote
+the bibliography. refcheck now checks those as the real article (see [A DOI with
+a PMID stuck on the end](#a-doi-with-a-pmid-stuck-on-the-end) below), so the
+"does not exist" row falls from 19 to **5 of 705, 0.7%**, and the 705th figure
+that matters most — how many references got checked — rises by 14.
+
+> An earlier note in this file said 8 of the 19 were this shape. It was a count
+> done by eye off a screen of output; counting them with code gives 15. The one
+> that is not rescued of the 15 is `10.1634/theoncologist.4-1-45` + PMID
+> 10337370, a 1999 paper for which PubMed lists no DOI at all — so the check
+> cannot be closed, and refcheck says nothing rather than guess.
+
 Run over the *same lines* with the extractor as it stood before 17 September,
 that last figure is **4.9%**; before today's fix, **3.5%**. So of the DOIs this
 tool used to declare nonexistent, **nearly half were broken by refcheck itself**
@@ -491,6 +513,58 @@ here. `--no-ra` skips it entirely.
 It also pays for itself in time. A second chance costs a second at Crossref's
 1/s, and spending it on a DataCite DOI was always doomed; one request per ~150
 DOIs now replaces all of those.
+
+## A DOI with a PMID stuck on the end
+
+    10.1002/cncr.24840  +  20087961  →  10.1002/cncr.2484020087961
+
+Some journals deposit their reference lists with the DOI and the PubMed id run
+together, no separator. The article is fine, the citation in your document is
+fine — the *string* is broken, and until 19 September refcheck told you your DOI
+did not exist. It is the biggest single bucket of that verdict: **14 of the 19
+in the frozen corpus**, and one of those 14 turned out to carry an erratum from
+2022 that was simply being lost.
+
+**It is a check, not a repair.** Three things have to agree before one character
+is changed:
+
+1. doi.org has already said the string as written does not exist — a DOI that
+   resolves is never touched, so a working reference cannot be broken by this;
+2. the tail reads as a PubMed id (no leading zero) and the head still reads as
+   a DOI;
+3. **PubMed, asked about that id, returns that exact DOI.**
+
+The third is the whole argument. Chopping digits off until something resolves
+would sooner or later land on a *different real paper*, and reporting a
+stranger's retraction against your reference is the worst thing this tool can
+do. If two different splits both come back confirmed, neither is used: an
+ambiguous rescue is a guess wearing a check's clothing.
+
+Nothing is corrected silently. Both strings are printed — the DOI that was
+checked, and the one your file actually spells — because the broken one is what
+you have to search for to find the line, and the citation still needs fixing.
+
+| measured 19 Sep on the frozen corpus | |
+|---|---:|
+| DOIs doi.org says do not exist | 19 |
+| of those, a real DOI with a PMID glued on | 15 |
+| **rescued — PubMed confirms id and DOI are one paper** | **14** |
+| ambiguous (two confirmed splits → neither used) | 0 |
+| **control: resolving DOIs that would be rewritten** | **0 of 600** |
+
+The control is the row that matters. The rule only ever runs after doi.org has
+said a string does not exist, so damage should be impossible by construction —
+but "by construction" is an argument and that row is a measurement, and I have
+had the argument be wrong before.
+
+The one of the 15 that is not rescued is `10.1634/theoncologist.4-1-45` + PMID
+10337370, from 1999: PubMed lists no DOI for that record, so the check cannot be
+closed and refcheck says nothing instead of guessing. That is the rule working,
+not a gap in it — 27.5% of PubMed records carry no DOI, and it is worst before
+1990.
+
+Cost: one batched request to PubMed per run, and only ever about DOIs that
+already failed everywhere else.
 
 ## What else is out there
 
