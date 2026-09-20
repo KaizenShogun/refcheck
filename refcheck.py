@@ -1704,6 +1704,271 @@ def escribe_cache(fichas, ruta=None, ahora=None, registros=REGISTROS):
     return crudo
 
 
+# ---------------------------------------------------------------------------
+# Watch mode: what is new since the last time you ran this
+#
+# Checking a bibliography is a snapshot, and the thing a reader actually fears
+# is the notice published AFTER they filed the paper away. Zotero, EndNote,
+# LibKey and Papers all do a version of this and all four read one source, the
+# Retraction Watch database. Measured on 2026-09-20 against the frozen corpus of
+# 1,600 papers Crossref marks with a notice (research/measure_rw_coverage.py):
+# RW holds 87.0% of the retractions — its own subject, and the control that says
+# the crosswalk works — but 42.5% of the expressions of concern, 3.2% of the
+# errata and 1.2% of the corrections. So a reader watching through RW alone is
+# blind to roughly ninety-eight corrections in a hundred. That hole is why this
+# exists; it is not a second copy of Zotero's feature.
+#
+# The state file is NOT the cache. The cache exists to avoid asking a free
+# public service the same question twice; this exists to remember what the
+# answer was, so a later run can say what changed. Reading the cache here would
+# let a run report "nothing new" from disk without asking anybody, and in a tool
+# whose silence reads as "clean" that is the expensive failure — so --watch turns
+# the cache off for reading. It still writes it: a stored answer is useful to
+# the next ordinary run and does not lie to anyone.
+# ---------------------------------------------------------------------------
+VIGILANCIA_V = 1
+
+
+def clave_vigilada(r):
+    """How a reference is identified across runs — the article, not the string.
+
+    A repaired DOI is stored under the repaired one, because that is the paper;
+    the broken spelling belongs to one person's file and is in DE_LA_TIRADA.
+    A PubMed record with no DOI is still watchable under its PMID. Anything with
+    neither cannot be recognised next time and is left out rather than stored
+    under something that will not match.
+    """
+    doi = (r.get("doi") or "").lower()
+    if doi.startswith("10."):
+        return doi
+    return "pmid:" + str(r["pmid"]) if r.get("pmid") else ""
+
+
+def clave_aviso(a):
+    """How one notice is identified across runs.
+
+    The notice's own DOI is the stable name where there is one. PubMed often
+    reports a notice Crossref has not been given, and there the PMID is what
+    there is. With neither, type and date are all that distinguish two notices
+    on the same paper — which is the same fallback avisos_de uses to dedupe.
+    """
+    tipo = (a.get("tipo") or "").lower()
+    if a.get("doi_aviso"):
+        return tipo + "|" + a["doi_aviso"].lower()
+    if a.get("pmid_aviso"):
+        return tipo + "|pmid:" + str(a["pmid_aviso"])
+    return tipo + "||" + (a.get("fecha") or "")
+
+
+def _ya_conocido(a, previos):
+    """Is this notice one the state already holds, under any name?
+
+    Beyond the exact key, a notice counts as known when a stored one has the
+    same severity and the same non-empty date. That second test is there for a
+    real and otherwise noisy case: a notice first seen through PubMed with only
+    a PMID, later deposited in Crossref with a DOI of its own, changes key
+    without being news. Announcing it as new would teach the reader that "new"
+    sometimes means "same thing, renamed", which is how an alert stops being
+    read. The date must be non-empty, so two undated notices of one severity are
+    never merged on the strength of both missing the same field.
+    """
+    if clave_aviso(a) in {p.get("clave") for p in previos}:
+        return True
+    fecha = a.get("fecha") or ""
+    return bool(fecha) and any(p.get("fecha") == fecha
+                               and p.get("gravedad") == a.get("gravedad")
+                               for p in previos)
+
+
+def _aviso_guardado(a):
+    return {"clave": clave_aviso(a), "tipo": a.get("tipo", ""),
+            "gravedad": a.get("gravedad", 1), "fecha": a.get("fecha", ""),
+            "etiqueta": a.get("etiqueta", ""), "doi_aviso": a.get("doi_aviso", ""),
+            "pmid_aviso": a.get("pmid_aviso", ""), "fuente": a.get("fuente", "")}
+
+
+def lee_vigilancia(ruta):
+    """The previous run's verdicts, or an empty state if there is no file yet.
+
+    A file that cannot be parsed is an error and not an empty state: treating a
+    corrupt watch file as "nothing known yet" would silently report a whole
+    bibliography as new and then overwrite the only copy of the real baseline.
+    """
+    if not os.path.exists(ruta):
+        return None
+    with open(ruta, encoding="utf-8") as f:
+        estado = json.load(f)
+    if not isinstance(estado, dict) or "vistas" not in estado:
+        raise ValueError("%s is not a refcheck watch file" % ruta)
+    return estado
+
+
+def escribe_vigilancia(ruta, estado):
+    os.makedirs(os.path.dirname(os.path.abspath(ruta)) or ".", exist_ok=True)
+    tmp = ruta + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(estado, f, ensure_ascii=False, indent=1)
+    # Same reasoning as the cache: it is a list of what someone has been reading.
+    os.chmod(tmp, 0o600)
+    os.replace(tmp, ruta)
+
+
+def compara_vigilancia(estado, resultados):
+    """What changed since the state was written.
+
+    Four drawers, and the split between the last two is the whole point:
+
+      nuevos        — a notice this state has never held. The headline.
+      ausentes      — a notice the state holds and today's answer does not, where
+                      today's answer is a real one.
+      no_comprobados— the same shape of absence, but today's lookup failed or the
+                      paper was not found. This must NEVER be reported as a
+                      notice being withdrawn: "it is fine now" on the strength of
+                      a timeout is the most expensive thing this tool could say.
+      nuevas        — references not in the state at all. Not news about a paper.
+    """
+    vistas = estado.get("vistas", {})
+    nuevos, ausentes, no_comprobados, nuevas = [], [], [], []
+    for r in resultados:
+        clave = clave_vigilada(r)
+        if not clave:
+            continue
+        previo = vistas.get(clave)
+        if previo is None:
+            nuevas.append(r)
+            continue
+        guardados = previo.get("avisos", [])
+        frescos = [a for a in r["avisos"] if not _ya_conocido(a, guardados)]
+        if frescos:
+            nuevos.append((r, frescos))
+        # Only a run that actually got an answer may claim a notice is gone.
+        if r.get("estado") == "ok":
+            idos = [p for p in guardados
+                    if not any(_ya_conocido(a, [p]) for a in r["avisos"])]
+            if idos:
+                ausentes.append((r, idos))
+        elif guardados:
+            no_comprobados.append((r, previo))
+    return {"nuevos": nuevos, "ausentes": ausentes,
+            "no_comprobados": no_comprobados, "nuevas": nuevas}
+
+
+def actualiza_vigilancia(estado, resultados, ahora=None):
+    """The state to store after this run.
+
+    A reference already known is only overwritten when today's lookup succeeded.
+    A failed lookup must not erase what was last known — that is how a watch file
+    would quietly forget a retraction during an outage.
+
+    References that have left the file are kept rather than pruned. Someone who
+    points --watch at the wrong file for one run would otherwise destroy the only
+    baseline they have, and keeping a few stale entries costs a few hundred bytes.
+    """
+    ahora = ahora or time.time()
+    estado = estado or {"refcheck_watch": VIGILANCIA_V,
+                        "creado": ahora, "vistas": {}}
+    estado["refcheck_watch"] = VIGILANCIA_V
+    estado["actualizado"] = ahora
+    vistas = estado.setdefault("vistas", {})
+    for r in resultados:
+        clave = clave_vigilada(r)
+        if not clave:
+            continue
+        nuevo = r.get("estado") == "ok" or clave not in vistas
+        if not nuevo:
+            continue
+        vistas[clave] = {"visto": ahora, "estado": r.get("estado", ""),
+                         "titulo": r.get("titulo", ""),
+                         "avisos": [_aviso_guardado(a) for a in r["avisos"]]}
+    return estado
+
+
+def informe_vigilancia(cambios, estado, ancho=78):
+    """The changes block, printed above the ordinary report.
+
+    Returns "" when there is nothing to say, which is what makes --only-new
+    usable from cron: no output means no news, and the reader's inbox stays
+    empty until something actually happens.
+    """
+    lineas = []
+    desde = estado.get("actualizado") or estado.get("creado")
+    cuando = (time.strftime("%Y-%m-%d", time.localtime(desde)) if desde else "?")
+
+    def encabeza(texto):
+        lineas.append("")
+        lineas.append("  " + texto)
+        lineas.append("  " + "-" * min(len(texto), ancho - 2))
+
+    if cambios["nuevos"]:
+        encabeza("NEW SINCE %s — %d reference(s)" % (cuando, len(cambios["nuevos"])))
+        for r, frescos in sorted(cambios["nuevos"],
+                                 key=lambda rf: -max(a["gravedad"] for a in rf[1])):
+            peor = max(frescos, key=lambda a: a["gravedad"])
+            lineas.append("")
+            lineas.append("  " + ETIQUETA[peor["gravedad"]])
+            if r.get("titulo"):
+                lineas.append("    " + r["titulo"][:ancho - 4])
+            lineas.append("    " + nombre(r))
+            for a in frescos:
+                fecha = " (%s)" % a["fecha"] if a.get("fecha") else ""
+                if a.get("doi_aviso"):
+                    enlace = "https://doi.org/" + a["doi_aviso"]
+                elif a.get("pmid_aviso"):
+                    enlace = "https://pubmed.ncbi.nlm.nih.gov/%s/" % a["pmid_aviso"]
+                else:
+                    enlace = "(no link published)"
+                via = "  [per PubMed]" if a.get("fuente") == "pubmed" else ""
+                lineas.append("      → %s%s: %s%s" % (a.get("etiqueta") or a["tipo"],
+                                                      fecha, enlace, via))
+
+    # A reference that was not in the file last time and arrives already carrying
+    # a notice. It is deliberately NOT filed under "new since": the retraction
+    # may be from 2019 and what is new is the reference, not the news. But it
+    # cannot be left out either — with --only-new, adding an already-retracted
+    # paper to a growing review would otherwise produce silence, and silence
+    # here reads as "clean".
+    recien = [r for r in cambios["nuevas"] if r["avisos"]]
+    if recien:
+        encabeza("NEW TO THIS FILE, AND ALREADY FLAGGED — %d reference(s)" % len(recien))
+        for r in sorted(recien, key=lambda r: -r["avisos"][0]["gravedad"]):
+            lineas.append("")
+            lineas.append("  " + ETIQUETA[r["avisos"][0]["gravedad"]])
+            if r.get("titulo"):
+                lineas.append("    " + r["titulo"][:ancho - 4])
+            lineas.append("    " + nombre(r))
+            for a in r["avisos"]:
+                fecha = " (%s)" % a["fecha"] if a.get("fecha") else ""
+                lineas.append("      → %s%s" % (a.get("etiqueta") or a["tipo"], fecha))
+
+    if cambios["ausentes"]:
+        encabeza("NO LONGER REPORTED — %d reference(s)" % len(cambios["ausentes"]))
+        lineas.append("    Both registers answered and no longer carry a notice this")
+        lineas.append("    file had seen. That can mean the retraction was reversed, or")
+        lineas.append("    that a record was edited. Neither register has a vocabulary")
+        lineas.append("    for a reinstatement, so refcheck cannot tell you which:")
+        lineas.append("    check it at retractiondatabase.org before acting on it.")
+        for r, idos in cambios["ausentes"]:
+            lineas.append("")
+            lineas.append("    " + nombre(r))
+            for a in idos:
+                fecha = " (%s)" % a["fecha"] if a.get("fecha") else ""
+                lineas.append("      was: %s%s" % (a.get("etiqueta") or a["tipo"], fecha))
+
+    if cambios["no_comprobados"]:
+        encabeza("COULD NOT CHECK TODAY — %d reference(s)" % len(cambios["no_comprobados"]))
+        lineas.append("    These carried a notice last time and today's lookup did not")
+        lineas.append("    answer. The notice below still stands as far as anyone knows.")
+        for r, previo in cambios["no_comprobados"]:
+            peor = max(previo["avisos"], key=lambda a: a.get("gravedad", 1))
+            lineas.append("")
+            lineas.append("    " + nombre(r))
+            lineas.append("      last known: %s" % ETIQUETA[peor.get("gravedad", 1)])
+    if not lineas:
+        return ""
+    cabecera = ["", "=" * ancho, "  WHAT CHANGED", "=" * ancho]
+    return "\n".join(cabecera + lineas)
+
+
 def main():
     p = argparse.ArgumentParser(
         description="Check whether the papers you cite carry a published correction, "
@@ -1728,7 +1993,28 @@ def main():
                         "return are ever sent there, and only to learn which "
                         "register owns them; without it, a mistyped DOI and an "
                         "arXiv preprint go back to sharing one 'not found' line")
+    p.add_argument("--watch", metavar="FILE",
+                   help="remember this run's verdicts in FILE and, next time, "
+                        "say what changed. Created on first use. The local cache "
+                        "is not read in this mode: 'nothing new' has to come from "
+                        "the registers, not from disk")
+    p.add_argument("--only-new", action="store_true",
+                   help="with --watch, print only what changed — and nothing at "
+                        "all when nothing did, so it can be run from cron")
     a = p.parse_args()
+
+    if a.only_new and not a.watch:
+        p.error("--only-new needs --watch")
+    if a.only_new and a.json:
+        p.error("--only-new and --json are different answers to different "
+                "questions; pick one")
+    estado_previo = None
+    if a.watch:
+        try:
+            estado_previo = lee_vigilancia(a.watch)
+        except (ValueError, json.JSONDecodeError) as e:
+            print("Cannot read the watch file: %s" % e, file=sys.stderr)
+            return 2
 
     if a.fichero == "-":
         texto = sys.stdin.read()
@@ -1747,7 +2033,11 @@ def main():
     # nothing and hiding a notice we hold would be under-warning on purpose.
     # The reverse is what must never happen, and lee_cache is what stops it.
     quiere = ("crossref",) if a.no_pubmed else REGISTROS
-    guardada = {} if a.no_cache else lee_cache(necesita=quiere)
+    # A watch run asks the registers even for answers it already has on disk.
+    # Otherwise a weekly watch inside the 7-day cache window would compare
+    # today's stored answer against yesterday's stored answer and report
+    # "nothing new" without anyone having been asked.
+    guardada = {} if (a.no_cache or a.watch) else lee_cache(necesita=quiere)
     # Only what is missing goes over the wire; the order the reader wrote is
     # rebuilt afterwards, so a cached run and a cold run read identically.
     nuevos = [d for d in dois if d.lower() not in guardada]
@@ -1795,11 +2085,41 @@ def main():
     if ruidoso:
         print("\r" + " " * 30 + "\r", end="", file=sys.stderr)
 
+    cambios = bloque = None
+    if a.watch:
+        if estado_previo is not None:
+            cambios = compara_vigilancia(estado_previo, resultados)
+            bloque = informe_vigilancia(cambios, estado_previo)
+
     if a.json:
         json.dump(resultados, sys.stdout, ensure_ascii=False, indent=1)
         print()
+    elif a.only_new:
+        if bloque:
+            print(bloque)
+        # No previous state means there is nothing to compare against, and a
+        # first run that printed the whole bibliography as "new" would train
+        # the reader to ignore this. The baseline is announced on stderr, so a
+        # cron job that mails stdout stays quiet.
+        elif estado_previo is None:
+            print("Baseline saved: %d reference(s). Run this again later to see "
+                  "what changed." % len(resultados), file=sys.stderr)
     else:
+        if bloque:
+            print(bloque)
         print(informe(resultados))
+        if estado_previo is None:
+            print("  Watching %d reference(s) from now on: %s"
+                  % (len(resultados), a.watch))
+
+    if a.watch:
+        try:
+            escribe_vigilancia(a.watch, actualiza_vigilancia(estado_previo, resultados))
+        except OSError as e:
+            # Said out loud, because a watch that silently failed to save would
+            # report the same news as new every single time it ran.
+            print("Could not write the watch file: %s" % e, file=sys.stderr)
+            return 2
 
     if any(r["avisos"] for r in resultados):
         return 1

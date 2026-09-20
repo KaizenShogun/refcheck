@@ -44,6 +44,12 @@ deciding what to read. Different shape of tool, not a better one.
 `refcheck` reads your bibliography and tells you which references carry a
 published change notice, what kind, and where to read it.
 
+And since 20 September 2026 it will also tell you what changed **since the last
+time you asked** — `--watch`, below. That is the same argument continued rather
+than abandoned: a permanent flag on every corrected paper would indeed be a mess,
+but "these three of your thousand references picked up a notice this month" is
+not a mess, it is the only part you have not already read.
+
 ## Use it in your browser — nothing to install
 
 **→ [kaizenshogun.github.io/refcheck](https://kaizenshogun.github.io/refcheck/)**
@@ -77,7 +83,7 @@ no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 130-check battery in a real headless browser against the real APIs.
+is driven by a 152-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -566,6 +572,122 @@ not a gap in it — 27.5% of PubMed records carry no DOI, and it is worst before
 Cost: one batched request to PubMed per run, and only ever about DOIs that
 already failed everywhere else.
 
+## Watch mode: the notice that arrives after you filed the paper away
+
+Checking a bibliography is a snapshot, and the thing that actually bites is the
+retraction published eighteen months after you wrote the paper. So:
+
+    python3 refcheck.py refs.nbib --watch watch.json
+
+The first run saves what every reference says today and tells you it is
+watching. Every later run compares, and puts what changed at the top:
+
+    ==============================================================================
+      WHAT CHANGED
+    ==============================================================================
+
+      NEW SINCE 2026-09-20 — 1 reference(s)
+      -------------------------------------
+
+      RETRACTED — do not cite this as evidence
+        Phosphorylation of PDE4A5 by MAPKAPK2 attenuates fibrin degradation via p7
+        10.1093/jb/mvz016 (PMID 30859186)
+          → Retraction (2022-10-14): https://doi.org/10.1093/jb/mvac074
+
+Add `--only-new` and it prints *nothing at all* when nothing changed, which is
+what makes it runnable from cron without writing any glue:
+
+    0 7 * * 1  cd ~/review && python3 refcheck.py refs.nbib --watch watch.json --only-new
+
+(The exit code still means what it always meant — 1 if any reference carries a
+notice, 2 if something could not be checked. What means "there is news" is that
+there is output. Cron mails you on output, which is the behaviour you want.)
+
+A reference you *added* since last time, which arrives already carrying a notice,
+gets its own heading — `NEW TO THIS FILE, AND ALREADY FLAGGED` — rather than
+being filed under "new since". The retraction may be from 2019; what is new is
+the reference, and calling that this month's news would devalue the words. It is
+its own block because leaving it out was a real bug in the first version of this:
+adding an already-retracted paper to a growing review produced, under
+`--only-new`, complete silence.
+
+### Why this is not a second copy of Zotero's feature
+
+Zotero, EndNote, LibKey and Papers all flag retracted items in your library, and
+all four read one source: the Retraction Watch database. That is the right source
+for retractions and it is not the whole problem, so before writing any of this I
+measured the hole.
+
+Take the 1,600 papers Crossref marks with a change notice in the corpus frozen on
+2026-09-12 — 400 each of retraction, expression of concern, correction and
+erratum — and ask whether Retraction Watch holds that paper at all
+(`research/measure_rw_coverage.py`, 2026-09-20, against a copy of the RW CSV
+downloaded the same day):
+
+| Crossref says | n | in Retraction Watch | invisible to an RW-only checker |
+|---|---:|---:|---:|
+| retraction | 400 | 87.0% | 13.0% |
+| expression of concern | 400 | 42.5% | 57.5% |
+| erratum | 400 | 3.2% | **96.8%** |
+| correction | 400 | 1.2% | **98.8%** |
+
+Retractions are the control, not the headline: retractions are Retraction Watch's
+entire subject, so if the crosswalk claimed it held few of them, the crosswalk
+would be broken and not the database. It holds 87%. A positive control samples
+500 DOIs out of the CSV itself and finds 500 through the same normaliser.
+
+And the absences were second-guessed rather than assumed. RW has 5,946 rows
+(of 72,621) with no usable original DOI, so a DOI-only crosswalk could in
+principle be missing papers that are in there under no identifier. I asked
+Crossref for the titles of 40 absent papers per population and looked each title
+up in the CSV: **1 of 160** turned up that way. The absences are real.
+
+None of that makes RW worse at its job — a routine erratum is not misconduct and
+is not what RW is for. It does mean that watching a bibliography through RW alone
+leaves roughly ninety-eight corrections in a hundred invisible, and for someone
+screening a systematic review an erratum that changes a table is not a footnote.
+
+### The three rules it will not break
+
+1. **A failed lookup is never reported as good news.** If a reference carried a
+   retraction last time and today's lookup times out — or Crossref has no record
+   — it goes under `COULD NOT CHECK TODAY` with `last known: RETRACTED`, and the
+   state file keeps the retraction. "It is fine now" on the strength of a
+   timeout is the most expensive sentence this tool could produce.
+2. **A watch run does not read the local cache.** The cache keeps an answer for
+   7 days; a weekly watch would otherwise compare a stored answer against itself
+   and report "nothing new" without having asked anybody. It still *writes* the
+   cache, which helps the next ordinary run and misleads no one.
+3. **References that leave your file are kept, not pruned.** Point `--watch` at
+   the wrong file once and you would otherwise destroy the only baseline you
+   have. Stale entries cost a few hundred bytes.
+
+A notice really disappearing *is* reported, under `NO LONGER REPORTED`, and it is
+deliberately not phrased as good news: neither register has a vocabulary for a
+reinstatement (see below — 31 of 155 reinstated papers are still served as
+retracted), so refcheck cannot tell a reversal from an edited record and sends
+you to retractiondatabase.org instead of guessing.
+
+The state file is written `600` and never leaves your machine. It holds DOIs,
+notice DOIs and dates — the same reasoning as the cache: it is a list of what
+somebody has been reading, and it stays with them.
+
+### What it costs
+
+Because rule 2 turns the cache off, a watch run always costs a cold run. Measured
+on 2026-09-20 with the 1,000-record PubMed export (7.3 MB), minutes apart:
+
+| | |
+|---|---:|
+| watch run, nothing changed | **71 s**, and *zero bytes* of output |
+| ordinary run, warm cache, for comparison | 6 s (987 answers from disk) |
+
+That 71 s is the price every time, not a first-run cost — there is no second run
+that gets cheaper, by design. The state file for those 1,000 references is 259 kB.
+
+Run it weekly or monthly, not hourly. The registers are free and public, and this
+is a bibliography that does not change.
+
 ## What else is out there
 
 This space is crowded, and I would rather send you to a better tool than keep you
@@ -573,12 +695,19 @@ here. I checked before building, missed something, corrected it, and checked
 again on 2026-09-08. The honest landscape:
 
 - **[Zotero](https://www.zotero.org/) + [Retraction Watch](https://retractionwatch.com/)** —
-  excellent, free, already inside the tool most researchers use. Retractions only.
+  excellent, free, already inside the tool most researchers use, and it watches
+  your library continuously, which for retractions is more than this does. Its
+  source is the RW database: measured on 2026-09-20 that holds 87.0% of the
+  retractions Crossref marks and 1.2% of the corrections (table above). **EndNote,
+  LibKey and Papers** flag retractions from the same database, so the same ceiling
+  applies to all four.
 - **[CiteGuard](https://github.com/lonexreb/cite-guard)** (`pip install retractguard`) —
   OpenAlex-native, and it *does* cover corrections and expressions of concern.
   If you want an institution-scale watchdog with a package behind it, look there
-  first. I found it after publishing this, which says more about my search than
-  about their work.
+  first. It has a watch of its own, `watch_institution`, but from its README that
+  one watches an institution by ROR id rather than a file of yours — a different
+  question for a different reader. I found CiteGuard after publishing this, which
+  says more about my search than about their work.
 - **[RefIntegrity](https://refintegrity.com/)** — free, no login, upload a whole
   `.bib` or `.ris`. Checks against Retraction Watch: retractions.
 - **[Scholar Sidekick](https://scholar-sidekick.com/tools/retraction-checker)** —
@@ -895,6 +1024,10 @@ it and one command.
   says so instead of pretending they came back clean.
 - **Not a citation checker.** It does not tell you whether the paper says what
   you claim it says. Nothing does that for you yet.
+- **Not a service that watches for you.** `--watch` compares this run against the
+  last one; it is not a daemon, it has no server, and it will never email you.
+  Nothing happens unless you run it — put the cron line above in your crontab and
+  the scheduling is yours, on your machine, with your reading list.
 
 ## When Crossref contradicts itself, you get told
 
@@ -955,14 +1088,14 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 167 offline, 8 network cases skipped
-REFCHECK_RED=1 python3 test_refcheck.py   # all 175, adding the live-API cases
+python3 test_refcheck.py                  # 225 offline, 10 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 235, adding the live-API cases
 ```
 
 "Offline" is checked rather than promised:
 
 ```
-REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 167 must pass
+REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 225 must pass
 ```
 
 That caught two tests on 2026-09-15. A mocked batch that finds nothing now sends
@@ -980,7 +1113,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 130 checks driving the real page in
+The browser version has its own battery — 152 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:

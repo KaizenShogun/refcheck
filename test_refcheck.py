@@ -2372,6 +2372,309 @@ class PuntuacionContraPatronOro(unittest.TestCase):
         self.assertIn("avisado", self.m.ORDEN)
 
 
+def _vigilada(doi, avisos=(), estado="ok", titulo="T"):
+    return {"doi": doi, "estado": estado, "titulo": titulo, "avisos": list(avisos)}
+
+
+def _notificacion(tipo="retraction", gravedad=3, fecha="2024-01-01", doi_aviso="10.5555/rrr",
+           fuente="crossref", **extra):
+    a = {"tipo": tipo, "gravedad": gravedad, "fecha": fecha, "doi_aviso": doi_aviso,
+         "etiqueta": tipo.title(), "fuente": fuente, "contradice": []}
+    a.update(extra)
+    return a
+
+
+class Vigilancia(unittest.TestCase):
+    """The diff itself: what counts as news, and what must never be called news."""
+
+    def _estado(self, resultados):
+        return refcheck.actualiza_vigilancia(None, resultados, ahora=1_000_000)
+
+    def test_lo_mismo_dos_veces_no_es_noticia(self):
+        r = [_vigilada("10.5555/a", [_notificacion()])]
+        cambios = refcheck.compara_vigilancia(self._estado(r), r)
+        self.assertEqual(cambios["nuevos"], [])
+        self.assertEqual(cambios["ausentes"], [])
+        self.assertEqual(cambios["nuevas"], [])
+
+    def test_un_aviso_nuevo_sale(self):
+        antes = self._estado([_vigilada("10.5555/a")])
+        ahora = [_vigilada("10.5555/a", [_notificacion()])]
+        cambios = refcheck.compara_vigilancia(antes, ahora)
+        self.assertEqual(len(cambios["nuevos"]), 1)
+        self.assertEqual(cambios["nuevos"][0][1][0]["doi_aviso"], "10.5555/rrr")
+        texto = refcheck.informe_vigilancia(cambios, antes)
+        self.assertIn("NEW SINCE", texto)
+        self.assertIn("RETRACTED", texto)
+
+    def test_un_segundo_aviso_sobre_un_paper_ya_avisado_sale(self):
+        """The paper was already corrected; today it is retracted. A diff that
+        only looked at "does it carry a notice" would say nothing at all."""
+        antes = self._estado([_vigilada("10.5555/a", [_notificacion("correction", 1, "2023-01-01",
+                                                          "10.5555/ccc")])])
+        ahora = [_vigilada("10.5555/a", [_notificacion(), _notificacion("correction", 1, "2023-01-01",
+                                                       "10.5555/ccc")])]
+        cambios = refcheck.compara_vigilancia(antes, ahora)
+        self.assertEqual(len(cambios["nuevos"]), 1)
+        self.assertEqual([a["tipo"] for a in cambios["nuevos"][0][1]], ["retraction"])
+
+    def test_un_fallo_de_consulta_NO_es_una_retractacion_levantada(self):
+        """The expensive one. The state holds a retraction, today's lookup
+        failed, and the only honest answer is "could not check"."""
+        antes = self._estado([_vigilada("10.5555/a", [_notificacion()])])
+        ahora = [_vigilada("10.5555/a", [], estado="sin_comprobar")]
+        cambios = refcheck.compara_vigilancia(antes, ahora)
+        self.assertEqual(cambios["ausentes"], [], "reported a notice as gone on a failed lookup")
+        self.assertEqual(len(cambios["no_comprobados"]), 1)
+        texto = refcheck.informe_vigilancia(cambios, antes)
+        self.assertIn("COULD NOT CHECK TODAY", texto)
+        self.assertNotIn("NO LONGER REPORTED", texto)
+        self.assertIn("last known: " + refcheck.ETIQUETA[3], texto)
+
+    def test_un_no_encontrado_tampoco_levanta_la_retractacion(self):
+        """`desconocido` is a real answer from Crossref about nothing: the DOI
+        has no record. It is still not evidence that a retraction was undone."""
+        antes = self._estado([_vigilada("10.5555/a", [_notificacion()])])
+        cambios = refcheck.compara_vigilancia(
+            antes, [_vigilada("10.5555/a", [], estado="desconocido")])
+        self.assertEqual(cambios["ausentes"], [])
+        self.assertEqual(len(cambios["no_comprobados"]), 1)
+
+    def test_un_fallo_no_borra_lo_que_se_sabia(self):
+        antes = self._estado([_vigilada("10.5555/a", [_notificacion()])])
+        despues = refcheck.actualiza_vigilancia(
+            antes, [_vigilada("10.5555/a", [], estado="sin_comprobar")], ahora=2_000_000)
+        self.assertEqual(len(despues["vistas"]["10.5555/a"]["avisos"]), 1)
+
+    def test_una_desaparicion_de_verdad_si_sale(self):
+        antes = self._estado([_vigilada("10.5555/a", [_notificacion()])])
+        cambios = refcheck.compara_vigilancia(antes, [_vigilada("10.5555/a", [])])
+        self.assertEqual(len(cambios["ausentes"]), 1)
+        texto = refcheck.informe_vigilancia(cambios, antes)
+        self.assertIn("NO LONGER REPORTED", texto)
+        # Not announced as good news: neither register can express a
+        # reinstatement, so the reader is sent to the one source that can.
+        self.assertIn("retractiondatabase.org", texto)
+
+    def test_el_mismo_aviso_con_otro_nombre_no_es_nuevo(self):
+        """Seen through PubMed with only a PMID, later deposited in Crossref
+        with a DOI. Same severity, same date, same event — announcing it would
+        teach the reader that "new" sometimes means "renamed"."""
+        antes = self._estado([_vigilada("10.5555/a", [
+            _notificacion(doi_aviso="", fuente="pubmed", pmid_aviso="12345")])])
+        cambios = refcheck.compara_vigilancia(
+            antes, [_vigilada("10.5555/a", [_notificacion(doi_aviso="10.5555/rrr")])])
+        self.assertEqual(cambios["nuevos"], [])
+        self.assertEqual(cambios["ausentes"], [])
+
+    def test_dos_avisos_sin_fecha_no_se_confunden(self):
+        """The severity+date shortcut above must not fire on two notices that
+        merely share a missing field."""
+        antes = self._estado([_vigilada("10.5555/a", [
+            _notificacion(fecha="", doi_aviso="10.5555/uno")])])
+        cambios = refcheck.compara_vigilancia(
+            antes, [_vigilada("10.5555/a", [_notificacion(fecha="", doi_aviso="10.5555/dos")])])
+        self.assertEqual(len(cambios["nuevos"]), 1)
+
+    def test_una_referencia_nueva_no_es_una_noticia(self):
+        antes = self._estado([_vigilada("10.5555/a")])
+        cambios = refcheck.compara_vigilancia(
+            antes, [_vigilada("10.5555/a"), _vigilada("10.5555/b", [_notificacion()])])
+        self.assertEqual(cambios["nuevos"], [])
+        self.assertEqual([r["doi"] for r in cambios["nuevas"]], ["10.5555/b"])
+        texto = refcheck.informe_vigilancia(cambios, antes)
+        self.assertNotIn("NEW SINCE", texto,
+                         "a notice from 2019 is not news from this month")
+        self.assertIn("NEW TO THIS FILE, AND ALREADY FLAGGED", texto)
+
+    def test_una_referencia_nueva_y_limpia_no_dice_nada(self):
+        antes = self._estado([_vigilada("10.5555/a")])
+        cambios = refcheck.compara_vigilancia(
+            antes, [_vigilada("10.5555/a"), _vigilada("10.5555/b")])
+        self.assertEqual(refcheck.informe_vigilancia(cambios, antes), "",
+                         "a bibliography that merely grew is not news")
+
+    def test_lo_que_sale_del_fichero_se_conserva(self):
+        """Pointing --watch at the wrong file for one run must not destroy the
+        baseline."""
+        antes = self._estado([_vigilada("10.5555/a", [_notificacion()]), _vigilada("10.5555/b")])
+        despues = refcheck.actualiza_vigilancia(antes, [_vigilada("10.5555/b")],
+                                                ahora=2_000_000)
+        self.assertIn("10.5555/a", despues["vistas"])
+
+    def test_el_doi_reparado_se_guarda_por_el_articulo(self):
+        """Stored under the repaired DOI, because that is the paper. The broken
+        spelling belongs to one person's file and is never persisted."""
+        r = _vigilada("10.1002/cncr.24840", [_notificacion()])
+        r["doi_citado"] = "10.1002/cncr.2484020087961"
+        estado = self._estado([r])
+        self.assertIn("10.1002/cncr.24840", estado["vistas"])
+        self.assertNotIn("10.1002/cncr.2484020087961", estado["vistas"])
+        self.assertNotIn("doi_citado", json.dumps(estado))
+
+    def test_un_pmid_sin_doi_tambien_se_vigila(self):
+        r = {"doi": "", "pmid": "9500320", "estado": "pmid_sin_doi", "avisos": []}
+        self.assertEqual(refcheck.clave_vigilada(r), "pmid:9500320")
+
+    def test_lo_que_no_se_puede_identificar_no_se_guarda(self):
+        estado = self._estado([{"doi": "", "estado": "sin_comprobar", "avisos": []}])
+        self.assertEqual(estado["vistas"], {})
+
+    def test_sin_cambios_no_se_imprime_nada(self):
+        r = [_vigilada("10.5555/a", [_notificacion()])]
+        cambios = refcheck.compara_vigilancia(self._estado(r), r)
+        self.assertEqual(refcheck.informe_vigilancia(cambios, self._estado(r)), "")
+
+    def test_un_fichero_corrupto_no_es_un_estado_vacio(self):
+        d = _tmpdir(self)
+        ruta = os.path.join(d, "watch.json")
+        with open(ruta, "w", encoding="utf-8") as f:
+            f.write('{"something": "else"}')
+        with self.assertRaises(ValueError):
+            refcheck.lee_vigilancia(ruta)
+
+    def test_el_fichero_es_privado(self):
+        d = _tmpdir(self)
+        ruta = os.path.join(d, "watch.json")
+        refcheck.escribe_vigilancia(ruta, self._estado([_vigilada("10.5555/a")]))
+        self.assertEqual(os.stat(ruta).st_mode & 0o777, 0o600)
+
+
+class VigilanciaEnLaCLI(unittest.TestCase):
+    """End to end: the file on disk, the block on screen, and the promise that
+    a watch run does not answer out of the cache."""
+
+    def setUp(self):
+        self.dir = _tmpdir(self)
+        self.cache = os.path.join(self.dir, "checked.json")
+        self.watch = os.path.join(self.dir, "watch.json")
+        self.refs = os.path.join(self.dir, "refs.txt")
+        with open(self.refs, "w", encoding="utf-8") as f:
+            f.write("10.5555/aaa\n10.5555/bbb\n")
+        self.obras = {"10.5555/aaa": {"DOI": "10.5555/aaa", "title": ["Uno"]},
+                      "10.5555/bbb": {"DOI": "10.5555/bbb", "title": ["Dos"]}}
+
+    def _retracta(self, doi):
+        self.obras[doi]["updated-by"] = [
+            {"type": "retraction", "label": "Retraction", "DOI": "10.5555/rrr",
+             "updated": {"date-parts": [[2026, 9, 20]]}}]
+
+    def _corre(self, argv):
+        llamadas = []
+
+        def falso_lote(dois, reintentos=3):
+            llamadas.append(list(dois))
+            return {d.lower(): self.obras[d.lower()] for d in dois
+                    if d.lower() in self.obras}
+
+        salida, err = io.StringIO(), io.StringIO()
+        with mock.patch.object(refcheck, "consulta_lote", falso_lote), \
+             mock.patch.object(refcheck, "fusiona_pubmed", lambda r, avisa=None: None), \
+             mock.patch.object(refcheck, "ruta_cache", lambda: self.cache), \
+             mock.patch.object(sys, "argv", argv), \
+             mock.patch.object(sys, "stderr", err), \
+             mock.patch.object(sys, "stdout", salida):
+            codigo = refcheck.main()
+        return codigo, salida.getvalue(), err.getvalue(), llamadas
+
+    def test_la_primera_vez_guarda_la_linea_base(self):
+        c, texto, _, _ = self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self.assertEqual(c, 0)
+        self.assertNotIn("WHAT CHANGED", texto)
+        self.assertIn("Watching 2 reference(s)", texto)
+        with open(self.watch, encoding="utf-8") as f:
+            estado = json.load(f)
+        self.assertEqual(sorted(estado["vistas"]), ["10.5555/aaa", "10.5555/bbb"])
+
+    def test_la_retractacion_que_llega_despues(self):
+        """The whole reason this mode exists: the notice published after the
+        reference was filed away."""
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self._retracta("10.5555/aaa")
+        c, texto, _, _ = self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self.assertEqual(c, 1)
+        self.assertIn("WHAT CHANGED", texto)
+        self.assertIn("NEW SINCE", texto)
+        self.assertIn("10.5555/aaa", texto.split("NEW SINCE")[1])
+        # And it is not announced twice: a third run has nothing to say.
+        _, tercero, _, _ = self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self.assertNotIn("WHAT CHANGED", tercero)
+
+    def test_una_tirada_de_vigilancia_no_contesta_desde_la_cache(self):
+        """A weekly watch inside the 7-day cache window would otherwise compare
+        yesterday's stored answer with itself and report "nothing new" without
+        anybody having been asked."""
+        self._corre(["refcheck.py", self.refs])                      # fill the cache
+        _, _, _, llamadas = self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self.assertEqual(len(llamadas), 1, "a watch run served itself from disk")
+        self.assertEqual(sorted(llamadas[0]), ["10.5555/aaa", "10.5555/bbb"])
+
+    def test_la_cache_si_se_escribe(self):
+        """Not reading it is the promise; refusing to write it would just make
+        the next ordinary run slower for no one's benefit."""
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        _, _, _, llamadas = self._corre(["refcheck.py", self.refs])
+        self.assertEqual(llamadas, [])
+
+    def test_only_new_calla_cuando_no_hay_nada(self):
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        c, texto, err, _ = self._corre(["refcheck.py", self.refs, "--watch",
+                                        self.watch, "--only-new"])
+        self.assertEqual(texto, "", "a quiet run must produce no output at all")
+        self.assertEqual(err, "")
+        self._retracta("10.5555/bbb")
+        c, texto, _, _ = self._corre(["refcheck.py", self.refs, "--watch",
+                                      self.watch, "--only-new"])
+        self.assertIn("NEW SINCE", texto)
+        self.assertNotIn("reference(s) checked", texto,
+                         "--only-new printed the whole report")
+
+    def test_una_referencia_anadida_ya_retractada_no_pasa_en_silencio(self):
+        """Growing a review by one already-retracted paper, watched from cron.
+        Before this was written, --only-new said nothing at all."""
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self.obras["10.5555/ccc"] = {"DOI": "10.5555/ccc", "title": ["Tres"]}
+        self._retracta("10.5555/ccc")
+        with open(self.refs, "a", encoding="utf-8") as f:
+            f.write("10.5555/ccc\n")
+        _, texto, _, _ = self._corre(["refcheck.py", self.refs, "--watch",
+                                      self.watch, "--only-new"])
+        self.assertIn("ALREADY FLAGGED", texto)
+        self.assertIn("10.5555/ccc", texto)
+        self.assertNotIn("NEW SINCE", texto)
+
+    def test_only_new_en_la_primera_tirada_no_vomita_la_bibliografia(self):
+        c, texto, err, _ = self._corre(["refcheck.py", self.refs, "--watch",
+                                        self.watch, "--only-new"])
+        self.assertEqual(texto, "")
+        self.assertIn("Baseline saved", err)
+
+    def test_only_new_sin_watch_no_arranca(self):
+        with self.assertRaises(SystemExit):
+            self._corre(["refcheck.py", self.refs, "--only-new"])
+
+    def test_un_watch_que_no_se_puede_escribir_lo_dice(self):
+        """A watch that silently failed to save would report the same news as
+        new every single time it ran."""
+        self._retracta("10.5555/aaa")
+        ruta = os.path.join(self.dir, "no", "such", "dir", "w.json")
+        with mock.patch.object(refcheck, "escribe_vigilancia",
+                               side_effect=OSError("read-only file system")):
+            c, _, err, _ = self._corre(["refcheck.py", self.refs, "--watch", ruta])
+        self.assertEqual(c, 2)
+        self.assertIn("Could not write the watch file", err)
+
+    def test_un_fichero_corrupto_para_la_tirada(self):
+        with open(self.watch, "w", encoding="utf-8") as f:
+            f.write("not json at all")
+        c, _, err, _ = self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self.assertEqual(c, 2)
+        self.assertIn("Cannot read the watch file", err)
+        # And the file it could not understand is still there, unwritten.
+        with open(self.watch, encoding="utf-8") as f:
+            self.assertEqual(f.read(), "not json at all")
+
+
 if __name__ == "__main__":
     if os.environ.get("REFCHECK_SIN_RED") == "1":
         # Enforces the promise in the module docstring instead of trusting it.
