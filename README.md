@@ -672,6 +672,12 @@ The state file is written `600` and never leaves your machine. It holds DOIs,
 notice DOIs and dates — the same reasoning as the cache: it is a list of what
 somebody has been reading, and it stays with them.
 
+One limitation, said rather than hidden: `--watch --json` keeps the state file up
+to date but prints the ordinary result list, with no machine-readable diff. The
+JSON shape is what pipelines already parse and I am not going to change it for a
+feature nobody has asked for yet; if you want the diff from a script today, read
+the two state files, which are plain JSON.
+
 ### What it costs
 
 Because rule 2 turns the cache off, a watch run always costs a cold run. Measured
