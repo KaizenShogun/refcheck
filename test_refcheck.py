@@ -6,6 +6,7 @@ What is actually being defended here: the DOI extractor (it eats messy files
 written by tired people) and the severity ordering (a retraction must never be
 reported below a correction).
 """
+import copy
 import io
 import json
 import os
@@ -2538,6 +2539,290 @@ class Vigilancia(unittest.TestCase):
         ruta = os.path.join(d, "watch.json")
         refcheck.escribe_vigilancia(ruta, self._estado([_vigilada("10.5555/a")]))
         self.assertEqual(os.stat(ruta).st_mode & 0o777, 0o600)
+
+
+class UnRegistroCalladoNoLevantaNada(unittest.TestCase):
+    """The hole in the rule above, found on 2026-09-21 while porting it.
+
+    "Only a run that actually got an answer may claim a notice is gone" was
+    being enforced per REFERENCE, on `estado`. A run where Crossref answered
+    and NCBI timed out keeps estado "ok" and carries `pubmed_error`, so every
+    notice the state held from PubMed looked absent — and was announced under
+    NO LONGER REPORTED, beneath a sentence that read "Both registers answered".
+
+    It is not a corner: PubMed-only notices are the entire reason the second
+    register is asked, one corrected paper in five. The most valuable thing
+    this tool holds was the thing a timeout could lift.
+    """
+
+    def _estado(self, resultados):
+        return refcheck.actualiza_vigilancia(None, resultados, ahora=1_000_000)
+
+    def _solo_pubmed(self):
+        return _notificacion(doi_aviso="", fuente="pubmed", pmid_aviso="31111111")
+
+    def test_pubmed_mudo_no_levanta_su_propia_retractacion(self):
+        antes = self._estado([_vigilada("10.5555/a", [self._solo_pubmed()])])
+        hoy = _vigilada("10.5555/a", [])
+        hoy["pubmed_error"] = "timeout"
+        cambios = refcheck.compara_vigilancia(antes, [hoy])
+        self.assertEqual(cambios["ausentes"], [],
+                         "lifted a retraction on the strength of a timeout")
+        self.assertEqual(len(cambios["no_comprobados"]), 1)
+        texto = refcheck.informe_vigilancia(cambios, antes)
+        self.assertIn("COULD NOT CHECK TODAY", texto)
+        self.assertNotIn("NO LONGER REPORTED", texto)
+        self.assertIn("pubmed did not answer this run", texto)
+
+    def test_pubmed_mudo_no_borra_el_aviso_del_estado(self):
+        """And it must not be forgotten either: dropping it here means the next
+        run that DOES reach NCBI announces a 2019 retraction as new."""
+        antes = self._estado([_vigilada("10.5555/a", [self._solo_pubmed()])])
+        hoy = _vigilada("10.5555/a", [])
+        hoy["pubmed_error"] = "timeout"
+        despues = refcheck.actualiza_vigilancia(antes, [hoy], ahora=2_000_000)
+        guardados = despues["vistas"]["10.5555/a"]["avisos"]
+        self.assertEqual([a["fuente"] for a in guardados], ["pubmed"])
+        # …and the run after that, with NCBI back, is silent rather than loud.
+        cambios = refcheck.compara_vigilancia(
+            despues, [_vigilada("10.5555/a", [self._solo_pubmed()])])
+        self.assertEqual(cambios["nuevos"], [])
+
+    def test_lo_que_crossref_si_contesto_sigue_saliendo(self):
+        """The control. Narrowing the rule must not gag the register that DID
+        answer: a Crossref notice that really went away is still news."""
+        antes = self._estado([_vigilada("10.5555/a", [
+            _notificacion(), self._solo_pubmed()])])
+        hoy = _vigilada("10.5555/a", [])
+        hoy["pubmed_error"] = "timeout"
+        cambios = refcheck.compara_vigilancia(antes, [hoy])
+        self.assertEqual(len(cambios["ausentes"]), 1)
+        self.assertEqual([a["fuente"] for a in cambios["ausentes"][0][1]], ["crossref"])
+        self.assertEqual(len(cambios["no_comprobados"]), 1)
+        texto = refcheck.informe_vigilancia(cambios, antes)
+        self.assertIn("NO LONGER REPORTED", texto)
+        self.assertIn("COULD NOT CHECK TODAY", texto)
+
+    def test_con_pubmed_vivo_la_desaparicion_es_desaparicion(self):
+        antes = self._estado([_vigilada("10.5555/a", [self._solo_pubmed()])])
+        cambios = refcheck.compara_vigilancia(antes, [_vigilada("10.5555/a", [])])
+        self.assertEqual(len(cambios["ausentes"]), 1)
+        self.assertEqual(cambios["no_comprobados"], [])
+
+    def test_la_frase_ya_no_afirma_que_contestaron_los_dos(self):
+        """The wording was part of the bug: it asserted something the code had
+        not checked, and did it in the one block a reader acts on."""
+        antes = self._estado([_vigilada("10.5555/a", [_notificacion()])])
+        texto = refcheck.informe_vigilancia(
+            refcheck.compara_vigilancia(antes, [_vigilada("10.5555/a", [])]), antes)
+        self.assertNotIn("Both registers answered", texto)
+        self.assertIn("The register that reported this notice answered today", texto)
+
+
+# The baseline and today, as the two codebases both see them. Written out in
+# full rather than built with the helpers, because this fixture is the contract
+# between two implementations and it should be readable as one.
+VIGILANCIA_ANTES = [
+    # a plain Crossref retraction
+    {"doi": "10.5555/a", "estado": "ok", "titulo": "A", "avisos": [
+        {"tipo": "retraction", "gravedad": 3, "fecha": "2024-01-01",
+         "doi_aviso": "10.5555/rrr", "pmid_aviso": "", "etiqueta": "Retraction",
+         "fuente": "crossref"}]},
+    # a notice only PubMed knows about, with no DOI of its own
+    {"doi": "10.5555/b", "estado": "ok", "titulo": "B", "avisos": [
+        {"tipo": "correction", "gravedad": 1, "fecha": "2021", "doi_aviso": "",
+         "pmid_aviso": "31111111", "etiqueta": "Correction", "fuente": "pubmed"}]},
+    # one of each register on the same paper
+    {"doi": "10.5555/c", "estado": "ok", "titulo": "C", "avisos": [
+        {"tipo": "retraction", "gravedad": 3, "fecha": "2020-02-02",
+         "doi_aviso": "10.5555/ccc", "pmid_aviso": "", "etiqueta": "Retraction",
+         "fuente": "crossref"},
+        {"tipo": "expression_of_concern", "gravedad": 2, "fecha": "2019",
+         "doi_aviso": "", "pmid_aviso": "22222222", "etiqueta": "Expression Of Concern",
+         "fuente": "pubmed"}]},
+    {"doi": "10.5555/d", "estado": "ok", "titulo": "D", "avisos": []},
+    # watched under its PMID, because PubMed lists no DOI for it
+    {"doi": "", "pmid": "9500320", "estado": "pmid_sin_doi", "titulo": "E", "avisos": []},
+    # leaves the file today: must survive in the state, not be reported
+    {"doi": "10.5555/f", "estado": "ok", "titulo": "F", "avisos": []},
+]
+
+VIGILANCIA_HOY = [
+    # unchanged
+    {"doi": "10.5555/a", "estado": "ok", "titulo": "A", "avisos": [
+        {"tipo": "retraction", "gravedad": 3, "fecha": "2024-01-01",
+         "doi_aviso": "10.5555/rrr", "pmid_aviso": "", "etiqueta": "Retraction",
+         "fuente": "crossref"}]},
+    # NCBI timed out: its notice is neither gone nor forgotten
+    {"doi": "10.5555/b", "estado": "ok", "titulo": "B", "avisos": [],
+     "pubmed_error": "timeout"},
+    # Crossref's notice really went away; PubMed's is unreachable this run
+    {"doi": "10.5555/c", "estado": "ok", "titulo": "C", "avisos": [],
+     "pubmed_error": "timeout"},
+    # the lookup itself failed
+    {"doi": "10.5555/d", "estado": "sin_comprobar", "titulo": "D", "avisos": []},
+    # the PMID-only one is retracted today
+    {"doi": "", "pmid": "9500320", "estado": "ok", "titulo": "E", "avisos": [
+        {"tipo": "retraction", "gravedad": 3, "fecha": "2025-03-03", "doi_aviso": "",
+         "pmid_aviso": "33333333", "etiqueta": "Retraction", "fuente": "pubmed"}]},
+    # new to the file, and already retracted: the reference is the news, not the notice
+    {"doi": "10.5555/g", "estado": "ok", "titulo": "G", "avisos": [
+        {"tipo": "retraction", "gravedad": 3, "fecha": "2019-09-09",
+         "doi_aviso": "10.5555/ggg", "pmid_aviso": "", "etiqueta": "Retraction",
+         "fuente": "crossref"}]},
+    # new, clean, and therefore silent
+    {"doi": "10.5555/h", "estado": "ok", "titulo": "H", "avisos": []},
+    # identifiable by neither DOI nor PMID: cannot be watched at all
+    {"doi": "", "estado": "sin_comprobar", "titulo": "", "avisos": []},
+]
+
+
+class ParidadDeLaVigilancia(unittest.TestCase):
+    """The CLI and the page must watch a bibliography the same way.
+
+    This is the third rule that lives in two codebases at once, and both of the
+    earlier ones turned out to have been quietly disagreeing for months: the DOI
+    cleaner (found 2026-09-17) and the glued-PMID rescue. Here a disagreement
+    would be worse than either, because the file crosses between them — someone
+    can start on the page and carry on in a terminal — so a drift in what counts
+    as news would show up as a bibliography suddenly reporting everything as new,
+    or worse, as nothing.
+    """
+
+    @staticmethod
+    def _bloque():
+        ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "docs", "index.html")
+        with open(ruta, encoding="utf-8") as fh:
+            html = fh.read()
+        m = re.search(r"// <watch-state>(.*?)// </watch-state>", html, re.S)
+        return m.group(1) if m else None
+
+    def _js(self, cuerpo):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node no está instalado")
+        bloque = self._bloque()
+        self.assertIsNotNone(bloque)
+        guion = (bloque +
+                 "\nconst ANTES = " + json.dumps(VIGILANCIA_ANTES) + ";\n"
+                 "const HOY = " + json.dumps(VIGILANCIA_HOY) + ";\n" + cuerpo)
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False,
+                                         encoding="utf-8") as fh:
+            fh.write(guion)
+            tmp = fh.name
+        try:
+            salida = subprocess.run([node, tmp], capture_output=True, text=True,
+                                    timeout=30)
+            self.assertEqual(salida.returncode, 0, salida.stderr)
+            return json.loads(salida.stdout)
+        finally:
+            os.unlink(tmp)
+
+    @staticmethod
+    def _resumen_py():
+        cv, ca = refcheck.clave_vigilada, refcheck.clave_aviso
+        antes = refcheck.actualiza_vigilancia(None, copy.deepcopy(VIGILANCIA_ANTES),
+                                              ahora=1_000_000)
+        hoy = copy.deepcopy(VIGILANCIA_HOY)
+        cambios = refcheck.compara_vigilancia(antes, hoy)
+        resumen = {
+            "claves": [cv(r) for r in hoy],
+            "nuevos": [[cv(r), [ca(a) for a in fr]] for r, fr in cambios["nuevos"]],
+            "ausentes": [[cv(r), [a["clave"] for a in idos]]
+                         for r, idos in cambios["ausentes"]],
+            "noComprobados": [[cv(r), [a["clave"] for a in previo["avisos"]]]
+                              for r, previo in cambios["no_comprobados"]],
+            "nuevas": [cv(r) for r in cambios["nuevas"]],
+        }
+        resumen["estadoFinal"] = refcheck.actualiza_vigilancia(antes, hoy,
+                                                              ahora=2_000_000)
+        return resumen
+
+    def test_el_bloque_sigue_delimitado(self):
+        self.assertIsNotNone(self._bloque(),
+                             "los marcadores <watch-state> han desaparecido de "
+                             "docs/index.html: la paridad ya no se está probando")
+
+    def test_el_mismo_veredicto_en_los_dos_sitios(self):
+        js = self._js(
+            "const antes = actualizaVigilancia(null, JSON.parse(JSON.stringify(ANTES)), 1000000);\n"
+            "const hoy = JSON.parse(JSON.stringify(HOY));\n"
+            "const c = comparaVigilancia(antes, hoy);\n"
+            "const out = {\n"
+            "  claves: hoy.map(claveVigilada),\n"
+            "  nuevos: c.nuevos.map(n => [claveVigilada(n.r), n.avisos.map(claveAviso)]),\n"
+            "  ausentes: c.ausentes.map(n => [claveVigilada(n.r), n.avisos.map(a => a.clave)]),\n"
+            "  noComprobados: c.noComprobados.map(n => [claveVigilada(n.r),"
+            " n.previo.avisos.map(a => a.clave)]),\n"
+            "  nuevas: c.nuevas.map(claveVigilada)\n"
+            "};\n"
+            "out.estadoFinal = actualizaVigilancia(antes, hoy, 2000000);\n"
+            "console.log(JSON.stringify(out));\n")
+        py = self._resumen_py()
+        for campo in ("claves", "nuevos", "ausentes", "noComprobados", "nuevas"):
+            with self.subTest(campo=campo):
+                self.assertEqual(py[campo], js[campo],
+                                 f"CLI dice {py[campo]!r} y la página {js[campo]!r}")
+        self.assertEqual(json.loads(json.dumps(py["estadoFinal"])), js["estadoFinal"],
+                         "el estado que guardarían no es el mismo fichero")
+
+    def test_los_casos_cubren_los_cuatro_cajones(self):
+        """A parity test is only worth the cases inside it. Asserted, rather
+        than trusted to my memory of what I wrote ten minutes ago."""
+        py = self._resumen_py()
+        self.assertTrue(py["nuevos"], "ningún caso de aviso nuevo")
+        self.assertTrue(py["ausentes"], "ningún caso de aviso desaparecido")
+        self.assertTrue(py["noComprobados"], "ningún caso de registro mudo o fallo")
+        self.assertTrue([c for c in py["nuevas"]], "ninguna referencia nueva")
+        self.assertIn("", py["claves"], "ningún caso sin identificador vigilable")
+        self.assertTrue([c for c in py["claves"] if c.startswith("pmid:")],
+                        "ningún caso vigilado sólo por PMID")
+        fuentes = {a["fuente"] for r in VIGILANCIA_ANTES for a in r["avisos"]}
+        self.assertEqual(fuentes, {"crossref", "pubmed"},
+                         "los dos registros tienen que estar representados")
+
+    def test_el_fichero_cruza_de_la_pagina_al_terminal(self):
+        """Written by the page, read by the CLI — and then quiet, because
+        nothing has changed. The claim the page makes on screen is that you can
+        start here and carry on in a terminal; this is that claim, executed."""
+        js = self._js(
+            "const e = actualizaVigilancia(null, JSON.parse(JSON.stringify(ANTES)), 1000000);\n"
+            "console.log(JSON.stringify(e));\n")
+        d = _tmpdir(self)
+        ruta = os.path.join(d, "watch.json")
+        with open(ruta, "w", encoding="utf-8") as f:
+            json.dump(js, f)
+        estado = refcheck.lee_vigilancia(ruta)
+        cambios = refcheck.compara_vigilancia(estado, copy.deepcopy(VIGILANCIA_ANTES))
+        self.assertEqual(refcheck.informe_vigilancia(cambios, estado), "",
+                         "el CLI ve novedades en un fichero que escribió la página "
+                         "con los mismos datos")
+
+    def test_el_fichero_cruza_del_terminal_a_la_pagina(self):
+        estado = refcheck.actualiza_vigilancia(None, copy.deepcopy(VIGILANCIA_ANTES),
+                                               ahora=1_000_000)
+        vacio = self._js(
+            "const e = " + json.dumps(estado) + ";\n"
+            "const c = comparaVigilancia(leeVigilancia(JSON.stringify(e)),"
+            " JSON.parse(JSON.stringify(ANTES)));\n"
+            "console.log(JSON.stringify([c.nuevos.length, c.ausentes.length,"
+            " c.noComprobados.length, c.nuevas.length]));\n")
+        self.assertEqual(vacio, [0, 0, 0, 0],
+                         "la página ve novedades en un fichero del CLI con los "
+                         "mismos datos")
+
+    def test_la_pagina_rechaza_lo_que_el_cli_rechaza(self):
+        """Both must refuse a foreign file rather than treat it as an empty
+        baseline: that would report a whole bibliography as new and then offer
+        to save over the only real baseline there is."""
+        roto = self._js(
+            "let ok = false;\n"
+            "try { leeVigilancia('{\"something\": \"else\"}'); } catch (e) { ok = true; }\n"
+            "let ok2 = false;\n"
+            "try { leeVigilancia('not json at all'); } catch (e) { ok2 = true; }\n"
+            "console.log(JSON.stringify([ok, ok2]));\n")
+        self.assertEqual(roto, [True, True])
 
 
 class VigilanciaEnLaCLI(unittest.TestCase):

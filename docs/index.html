@@ -29,6 +29,16 @@
     }
   }
   * { box-sizing: border-box; }
+  /* The browser's own [hidden] rule is a UA rule, so ANY author `display`
+     outranks it. `.loaded { display: flex }` did, which meant every bar built
+     on that class was on screen the whole time with `hidden` set — measured on
+     the live page 2026-09-21: a 57-pixel grey chip with a button reading
+     "Remove this file", with no file loaded, every day since 13 September.
+     Neither the accessibility audit nor the browser battery saw it, because
+     both asked the DOM for `hidden` — the property the code sets — instead of
+     asking whether anything was on screen. A check that reads back what you
+     just wrote cannot fail. There is one now that reads the computed style. */
+  [hidden] { display: none !important; }
   body {
     margin: 0 auto; padding: 1.5rem 1.1rem 4rem; max-width: 46rem;
     background: var(--bg); color: var(--fg);
@@ -137,11 +147,36 @@
     </p>
     <textarea id="input" aria-describedby="hint" spellcheck="false"
       placeholder="Smith, J. et al. (2016). A paper. PLoS ONE 11(8): e0161231. https://doi.org/10.1371/journal.pone.0161231&#10;Zhu, N. et al. N Engl J Med. 2020;382(8):727-733. PMID: 31978945."></textarea>
+    <details id="watchBox">
+      <summary>Watch this bibliography over time</summary>
+      <p class="hint">
+        The notice that matters most is usually the one published a year <em>after</em> you
+        filed the reference away. This page can tell you what changed since the last time
+        you ran it — but it will not keep your reading list in this browser to do it. On a
+        shared computer that list should not outlive your session. So you get a small file
+        instead: keep it wherever you keep your own notes, and hand it back here next time.
+        It is the same file the command-line version writes, so you can start here and
+        carry on in a terminal, or the other way round.
+      </p>
+      <p class="hint">
+        <label for="watchFile">Load the watch file you saved last time</label>
+        <input type="file" id="watchFile" accept=".json,application/json,text/plain">
+      </p>
+      <p class="loaded" id="watchLoaded" hidden>
+        <span id="watchLoadedText"></span>
+        <button type="button" class="secondary" id="watchUnload">Remove it</button>
+      </p>
+    </details>
+
     <div class="row">
       <button type="submit" id="go">Check references</button>
       <button type="button" class="secondary" id="demo">Try an example</button>
       <button type="button" class="secondary" id="copy" hidden>Copy report</button>
     </div>
+    <p class="loaded" id="watchSaveBar" hidden>
+      <span id="watchSaveText"></span>
+      <button type="button" class="secondary" id="watchSave">Save the watch file</button>
+    </p>
   </form>
 
   <p id="status" role="status" aria-live="polite"></p>
@@ -238,12 +273,21 @@
 
   <p>
     <strong>Watching the same bibliography over time</strong> — for the notice published a year
-    after you filed the reference away — is in the command-line version (<code>--watch</code>), not
-    here, and the reason is the paragraph above. To compare today against last month this page would
-    have to keep your reading list somewhere that survives the tab, and on a shared library computer
-    that is precisely what should not happen. A version that hands you a small file to keep and asks
-    for it back next time would work without leaving anything behind; until that exists, this page
-    deliberately forgets you.
+    after you filed the reference away — has been here since 21 September 2026, under
+    <em>Watch this bibliography over time</em> above, and it works without this page remembering
+    anything about you. To compare today against last month something has to survive the tab, and
+    on a shared library computer that something must not be the browser: it is a file you keep and
+    hand back. It is byte-for-byte the file the command-line version writes with
+    <code>--watch</code>, so a bibliography can be started here and carried on in a terminal, or
+    the other way round. Treat it as what it is — the list of what you have been reading — and
+    keep it where you would keep your own notes.
+  </p>
+  <p>
+    Two things it will not do. It will never report a notice as <em>lifted</em> because a lookup
+    failed: if the register that knew about a retraction did not answer today, that is filed under
+    <em>could not check today</em>, with the retraction still standing. And a watch run does not
+    reuse this tab&rsquo;s memory — &ldquo;nothing new&rdquo; has to come from the registers, not
+    from something this page already had on hand.
   </p>
 
   <footer>
@@ -386,6 +430,230 @@
     if (s < 86400) return Math.round(s / 3600) + " h";
     var d = Math.round(s / 86400);
     return d === 1 ? "1 day" : d + " days";
+  }
+
+  // ---- watching the same bibliography over time ---------------------------
+  // Checking a bibliography is a snapshot, and the thing a reader actually
+  // fears is the notice published after they filed the paper away. The CLI has
+  // had --watch since 2026-09-20; this is the same thing for the person this
+  // page exists for, the one with no terminal.
+  //
+  // It cannot use localStorage, and that is the whole design. On the shared
+  // computer at a library desk, the list of what you have been reading must not
+  // outlive your session — which is why the tab's cache is sessionStorage. So
+  // the state is handed to you as a small file and asked for back: nothing is
+  // left behind, and you decide where it lives. The format is byte-compatible
+  // with the CLI's --watch file, so a run can start here and continue in a
+  // terminal, or the other way round; test_refcheck.py asserts that both ways.
+  //
+  // test_refcheck.py pulls the block between the markers below out and runs it
+  // under node against refcheck.py on the same fixtures. This is the third rule
+  // that lives in two codebases at once, and the first two both turned out to
+  // have been quietly disagreeing for months.
+  // <watch-state>
+  var WATCH_V = 1;
+
+  // How a reference is identified across runs — the article, not the string a
+  // particular file spells it with. A repaired DOI is stored under the repaired
+  // one, because that is the paper. A PubMed record with no DOI is still
+  // watchable under its PMID. Anything with neither cannot be recognised next
+  // time and is left out rather than stored under something that will not match.
+  function claveVigilada(r) {
+    var doi = String(r.doi || "").toLowerCase();
+    if (doi.indexOf("10.") === 0) return doi;
+    return r.pmid ? "pmid:" + r.pmid : "";
+  }
+
+  // How one notice is identified across runs. Its own DOI where there is one;
+  // PubMed often reports a notice Crossref was never given, and there the PMID
+  // is what exists. With neither, type and date are all that tell two notices
+  // on one paper apart.
+  function claveAviso(a) {
+    var tipo = String(a.tipo || "").toLowerCase();
+    if (a.doi_aviso) return tipo + "|" + String(a.doi_aviso).toLowerCase();
+    if (a.pmid_aviso) return tipo + "|pmid:" + a.pmid_aviso;
+    return tipo + "||" + (a.fecha || "");
+  }
+
+  // Beyond the exact key, a notice counts as known when a stored one has the
+  // same severity and the same non-empty date. That is there for a real case: a
+  // notice first seen through PubMed with only a PMID, later deposited in
+  // Crossref with a DOI of its own, changes key without being news. Announcing
+  // it would teach the reader that "new" sometimes means "same thing, renamed",
+  // which is how an alert stops being read. The date must be non-empty, so two
+  // undated notices of one severity are never merged on the strength of both
+  // missing the same field.
+  function yaConocido(a, previos) {
+    var k = claveAviso(a), i;
+    for (i = 0; i < previos.length; i++) {
+      if (previos[i].clave === k) return true;
+    }
+    var fecha = a.fecha || "";
+    if (!fecha) return false;
+    for (i = 0; i < previos.length; i++) {
+      if (previos[i].fecha === fecha && previos[i].gravedad === a.gravedad) return true;
+    }
+    return false;
+  }
+
+  // Which registers said nothing about this reference in this run. Named by the
+  // same string a notice carries in `fuente`, so a stored notice can be asked
+  // whether the register that reported it actually spoke today.
+  function registrosMudos(r) {
+    return r.pubmed_error ? { pubmed: 1 } : {};
+  }
+
+  function avisoGuardado(a) {
+    return { clave: claveAviso(a), tipo: a.tipo || "",
+             gravedad: a.gravedad == null ? 1 : a.gravedad, fecha: a.fecha || "",
+             etiqueta: a.etiqueta || "", doi_aviso: a.doi_aviso || "",
+             pmid_aviso: a.pmid_aviso || "", fuente: a.fuente || "" };
+  }
+
+  // Four drawers, and the split between the last two is the whole point:
+  //   nuevos         — a notice this state has never held. The headline.
+  //   ausentes       — a notice the state holds and today's answer does not,
+  //                    where today's answer came from the register that
+  //                    reported it in the first place.
+  //   noComprobados  — the same shape of absence, but the lookup failed or the
+  //                    register that knew about it never answered. This must
+  //                    NEVER read as a notice being withdrawn: "it is fine now"
+  //                    on the strength of a timeout is the most expensive thing
+  //                    this tool could say.
+  //   nuevas         — references not in the state at all. Not news about a
+  //                    paper; the reference is what is new.
+  function comparaVigilancia(estado, resultados) {
+    var vistas = (estado && estado.vistas) || {};
+    var nuevos = [], ausentes = [], noComprobados = [], nuevas = [];
+    resultados.forEach(function (r) {
+      var clave = claveVigilada(r);
+      if (!clave) return;
+      var previo = Object.prototype.hasOwnProperty.call(vistas, clave)
+                 ? vistas[clave] : null;
+      if (!previo) { nuevas.push(r); return; }
+      var guardados = previo.avisos || [];
+      var frescos = (r.avisos || []).filter(function (a) {
+        return !yaConocido(a, guardados);
+      });
+      if (frescos.length) nuevos.push({ r: r, avisos: frescos });
+      if (r.estado === "ok") {
+        var idos = guardados.filter(function (p) {
+          return !(r.avisos || []).some(function (a) { return yaConocido(a, [p]); });
+        });
+        var mudos = registrosMudos(r);
+        var callados = idos.filter(function (p) { return mudos[p.fuente || ""]; });
+        idos = idos.filter(function (p) { return !mudos[p.fuente || ""]; });
+        if (idos.length) ausentes.push({ r: r, avisos: idos });
+        if (callados.length) {
+          noComprobados.push({ r: r, previo: { avisos: callados }, mudo: true });
+        }
+      } else if (guardados.length) {
+        noComprobados.push({ r: r, previo: previo, mudo: false });
+      }
+    });
+    return { nuevos: nuevos, ausentes: ausentes,
+             noComprobados: noComprobados, nuevas: nuevas };
+  }
+
+  // The state to store after this run. A reference already known is only
+  // overwritten when today's lookup succeeded, and "succeeded" is per register:
+  // a run where NCBI timed out still succeeded at Crossref, and overwriting the
+  // entry wholesale would drop every notice PubMed had contributed — so the
+  // next run that does reach NCBI announces a 2019 retraction as NEW, and "new"
+  // stops meaning new. References that have left the file are kept rather than
+  // pruned: loading the wrong state file once would otherwise destroy the only
+  // baseline there is, and a few stale entries cost a few hundred bytes.
+  function actualizaVigilancia(estado, resultados, ahora) {
+    estado = estado || { refcheck_watch: WATCH_V, creado: ahora, vistas: {} };
+    estado.refcheck_watch = WATCH_V;
+    estado.actualizado = ahora;
+    if (!estado.vistas) estado.vistas = {};
+    var vistas = estado.vistas;
+    resultados.forEach(function (r) {
+      var clave = claveVigilada(r);
+      if (!clave) return;
+      var conocida = Object.prototype.hasOwnProperty.call(vistas, clave);
+      if (r.estado !== "ok" && conocida) return;
+      var guardados = (r.avisos || []).map(avisoGuardado);
+      var mudos = registrosMudos(r);
+      if (conocida) {
+        (vistas[clave].avisos || []).forEach(function (p) {
+          if (mudos[p.fuente || ""] && !yaConocido(p, guardados)) guardados.push(p);
+        });
+      }
+      vistas[clave] = { visto: ahora, estado: r.estado || "",
+                        titulo: r.titulo || "", avisos: guardados };
+    });
+    return estado;
+  }
+
+  // A file that cannot be parsed is an error and not an empty state. Treating a
+  // foreign or damaged file as "nothing known yet" would report the whole
+  // bibliography as new and then offer to overwrite the only real baseline.
+  function leeVigilancia(texto) {
+    var estado = JSON.parse(texto);
+    if (!estado || typeof estado !== "object" || !estado.vistas ||
+        typeof estado.vistas !== "object") {
+      throw new Error("that is not a refcheck watch file");
+    }
+    return estado;
+  }
+  // </watch-state>
+
+  // The state loaded from the reader's own file, and the state this run would
+  // write back. Both live in a variable and nowhere else: not localStorage, not
+  // sessionStorage, not a cookie. Closing the tab loses them, which is the
+  // point — the only durable copy is the one the reader chose to keep.
+  var watchState = null, watchName = "", watchNext = null;
+
+  function watchDate(seg) {
+    return seg ? new Date(seg * 1000).toISOString().slice(0, 10) : "an unknown date";
+  }
+
+  function showWatch() {
+    var box = $("watchLoaded");
+    if (!watchState) { box.hidden = true; $("watchLoadedText").textContent = ""; return; }
+    var n = Object.keys(watchState.vistas).length;
+    $("watchLoadedText").textContent =
+      watchName + " — " + n + " reference" + (n === 1 ? "" : "s") +
+      " watched, last written " + watchDate(watchState.actualizado || watchState.creado);
+    box.hidden = false;
+    $("watchBox").open = true;
+  }
+
+  function loadWatchFile(f) {
+    var reader = new FileReader();
+    reader.onerror = function () {
+      status.textContent = "That watch file could not be read.";
+    };
+    reader.onload = function () {
+      try {
+        watchState = leeVigilancia(String(reader.result));
+      } catch (e) {
+        // Never silently treated as "nothing known yet": that would report the
+        // whole bibliography as new and then offer to save over the only real
+        // baseline the reader has.
+        watchState = null; watchName = "";
+        showWatch();
+        status.textContent = "That is not a refcheck watch file, so nothing was " +
+          "loaded — your existing file is untouched. It should be the .json this " +
+          "page or the --watch option wrote.";
+        return;
+      }
+      watchName = f.name;
+      showWatch();
+      status.textContent = "Watch file loaded. Check your references and this will " +
+        "say what changed.";
+    };
+    reader.readAsText(f);
+  }
+
+  function offerWatchSave(estado, hubo) {
+    watchNext = estado;
+    $("watchSaveText").textContent = hubo
+      ? "Save the updated file to keep watching."
+      : "Save this as a watch file and load it back next time to see what changed.";
+    $("watchSaveBar").hidden = false;
   }
 
   // Where a DOI ends and somebody else's markup begins. Bibliography text
@@ -1206,11 +1474,189 @@
     return n;
   }
 
+  // The page holds its answers in buckets shaped for the screen; the watch file
+  // is shaped like the CLI's, because it IS the CLI's. This is the only
+  // translation between them, and it is deliberately total: every identifier
+  // this run asked about comes out with a verdict, including the ones nobody
+  // could answer. A reference that quietly failed to reach the state is a
+  // reference the next run announces as new.
+  function resultadosVigilables(c) {
+    var porDoi = Object.create(null);
+    c.found.forEach(function (f) { porDoi[f.doi] = f; });
+    var clasificado = Object.create(null);
+    c.nonexistent.forEach(function (d) { clasificado[d] = "no_existe"; });
+    c.elsewhere.forEach(function (x) { clasificado[x.doi] = "otra_agencia"; });
+    c.superseded.forEach(function (x) { clasificado[x.doi] = "sustituido"; });
+    c.unchecked.forEach(function (d) { clasificado[d] = "sin_comprobar"; });
+    c.notFound.forEach(function (d) { clasificado[d] = "desconocido"; });
+
+    var lista = c.dois.map(function (d) {
+      var f = porDoi[d];
+      var r = {
+        doi: d,
+        pmid: (f && f.pmid) || c.origen[d] || "",
+        estado: f ? "ok" : (clasificado[d] || "ok"),
+        titulo: (f && f.titulo) || "",
+        avisos: f ? f.notices.map(function (n) {
+          return { tipo: n.tipo || "", gravedad: n.gravedad == null ? 1 : n.gravedad,
+                   fecha: n.fecha || "", etiqueta: n.etiqueta || "",
+                   doi_aviso: n.doi || "", pmid_aviso: n.pmid_aviso || "",
+                   fuente: n.fuente || "" };
+        }) : []
+      };
+      // Carried through as the CLI carries it, because it is what stops a
+      // timeout at NCBI from reading as a retraction being lifted.
+      if (c.halfChecked[d]) r.pubmed_error = c.halfChecked[d];
+      return r;
+    });
+    // A PMID with no DOI behind it is still a reference somebody is watching:
+    // it goes in under "pmid:…", which is the key the CLI uses for it too.
+    c.sueltos.forEach(function (s) {
+      if (!s.pmid) return;
+      lista.push({ doi: "", pmid: s.pmid, titulo: s.titulo || "", avisos: [],
+                   estado: s.estado === "pmid_no_doi" ? "pmid_sin_doi"
+                         : s.estado === "pmid_not_found" ? "pmid_desconocido"
+                         : "sin_comprobar" });
+    });
+    return lista;
+  }
+
+  // The changes block, above the ordinary report. Empty when there is nothing
+  // to say — the point of a watch is that most runs have no news.
+  function renderWatch(cambios, desde) {
+    var lines = [];
+    // Taken as a number, not read out of the state object, because the state is
+    // updated in place right after the comparison: reading `actualizado` here
+    // would print "NEW SINCE today" every single time.
+    var cuando = desde ? new Date(desde * 1000).toISOString().slice(0, 10) : "?";
+    var box = el("div", "summary watch");
+    var algo = false;
+
+    function seccion(texto) {
+      algo = true;
+      var h = el("h3", null, texto);
+      h.style.margin = "1rem 0 .3rem";
+      box.appendChild(h);
+      lines.push("");
+      lines.push(texto);
+      return h;
+    }
+    function refLine(parent, r, prefijo) {
+      var p = el("p", "meta");
+      var nombre = r.doi ? r.doi : "PMID " + r.pmid;
+      if (r.titulo) { p.appendChild(el("span", "title", r.titulo)); p.appendChild(el("br")); }
+      p.appendChild(document.createTextNode(nombre));
+      parent.appendChild(p);
+      lines.push("  " + (prefijo || "") + nombre + (r.titulo ? " — " + r.titulo : ""));
+      return p;
+    }
+
+    if (cambios.nuevos.length) {
+      seccion("NEW SINCE " + cuando + " — " + cambios.nuevos.length + " reference(s)");
+      cambios.nuevos.slice().sort(function (a, b) {
+        return Math.max.apply(null, b.avisos.map(function (x) { return x.gravedad; })) -
+               Math.max.apply(null, a.avisos.map(function (x) { return x.gravedad; }));
+      }).forEach(function (n) {
+        var peor = n.avisos.reduce(function (a, b) {
+          return b.gravedad > a.gravedad ? b : a;
+        });
+        var sev = el("p", "sev s" + peor.gravedad, ETIQUETA[peor.gravedad]);
+        box.appendChild(sev);
+        lines.push("  " + ETIQUETA[peor.gravedad]);
+        refLine(box, n.r);
+        var ul = el("ul", "notices");
+        n.avisos.forEach(function (a) {
+          var t = (a.etiqueta || a.tipo) + (a.fecha ? " (" + a.fecha + ")" : "") +
+                  (a.fuente === "pubmed" ? " — per PubMed" : "");
+          ul.appendChild(el("li", null, t));
+          lines.push("    -> " + t);
+        });
+        box.appendChild(ul);
+      });
+    }
+
+    // A reference that was not in the file last time and arrives already
+    // carrying a notice. Deliberately NOT filed under "new since": the
+    // retraction may be from 2019 and what is new is the reference, not the
+    // news. It cannot be left out either — adding an already-retracted paper to
+    // a growing review would otherwise produce silence, and silence here reads
+    // as clean.
+    var recien = cambios.nuevas.filter(function (r) { return r.avisos.length; });
+    if (recien.length) {
+      seccion("NEW TO THIS FILE, AND ALREADY FLAGGED — " + recien.length + " reference(s)");
+      recien.sort(function (a, b) { return b.avisos[0].gravedad - a.avisos[0].gravedad; });
+      recien.forEach(function (r) {
+        box.appendChild(el("p", "sev s" + r.avisos[0].gravedad, ETIQUETA[r.avisos[0].gravedad]));
+        lines.push("  " + ETIQUETA[r.avisos[0].gravedad]);
+        refLine(box, r);
+      });
+    }
+
+    if (cambios.ausentes.length) {
+      seccion("NO LONGER REPORTED — " + cambios.ausentes.length + " reference(s)");
+      var nota = "The register that reported this notice answered today and no longer " +
+                 "carries it. That can mean the retraction was reversed, or that a " +
+                 "record was edited. Neither register has a vocabulary for a " +
+                 "reinstatement, so this cannot tell you which: check it at " +
+                 "retractiondatabase.org before acting on it.";
+      box.appendChild(el("p", "hint", nota));
+      lines.push("  " + nota);
+      cambios.ausentes.forEach(function (n) {
+        refLine(box, n.r);
+        n.avisos.forEach(function (a) {
+          var t = "was: " + (a.etiqueta || a.tipo) + (a.fecha ? " (" + a.fecha + ")" : "");
+          box.appendChild(el("p", "meta", "    " + t));
+          lines.push("    " + t);
+        });
+      });
+    }
+
+    if (cambios.noComprobados.length) {
+      seccion("COULD NOT CHECK TODAY — " + cambios.noComprobados.length + " reference(s)");
+      var n2 = "These carried a notice last time and today's lookup did not answer. " +
+               "The notice below still stands as far as anyone knows.";
+      box.appendChild(el("p", "hint", n2));
+      lines.push("  " + n2);
+      cambios.noComprobados.forEach(function (n) {
+        var peor = n.previo.avisos.reduce(function (a, b) {
+          return (b.gravedad || 1) > (a.gravedad || 1) ? b : a;
+        });
+        refLine(box, n.r);
+        var t = "last known: " + ETIQUETA[peor.gravedad == null ? 1 : peor.gravedad];
+        box.appendChild(el("p", "meta", "    " + t));
+        lines.push("    " + t);
+        // Said out loud, because from the outside this one looks like a clean
+        // run: Crossref answered, the report below is full of verdicts, and
+        // only this line says the register that knew about the notice was
+        // never reached.
+        if (n.mudo) {
+          var t2 = "(PubMed did not answer this run)";
+          box.appendChild(el("p", "meta", "    " + t2));
+          lines.push("    " + t2);
+        }
+      });
+    }
+
+    if (!algo) return null;
+    var h2 = el("h2", null, "What changed");
+    h2.style.margin = "0 0 .2rem";
+    h2.style.fontSize = "1.1rem";
+    box.insertBefore(h2, box.firstChild);
+    lines.unshift("WHAT CHANGED");
+    return { node: box, lines: lines };
+  }
+
   function render(found, notFound, unchecked, total, sueltos, half, fromCache,
                   superseded, notRetried, nonexistent, elsewhere, repaired,
-                  citedAs) {
+                  citedAs, watch) {
     out.textContent = "";
     lastReport = "";
+    // What changed goes ABOVE the report, and above everything: someone who
+    // runs this every month is here for this block, not to re-read a hundred
+    // verdicts they already saw last time.
+    var wBlock = (watch && watch.cambios)
+               ? renderWatch(watch.cambios, watch.desde) : null;
+    if (wBlock) out.appendChild(wBlock.node);
     repaired = repaired || [];
     citedAs = citedAs || Object.create(null);
     sueltos = sueltos || [];
@@ -1364,6 +1810,10 @@
       "refcheck report",
       checked + " reference(s) checked, " + found.length + " carry a change notice"
     ];
+    // The copyable report carries the changes too, and carries them first. It
+    // is the version that gets pasted into a screening log, and "what changed
+    // since last month" is the part of it somebody will be asked about.
+    if (wBlock) lines = wBlock.lines.concat([""], lines);
     if (unchecked.length) {
       lines.push(unchecked.length + " could NOT be checked (connection failed): " +
                  unchecked.join(", "));
@@ -1647,10 +2097,12 @@
           "could be read out of it.";
         out.textContent = "";
         copyBtn.hidden = true;
+      $("watchSaveBar").hidden = true;
         return;
       }
       go.disabled = true;
       copyBtn.hidden = true;
+      $("watchSaveBar").hidden = true;
       out.textContent = "";
       lastError = "";
       if (!refs.dois.length) {
@@ -1670,11 +2122,13 @@
         "(the 10.xxxx/… string) or a PMID for this to have anything to check.";
       out.textContent = "";
       copyBtn.hidden = true;
+      $("watchSaveBar").hidden = true;
       return;
     }
 
     go.disabled = true;
     copyBtn.hidden = true;
+      $("watchSaveBar").hidden = true;
     out.textContent = "";
     lastError = "";
 
@@ -1726,7 +2180,13 @@
     // Whatever this tab already asked about is not asked again. The reply is
     // rebuilt into the same three buckets a fresh answer goes into, so a warm
     // run and a cold run read identically bar the line admitting the age.
-    var known = bypassCache ? Object.create(null) : cacheGet(dois);
+    // A watch run does not read the tab's memory. The cache holds an answer for
+    // seven days; a weekly watch that read it would compare today's stored
+    // answer against last week's stored answer and report "nothing new" without
+    // anyone having been asked — and in a tool whose silence reads as "clean",
+    // that is the expensive failure. It still WRITES the cache: a stored answer
+    // helps the next ordinary run and lies to nobody.
+    var known = (bypassCache || watchState) ? Object.create(null) : cacheGet(dois);
     bypassCache = false;
     var ask = dois.filter(function (d) { return !known[d]; });
     var cacheCount = 0, cacheOldest = 0;
@@ -2019,12 +2479,37 @@
           ? "Done, but " + unchecked.length + " reference" +
             (unchecked.length === 1 ? " could" : "s could") + " not be checked."
           : "Done.";
+
+        // The watch half. Built from the same buckets the report is built from,
+        // so the file can never disagree with the screen.
+        var vigilables = resultadosVigilables({
+          dois: dois, found: found, notFound: notFound, unchecked: unchecked,
+          nonexistent: nonexistent, elsewhere: elsewhere, superseded: superseded,
+          sueltos: sueltos, halfChecked: halfChecked, origen: origen
+        });
+        var desdeSeg = watchState
+                     ? (watchState.actualizado || watchState.creado) : 0;
+        var cambios = watchState ? comparaVigilancia(watchState, vigilables) : null;
+        var hubo = !!cambios && (cambios.nuevos.length || cambios.ausentes.length ||
+                                 cambios.noComprobados.length ||
+                                 cambios.nuevas.some(function (r) { return r.avisos.length; }));
+        // Note the order: compared FIRST, then updated. Updating in place and
+        // then comparing against it would compare a state with itself and find
+        // nothing new, for ever.
+        offerWatchSave(actualizaVigilancia(watchState, vigilables,
+                                           Math.floor(Date.now() / 1000)), !!watchState);
+
         // `total` counts everything that had a lookup attempted, so that
         // render's  checked = total - unchecked  still comes out right once the
         // failed PMIDs are in the unchecked list but not in `dois`.
         render(found, notFound, unchecked, dois.length + fallados.length, sueltos,
                halfList, { n: cacheCount, oldest: cacheOldest },
-               superseded, notRetried, nonexistent, elsewhere, repaired, citedAs);
+               superseded, notRetried, nonexistent, elsewhere, repaired, citedAs,
+               cambios ? { cambios: cambios, desde: desdeSeg } : null);
+        if (cambios && !hubo) {
+          status.textContent += " Nothing has changed since " +
+            watchDate(desdeSeg) + ".";
+        }
       })
       .then(function () { go.disabled = false; });
   }
@@ -2107,6 +2592,7 @@
       }
       out.textContent = "";
       copyBtn.hidden = true;
+      $("watchSaveBar").hidden = true;
       if (text.length > INLINE_BYTES) {
         // Counting the records here, not at check time, so the chip can say
         // what is in there before anything is sent anywhere.
@@ -2131,6 +2617,42 @@
   $("unload").addEventListener("click", function () {
     release("Removed. The box is empty again.");
     input.focus();
+  });
+
+  $("watchFile").addEventListener("change", function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (f) loadWatchFile(f);
+  });
+
+  $("watchUnload").addEventListener("click", function () {
+    watchState = null; watchName = "";
+    $("watchFile").value = "";
+    showWatch();
+    status.textContent = "Watch file removed from this page. Your own copy of it " +
+      "is untouched.";
+  });
+
+  $("watchSave").addEventListener("click", function () {
+    if (!watchNext) return;
+    var nombre = watchName || "refcheck-watch.json";
+    var blob = new Blob([JSON.stringify(watchNext, null, 1)],
+                        { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    // Saving a baseline IS the act of starting to watch, so the page starts
+    // watching. Without this, checking the same list again five minutes later
+    // would compare against nothing and say nothing, and the reader would
+    // reasonably conclude the feature does not work.
+    if (!watchState) { watchState = watchNext; watchName = nombre; showWatch(); }
+    status.textContent = "Saved as “" + nombre + "”. Keep it, and load it back here " +
+      "next time. It is the list of what you have been reading: keep it where you " +
+      "would keep your own notes.";
   });
 
   // Typing while a file is held would mean the box shows one thing and the

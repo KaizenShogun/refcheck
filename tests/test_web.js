@@ -73,6 +73,29 @@
      }));
   ok("every link has text", [...document.querySelectorAll("a")].every((a) => a.textContent.trim()));
   ok("noscript fallback present", !!document.querySelector("noscript"));
+  // Asserted here, before anything has been clicked, and not down in the watch
+  // section — by the time the battery gets there twenty runs have happened and
+  // the bar is legitimately showing. A check that can only pass where it is
+  // written is not checking the thing it names.
+  // Asked of the computed style, not of the `hidden` property. The property is
+  // the thing the code sets, so a check that reads it back cannot fail — and
+  // on 2026-09-21 that turned out not to be a hypothetical: `.loaded` sets
+  // display:flex, an author rule outranks the UA's [hidden] rule, and all
+  // three of these bars had been on the live page for eight days with `hidden`
+  // set. 57 pixels of grey, and a button offering to remove a file nobody had
+  // loaded.
+  const oculto = (id) => {
+    const e = $(id);
+    return e.hidden && getComputedStyle(e).display === "none" &&
+           e.getBoundingClientRect().height === 0;
+  };
+  ok("the watch save bar is really hidden on a page nobody has used yet",
+     oculto("#watchSaveBar"), getComputedStyle($("#watchSaveBar")).display);
+  ok("so is the loaded-file bar, and it takes up no space",
+     oculto("#loaded"), getComputedStyle($("#loaded")).display + " h=" +
+     $("#loaded").getBoundingClientRect().height);
+  ok("so is the loaded-watch-file bar", oculto("#watchLoaded"),
+     getComputedStyle($("#watchLoaded")).display);
 
   // ---- 2. empty / junk input must not silently do nothing ----
   let s = await check("no identifiers here at all, just prose");
@@ -1094,6 +1117,211 @@
   s = await check("10.1159/000028848\n");
   ok("a DOI ending in zero-led digits costs no PubMed request at all",
      ncbiIds.join("").indexOf("0000288") < 0, ncbiIds.join(" | "));
+
+  // ---- watching a bibliography over time (2026-09-21) ----------------------
+  // The CLI has had --watch since yesterday; this is the same thing for the
+  // person this page exists for, the one with no terminal. The state is a file
+  // the reader keeps, never anything this browser holds on to, and the two
+  // things these checks care about most are the two that would cost somebody
+  // something: a lookup that failed must never read as a retraction being
+  // lifted, and a watch run must not answer out of this tab's memory.
+  const WDOI = "10.5555/watched";
+  const WNOTICE = "10.5555/wnotice";
+  const conRetraccion = {
+    message: { items: [{ DOI: WDOI, title: ["A watched paper"],
+      "container-title": ["J Test"], "updated-by": [
+        { type: "retraction", DOI: WNOTICE, source: "crossref",
+          updated: { "date-parts": [[2025, 4, 4]] } }] }] }
+  };
+  const limpio = { message: { items: [{ DOI: WDOI, title: ["A watched paper"],
+                                        "container-title": ["J Test"] }] } };
+  let xrefCalls = [];
+  const watchStub = (cuerpo, pubmedRompe) => function (u) {
+    const url = String(u);
+    if (/api\.crossref\.org/.test(url)) {
+      xrefCalls.push(url);
+      return isBatch(url) ? reply(cuerpo) : reply({ message: null });
+    }
+    if (/doi\.org\/ra\//.test(url)) return reply([{ DOI: WDOI, RA: "Crossref" }]);
+    if (/esearch\.fcgi/.test(url) || /efetch\.fcgi/.test(url) ||
+        /esummary\.fcgi/.test(url)) {
+      if (pubmedRompe) return Promise.reject(new TypeError("Failed to fetch"));
+      if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+      if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+      return reply({ result: {} });
+    }
+    return reply({});
+  };
+  // A state file as the page itself writes one. Built here by hand on purpose:
+  // if the page could only ever read its own output this check would be
+  // circular, and the whole promise is that this file crosses to the CLI.
+  const estadoCon = (avisos, cuando) => JSON.stringify({
+    refcheck_watch: 1, creado: cuando, actualizado: cuando,
+    vistas: { [WDOI]: { visto: cuando, estado: "ok", titulo: "A watched paper",
+                        avisos: avisos } }
+  });
+  const avisoXref = { clave: "retraction|" + WNOTICE, tipo: "retraction",
+    gravedad: 3, fecha: "2025-04-04", etiqueta: "Retraction",
+    doi_aviso: WNOTICE, pmid_aviso: "", fuente: "crossref" };
+  const avisoPubmed = { clave: "retraction|pmid:31111111", tipo: "retraction",
+    gravedad: 3, fecha: "2019", etiqueta: "Retraction", doi_aviso: "",
+    pmid_aviso: "31111111", fuente: "pubmed" };
+  const AYER = Math.floor(Date.now() / 1000) - 86400;
+
+  const cargaWatch = async (texto) => {
+    const dt = new DataTransfer();
+    dt.items.add(new File([texto], "mi-watch.json", { type: "application/json" }));
+    $("#watchFile").files = dt.files;
+    $("#watchFile").dispatchEvent(new Event("change"));
+    await new Promise((r) => setTimeout(r, 400));
+  };
+  const quitaWatch = () => { $("#watchUnload").click(); };
+
+  ok("there is a watch section with a labelled file input",
+     !!$("#watchFile") && !!document.querySelector('label[for="watchFile"]'));
+
+  // A foreign file must NOT become an empty baseline: that would report the
+  // whole bibliography as new and then offer to save over the only real one.
+  await cargaWatch('{"something": "else"}');
+  ok("a file that is not a watch file is refused, not adopted",
+     /not a refcheck watch file/.test($("#status").textContent) &&
+     $("#watchLoaded").hidden, $("#status").textContent);
+
+  // 1. nothing changed.
+  coldTab();
+  xrefCalls = [];
+  await cargaWatch(estadoCon([avisoXref], AYER));
+  ok("a real watch file is accepted and named back",
+     !$("#watchLoaded").hidden && /mi-watch\.json/.test($("#watchLoadedText").textContent),
+     $("#watchLoadedText").textContent);
+  window.fetch = watchStub(conRetraccion);
+  s = await check(WDOI);
+  ok("an unchanged bibliography says so instead of printing news",
+     /Nothing has changed since/.test(s) && !/What changed/.test(txt()),
+     s + " :: " + txt().slice(0, 300));
+  ok("the retraction is still reported in the ordinary report",
+     /RETRACTED/.test(txt()), txt().slice(0, 300));
+
+  // 2. a notice that was not there last time.
+  quitaWatch();
+  coldTab();
+  await cargaWatch(estadoCon([], AYER));
+  window.fetch = watchStub(conRetraccion);
+  s = await check(WDOI);
+  ok("a notice the state never held is headlined as new",
+     /What changed/.test(txt()) && /NEW SINCE/.test(txt()), txt().slice(0, 500));
+  // The date has to be the state's, not today's. The state is updated in place
+  // straight after the comparison, so reading it afterwards would print "NEW
+  // SINCE <today>" on every single run and nobody would notice for months.
+  const ayerISO = new Date(AYER * 1000).toISOString().slice(0, 10);
+  ok("and it is dated from the state, not from today",
+     txt().indexOf("NEW SINCE " + ayerISO) >= 0,
+     "expected " + ayerISO + " :: " + txt().slice(0, 300));
+  ok("what changed comes above the ordinary report",
+     txt().indexOf("What changed") < txt().indexOf("Result"), txt().slice(0, 300));
+
+  // 3. a reference NEW to the file that arrives already retracted. Not "new
+  //    since": the retraction may be from 2019 and what is new is the
+  //    reference. But it cannot be silent either.
+  quitaWatch();
+  coldTab();
+  await cargaWatch(estadoCon([], AYER).replace(WDOI, "10.5555/otro"));
+  window.fetch = watchStub(conRetraccion);
+  s = await check(WDOI);
+  ok("a new reference that is already flagged is reported, but not as news",
+     /NEW TO THIS FILE, AND ALREADY FLAGGED/.test(txt()) && !/NEW SINCE/.test(txt()),
+     txt().slice(0, 500));
+
+  // 4. THE expensive one. PubMed knew about the retraction; today NCBI is
+  //    unreachable. "It is fine now" on the strength of a timeout is the worst
+  //    thing this page could say.
+  quitaWatch();
+  coldTab();
+  await cargaWatch(estadoCon([avisoPubmed], AYER));
+  window.fetch = watchStub(limpio, true);
+  s = await check(WDOI);
+  ok("a register that did not answer never lifts its own retraction",
+     !/NO LONGER REPORTED/.test(txt()), txt().slice(0, 700));
+  ok("it is filed under could-not-check, with the retraction still standing",
+     /COULD NOT CHECK TODAY/.test(txt()) && /last known: RETRACTED/.test(txt()),
+     txt().slice(0, 700));
+  ok("and the reader is told which register was silent",
+     /PubMed did not answer this run/.test(txt()), txt().slice(0, 700));
+
+  // 5. the control for 4: when both registers DO answer and the notice is
+  //    genuinely gone, that is reported — narrowing the rule must not gag it.
+  quitaWatch();
+  coldTab();
+  await cargaWatch(estadoCon([avisoXref], AYER));
+  window.fetch = watchStub(limpio);
+  s = await check(WDOI);
+  ok("a notice that really went away IS reported",
+     /NO LONGER REPORTED/.test(txt()), txt().slice(0, 700));
+  ok("and is not announced as good news",
+     /retractiondatabase\.org/.test(txt()), txt().slice(0, 900));
+
+  // 6. a watch run does not answer out of this tab's memory. Without this,
+  //    a weekly watch inside the 7-day cache window would compare a stored
+  //    answer with itself and report "nothing new" having asked nobody.
+  quitaWatch();
+  coldTab();
+  window.fetch = watchStub(conRetraccion);
+  s = await check(WDOI);                      // warms the tab's memory
+  xrefCalls = [];
+  s = await check(WDOI);                      // ordinary run: should be cached
+  const desdeCache = xrefCalls.length;
+  await cargaWatch(estadoCon([avisoXref], AYER));
+  xrefCalls = [];
+  s = await check(WDOI);
+  ok("an ordinary second run does reuse the tab's memory",
+     desdeCache === 0, "crossref calls: " + desdeCache);
+  ok("but a watch run asks the registers again",
+     xrefCalls.length > 0, "crossref calls: " + xrefCalls.length);
+
+  // 7. the bytes actually handed to the reader. The claim on screen is that
+  //    this file is the CLI's; test_refcheck.py proves the format, and this
+  //    proves the page really produces it rather than promising to.
+  let guardado = null;
+  const realCreate = URL.createObjectURL, realRevoke = URL.revokeObjectURL;
+  const realClick = HTMLAnchorElement.prototype.click;
+  URL.createObjectURL = function (b) { guardado = b; return "blob:stub"; };
+  URL.revokeObjectURL = function () {};
+  // Neutralised so the battery is not at the mercy of what headless chromium
+  // decides to do with a download; the bytes are the claim, not the click.
+  HTMLAnchorElement.prototype.click = function () {};
+  ok("the save bar appears once there is something to save", !$("#watchSaveBar").hidden);
+  $("#watchSave").click();
+  const bytes = guardado ? await guardado.text() : "";
+  URL.createObjectURL = realCreate; URL.revokeObjectURL = realRevoke;
+  HTMLAnchorElement.prototype.click = realClick;
+  let parsed = null;
+  try { parsed = JSON.parse(bytes); } catch (e) {}
+  ok("saving writes a refcheck watch file",
+     !!parsed && parsed.refcheck_watch === 1 && !!parsed.vistas[WDOI],
+     bytes.slice(0, 200));
+  ok("and the saved state carries the notice, not just the DOI",
+     !!parsed && (parsed.vistas[WDOI].avisos || []).length === 1 &&
+     parsed.vistas[WDOI].avisos[0].gravedad === 3,
+     bytes.slice(0, 400));
+
+  // 8. and nothing about any of this outlives the tab on its own. The reading
+  //    list is the reader's file; on a shared library computer this page must
+  //    not be quietly keeping a second copy.
+  let persistente = "";
+  try { persistente = JSON.stringify(Object.keys(localStorage || {})); } catch (e) {}
+  ok("nothing is written to localStorage, ever",
+     persistente === "[]" || persistente === "", persistente);
+  let claves = [];
+  try { for (let i = 0; i < sessionStorage.length; i++) claves.push(sessionStorage.key(i)); }
+  catch (e) {}
+  ok("and the watch state is not smuggled into sessionStorage either",
+     !claves.some((k) => /watch/i.test(k)), claves.join(","));
+
+  quitaWatch();
+  ok("removing the watch file clears it from the page, screen included",
+     oculto("#watchLoaded") && !$("#watchLoadedText").textContent,
+     getComputedStyle($("#watchLoaded")).display);
+  coldTab();
 
   window.fetch = realFetch;
 

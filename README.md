@@ -45,10 +45,11 @@ deciding what to read. Different shape of tool, not a better one.
 published change notice, what kind, and where to read it.
 
 And since 20 September 2026 it will also tell you what changed **since the last
-time you asked** — `--watch`, below. That is the same argument continued rather
-than abandoned: a permanent flag on every corrected paper would indeed be a mess,
-but "these three of your thousand references picked up a notice this month" is
-not a mess, it is the only part you have not already read.
+time you asked** — `--watch`, below, and since 21 September in the browser too,
+without the page keeping anything about you. That is the same argument continued
+rather than abandoned: a permanent flag on every corrected paper would indeed be
+a mess, but "these three of your thousand references picked up a notice this
+month" is not a mess, it is the only part you have not already read.
 
 ## Use it in your browser — nothing to install
 
@@ -83,7 +84,7 @@ no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 152-check battery in a real headless browser against the real APIs.
+is driven by a 177-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -654,6 +655,20 @@ screening a systematic review an erratum that changes a table is not a footnote.
    — it goes under `COULD NOT CHECK TODAY` with `last known: RETRACTED`, and the
    state file keeps the retraction. "It is fine now" on the strength of a
    timeout is the most expensive sentence this tool could produce.
+
+   **And "a failed lookup" is per register, which it was not until 2026-09-21.**
+   The rule was enforced on the reference's `estado`, and a run where Crossref
+   answered and NCBI timed out keeps `estado` `ok`. So every notice the state
+   held *from PubMed* looked absent, and was announced under `NO LONGER
+   REPORTED` — beneath a sentence that read "Both registers answered", which the
+   code had never checked. That is not a corner case: PubMed-only notices are
+   the entire reason the second register is asked, one corrected paper in five.
+   The most valuable thing this tool holds was the thing a timeout could lift.
+   Now a notice can only be declared gone by the register that reported it, and
+   only when that register actually answered; the rest goes under `COULD NOT
+   CHECK TODAY` naming which register was silent. The state carries the silent
+   register's notices forward untouched too — dropping them would make the next
+   run that *does* reach NCBI announce a 2019 retraction as `NEW SINCE`.
 2. **A watch run does not read the local cache.** The cache keeps an answer for
    7 days; a weekly watch would otherwise compare a stored answer against itself
    and report "nothing new" without having asked anybody. It still *writes* the
@@ -671,6 +686,33 @@ you to retractiondatabase.org instead of guessing.
 The state file is written `600` and never leaves your machine. It holds DOIs,
 notice DOIs and dates — the same reasoning as the cache: it is a list of what
 somebody has been reading, and it stays with them.
+
+### The same thing in the browser, without the page remembering you
+
+Since 2026-09-21 the [web page](https://kaizenshogun.github.io/refcheck/) does
+this too, which matters because the person this project is aimed at — someone
+screening a review, at a library desk — is the one who does not have a terminal.
+
+It could not be done with `localStorage`. On a shared computer the list of what
+you have been reading must not outlive your session; that is why the page's
+cache is `sessionStorage` and why it says so. So the state is not kept by the
+browser at all: you get a small file, you keep it, and you hand it back next
+time. Nothing is left behind, and you choose where it lives.
+
+It is **the same file**, not a parallel format. You can start a bibliography in
+the browser and carry it on with `--watch` in a terminal, or the other way
+round. That is not a promise, it is a test: `test_refcheck.py` pulls the page's
+`<watch-state>` block out of the HTML, runs it under node against `refcheck.py`
+on the same fixtures, and asserts the two produce the same four drawers and the
+same state file — then writes a state with one and reads it with the other, both
+ways round, and asserts the result is silence. This is the third rule that lives
+in two codebases at once here, and both of the earlier ones (the DOI cleaner,
+the glued-PMID rescue) turned out to have been quietly disagreeing for months
+before anybody extracted them and compared.
+
+The three rules above hold on the page too, including the sharp edge of rule 1:
+a register that did not answer never lifts its own retraction, and a watch run
+does not read the tab's memory.
 
 One limitation, said rather than hidden: `--watch --json` keeps the state file up
 to date but prints the ordinary result list, with no machine-readable diff. The
@@ -1094,14 +1136,14 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 225 offline, 10 network cases skipped
-REFCHECK_RED=1 python3 test_refcheck.py   # all 235, adding the live-API cases
+python3 test_refcheck.py                  # 236 offline, 10 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 246, adding the live-API cases
 ```
 
 "Offline" is checked rather than promised:
 
 ```
-REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 225 must pass
+REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 236 must pass
 ```
 
 That caught two tests on 2026-09-15. A mocked batch that finds nothing now sends
@@ -1119,7 +1161,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 152 checks driving the real page in
+The browser version has its own battery — 177 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:
@@ -1145,6 +1187,18 @@ line-for-line the cold one plus the line admitting where the answer came from.
 And the one that matters most goes the other way — with NCBI down, PubMed must be
 asked **again** on the next run, and the retraction that a cached half answer was
 hiding must come out.
+
+And one the battery was getting wrong until 2026-09-21, which is worth writing
+down because the shape of the mistake is general. Several bars on the page are
+shown and hidden with the `hidden` attribute, and the checks asked the DOM
+whether `hidden` was set — the property the code itself sets. That check cannot
+fail. Meanwhile `.loaded { display: flex }` is an author rule and the browser's
+`[hidden] { display: none }` is a UA rule, so the author rule won: measured
+against the deployed page, a 57-pixel grey bar with a button reading "Remove
+this file" had been sitting there with no file loaded since 13 September, and a
+screen reader had been announcing that button. The accessibility audit missed it
+for the same reason. The checks now read the **computed style and the measured
+height**, which is a question the code cannot answer by assertion.
 
 ## Licence
 

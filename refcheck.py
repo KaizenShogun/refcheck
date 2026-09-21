@@ -1813,6 +1813,17 @@ def escribe_vigilancia(ruta, estado):
     os.replace(tmp, ruta)
 
 
+def registros_mudos(r):
+    """Which registers did not answer about this reference in this run.
+
+    Named by the same string that goes into a notice's `fuente`, so a stored
+    notice can be asked "did the register that told me about you speak today?".
+    Crossref failing is not in here: that failure is an `estado` of its own and
+    is already handled as such.
+    """
+    return {"pubmed"} if r.get("pubmed_error") else set()
+
+
 def compara_vigilancia(estado, resultados):
     """What changed since the state was written.
 
@@ -1820,12 +1831,22 @@ def compara_vigilancia(estado, resultados):
 
       nuevos        — a notice this state has never held. The headline.
       ausentes      — a notice the state holds and today's answer does not, where
-                      today's answer is a real one.
+                      today's answer is a real one FROM THE REGISTER THAT
+                      REPORTED IT.
       no_comprobados— the same shape of absence, but today's lookup failed or the
                       paper was not found. This must NEVER be reported as a
                       notice being withdrawn: "it is fine now" on the strength of
                       a timeout is the most expensive thing this tool could say.
       nuevas        — references not in the state at all. Not news about a paper.
+
+    The per-register half of that was missing until 2026-09-21, and it failed in
+    the worst available direction. A run where Crossref answered and NCBI timed
+    out keeps estado "ok" and carries `pubmed_error`; every notice the state held
+    from PubMed was then absent from today's answer, so it landed under NO LONGER
+    REPORTED — under a sentence that literally reads "Both registers answered".
+    PubMed-only notices are not a corner case here: they are the whole reason the
+    second register exists, one corrected paper in five (measured 2026-09-11). So
+    the most valuable notice this tool holds was the one a timeout could lift.
     """
     vistas = estado.get("vistas", {})
     nuevos, ausentes, no_comprobados, nuevas = [], [], [], []
@@ -1845,8 +1866,15 @@ def compara_vigilancia(estado, resultados):
         if r.get("estado") == "ok":
             idos = [p for p in guardados
                     if not any(_ya_conocido(a, [p]) for a in r["avisos"])]
+            # …and only the register that reported it may do so. A register that
+            # did not answer today has said nothing, and silence is not absence.
+            mudos = registros_mudos(r)
+            callados = [p for p in idos if (p.get("fuente") or "") in mudos]
+            idos = [p for p in idos if (p.get("fuente") or "") not in mudos]
             if idos:
                 ausentes.append((r, idos))
+            if callados:
+                no_comprobados.append((r, {"avisos": callados}))
         elif guardados:
             no_comprobados.append((r, previo))
     return {"nuevos": nuevos, "ausentes": ausentes,
@@ -1859,6 +1887,12 @@ def actualiza_vigilancia(estado, resultados, ahora=None):
     A reference already known is only overwritten when today's lookup succeeded.
     A failed lookup must not erase what was last known — that is how a watch file
     would quietly forget a retraction during an outage.
+
+    "Succeeded" is per register, not per reference. A run where NCBI timed out
+    still succeeds at Crossref, and overwriting the entry wholesale would drop
+    every notice PubMed had contributed — so the next run that reaches NCBI
+    announces a 2019 retraction under "NEW SINCE", and "new" stops meaning new.
+    What a silent register said last time is carried forward untouched.
 
     References that have left the file are kept rather than pruned. Someone who
     points --watch at the wrong file for one run would otherwise destroy the only
@@ -1877,9 +1911,16 @@ def actualiza_vigilancia(estado, resultados, ahora=None):
         nuevo = r.get("estado") == "ok" or clave not in vistas
         if not nuevo:
             continue
+        guardados = [_aviso_guardado(a) for a in r["avisos"]]
+        mudos = registros_mudos(r)
+        if mudos and clave in vistas:
+            previos = vistas[clave].get("avisos", [])
+            guardados += [p for p in previos
+                          if (p.get("fuente") or "") in mudos
+                          and not _ya_conocido(p, guardados)]
         vistas[clave] = {"visto": ahora, "estado": r.get("estado", ""),
                          "titulo": r.get("titulo", ""),
-                         "avisos": [_aviso_guardado(a) for a in r["avisos"]]}
+                         "avisos": guardados}
     return estado
 
 
@@ -1942,9 +1983,9 @@ def informe_vigilancia(cambios, estado, ancho=78):
 
     if cambios["ausentes"]:
         encabeza("NO LONGER REPORTED — %d reference(s)" % len(cambios["ausentes"]))
-        lineas.append("    Both registers answered and no longer carry a notice this")
-        lineas.append("    file had seen. That can mean the retraction was reversed, or")
-        lineas.append("    that a record was edited. Neither register has a vocabulary")
+        lineas.append("    The register that reported this notice answered today and no")
+        lineas.append("    longer carries it. That can mean the retraction was reversed,")
+        lineas.append("    or that a record was edited. Neither register has a vocabulary")
         lineas.append("    for a reinstatement, so refcheck cannot tell you which:")
         lineas.append("    check it at retractiondatabase.org before acting on it.")
         for r, idos in cambios["ausentes"]:
@@ -1963,6 +2004,13 @@ def informe_vigilancia(cambios, estado, ancho=78):
             lineas.append("")
             lineas.append("    " + nombre(r))
             lineas.append("      last known: %s" % ETIQUETA[peor.get("gravedad", 1)])
+            # Said apart, because this one looks like a successful run from the
+            # outside: Crossref answered, the report below is full of verdicts,
+            # and only this line says the register that knew about this notice
+            # was never reached.
+            if r.get("estado") == "ok":
+                lineas.append("      (%s did not answer this run)"
+                              % ", ".join(sorted(registros_mudos(r))))
     if not lineas:
         return ""
     cabecera = ["", "=" * ancho, "  WHAT CHANGED", "=" * ancho]
