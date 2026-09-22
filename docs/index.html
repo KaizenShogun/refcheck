@@ -175,6 +175,9 @@
     </div>
     <p class="loaded" id="watchSaveBar" hidden>
       <span id="watchSaveText"></span>
+      <label id="watchForgetLabel" hidden>
+        <input type="checkbox" id="watchForget"> <span id="watchForgetText"></span>
+      </label>
       <button type="button" class="secondary" id="watchSave">Save the watch file</button>
     </p>
   </form>
@@ -288,6 +291,14 @@
     <em>could not check today</em>, with the retraction still standing. And a watch run does not
     reuse this tab&rsquo;s memory — &ldquo;nothing new&rdquo; has to come from the registers, not
     from something this page already had on hand.
+  </p>
+  <p>
+    References that have left your bibliography are <strong>kept</strong> in the watch file rather
+    than dropped, so that loading the wrong file once cannot destroy the only baseline you have;
+    tick the box on the save bar when you do want them gone. If the file you loaded turns out to
+    have nothing in common with the text you just checked, the report says so at the top — measured
+    on 22 September 2026, that mix-up otherwise looks exactly like a review that was rewritten, and
+    saving merges the two into one file with no way to separate them again.
   </p>
 
   <footer>
@@ -587,6 +598,48 @@
     return estado;
   }
 
+  // How much of what this state watches the text in front of us still holds.
+  // Asymmetric on purpose: "how many of the watched references are in this
+  // file" stays at 100% when a bibliography GROWS, which is the common
+  // legitimate change between two runs and the one a symmetric measure flags.
+  //
+  // Measured on 2026-09-22 over a real 1,000-reference export
+  // (research/measure_watch_mixup.py): 100% for a re-run and for a review that
+  // grew, 80% when a fifth of the references were dropped, 50% when half were
+  // rewritten — and 0% when the watch file belongs to a different bibliography.
+  // Nothing is ever refused above zero: everything between 1% and 99% is
+  // somebody's ordinary Tuesday.
+  function solapaVigilancia(estado, resultados) {
+    var vigiladas = Object.keys((estado && estado.vistas) || {});
+    var enFichero = Object.create(null);
+    resultados.forEach(function (r) {
+      var c = claveVigilada(r);
+      if (c) enFichero[c] = true;
+    });
+    var huerfanas = vigiladas.filter(function (c) { return !enFichero[c]; }).sort();
+    return { vigiladas: vigiladas.length,
+             enFichero: Object.keys(enFichero).length,
+             solapan: vigiladas.length - huerfanas.length,
+             huerfanas: huerfanas };
+  }
+
+  // Drop from the state everything this text no longer contains. Normally the
+  // state is never pruned, and that is deliberate — one run against the wrong
+  // file must not destroy the only baseline there is. The price is a file that
+  // fills up over the years, and two bibliographies fused by a mistaken run
+  // that can never be told apart again. This is the way back, and it is opt-in.
+  //
+  // It declines when the two have nothing in common at all, because that is not
+  // a bibliography that shrank: it is the mistaken run itself, and pruning
+  // there would not tidy the state, it would empty it. Returns how many entries
+  // went, or null when it declined.
+  function olvidaVigilancia(estado, resultados) {
+    var solapa = solapaVigilancia(estado, resultados);
+    if (solapa.vigiladas && !solapa.solapan) return null;
+    solapa.huerfanas.forEach(function (c) { delete estado.vistas[c]; });
+    return solapa.huerfanas.length;
+  }
+
   // A file that cannot be parsed is an error and not an empty state. Treating a
   // foreign or damaged file as "nothing known yet" would report the whole
   // bibliography as new and then offer to overwrite the only real baseline.
@@ -604,7 +657,7 @@
   // write back. Both live in a variable and nowhere else: not localStorage, not
   // sessionStorage, not a cookie. Closing the tab loses them, which is the
   // point — the only durable copy is the one the reader chose to keep.
-  var watchState = null, watchName = "", watchNext = null;
+  var watchState = null, watchName = "", watchNext = null, watchForgetNext = null;
 
   function watchDate(seg) {
     return seg ? new Date(seg * 1000).toISOString().slice(0, 10) : "an unknown date";
@@ -648,11 +701,30 @@
     reader.readAsText(f);
   }
 
-  function offerWatchSave(estado, hubo) {
+  function offerWatchSave(estado, hubo, solapa, podado) {
     watchNext = estado;
-    $("watchSaveText").textContent = hubo
+    watchForgetNext = podado || null;
+    var texto = hubo
       ? "Save the updated file to keep watching."
       : "Save this as a watch file and load it back next time to see what changed.";
+    // The count goes on the bar after every run, not only when something looks
+    // wrong. A number that appears exclusively in bad news is a number nobody
+    // has ever seen before, and it turns up on the day it has to be understood.
+    if (solapa && solapa.vigiladas) {
+      texto += " Watching " + solapa.vigiladas + " reference(s), " +
+               solapa.solapan + " of them in this text.";
+    }
+    $("watchSaveText").textContent = texto;
+    // Offered only when there is something to drop AND dropping it is safe. The
+    // shared rule in olvidaVigilancia declines when the two share nothing, and
+    // that is precisely the run where a tidy-up would empty the file instead.
+    var n = solapa ? solapa.huerfanas.length : 0;
+    var puede = !!watchForgetNext && n > 0;
+    $("watchForgetText").textContent = puede
+      ? "Also forget the " + n + " reference(s) no longer in this text"
+      : "";
+    $("watchForgetLabel").hidden = !puede;
+    if (!puede) $("watchForget").checked = false;
     $("watchSaveBar").hidden = false;
   }
 
@@ -1523,7 +1595,7 @@
 
   // The changes block, above the ordinary report. Empty when there is nothing
   // to say — the point of a watch is that most runs have no news.
-  function renderWatch(cambios, desde) {
+  function renderWatch(cambios, desde, solapa) {
     var lines = [];
     // Taken as a number, not read out of the state object, because the state is
     // updated in place right after the comparison: reading `actualizado` here
@@ -1549,6 +1621,27 @@
       parent.appendChild(p);
       lines.push("  " + (prefijo || "") + nombre + (r.titulo ? " — " + r.titulo : ""));
       return p;
+    }
+
+    // First, because it changes how everything under it should be read. A watch
+    // file that shares nothing with this text is invisible in the report
+    // otherwise: measured on 2026-09-22, a mix-up produces exactly what a
+    // heavily rewritten review produces. It warns rather than refuses — the
+    // fusion makes no later verdict wrong; what it costs is noise now and a
+    // file nobody can take apart afterwards.
+    if (solapa && solapa.vigiladas && !solapa.solapan) {
+      var h = seccion("THIS WATCH FILE AND THIS BIBLIOGRAPHY HAVE NOTHING IN COMMON");
+      h.className = "clash";
+      [ "The watch file follows " + solapa.vigiladas + " reference(s) and not one " +
+        "of them is in this text. Either it belongs to a different bibliography, " +
+        "or this is a different one from the text it was built on.",
+        "The verdicts below are fine and nothing was lost. But saving now merges " +
+        "the two sets into one file, with no way to separate them later. Stop " +
+        "here if that was not what you meant."
+      ].forEach(function (t) {
+        box.appendChild(el("p", "meta", t));
+        lines.push("  " + t);
+      });
     }
 
     if (cambios.nuevos.length) {
@@ -1655,7 +1748,7 @@
     // runs this every month is here for this block, not to re-read a hundred
     // verdicts they already saw last time.
     var wBlock = (watch && watch.cambios)
-               ? renderWatch(watch.cambios, watch.desde) : null;
+               ? renderWatch(watch.cambios, watch.desde, watch.solapa) : null;
     if (wBlock) out.appendChild(wBlock.node);
     repaired = repaired || [];
     citedAs = citedAs || Object.create(null);
@@ -2490,14 +2583,31 @@
         var desdeSeg = watchState
                      ? (watchState.actualizado || watchState.creado) : 0;
         var cambios = watchState ? comparaVigilancia(watchState, vigilables) : null;
+        var solapa = watchState ? solapaVigilancia(watchState, vigilables) : null;
         var hubo = !!cambios && (cambios.nuevos.length || cambios.ausentes.length ||
                                  cambios.noComprobados.length ||
                                  cambios.nuevas.some(function (r) { return r.avisos.length; }));
+        // The pruned alternative is built from a COPY of the state as it was
+        // loaded, and pruned before the update — never after. Asking "do these
+        // two have anything in common?" of a state that has already been given
+        // this run's references answers yes by construction, so the guard could
+        // not fail and a tidy-up against the wrong file would have deleted the
+        // very baseline it exists to protect. The CLI had that bug for an hour
+        // on 2026-09-22 and running it is what found it.
+        var podado = null;
+        if (watchState) {
+          var copia = JSON.parse(JSON.stringify(watchState));
+          if (olvidaVigilancia(copia, vigilables) !== null) {
+            podado = actualizaVigilancia(copia, vigilables,
+                                         Math.floor(Date.now() / 1000));
+          }
+        }
         // Note the order: compared FIRST, then updated. Updating in place and
         // then comparing against it would compare a state with itself and find
         // nothing new, for ever.
         offerWatchSave(actualizaVigilancia(watchState, vigilables,
-                                           Math.floor(Date.now() / 1000)), !!watchState);
+                                           Math.floor(Date.now() / 1000)),
+                       !!watchState, solapa, podado);
 
         // `total` counts everything that had a lookup attempted, so that
         // render's  checked = total - unchecked  still comes out right once the
@@ -2505,7 +2615,7 @@
         render(found, notFound, unchecked, dois.length + fallados.length, sueltos,
                halfList, { n: cacheCount, oldest: cacheOldest },
                superseded, notRetried, nonexistent, elsewhere, repaired, citedAs,
-               cambios ? { cambios: cambios, desde: desdeSeg } : null);
+               cambios ? { cambios: cambios, desde: desdeSeg, solapa: solapa } : null);
         if (cambios && !hubo) {
           status.textContent += " Nothing has changed since " +
             watchDate(desdeSeg) + ".";
@@ -2634,8 +2744,10 @@
 
   $("watchSave").addEventListener("click", function () {
     if (!watchNext) return;
+    var olvidando = $("watchForget").checked && watchForgetNext;
+    var guardar = olvidando ? watchForgetNext : watchNext;
     var nombre = watchName || "refcheck-watch.json";
-    var blob = new Blob([JSON.stringify(watchNext, null, 1)],
+    var blob = new Blob([JSON.stringify(guardar, null, 1)],
                         { type: "application/json" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -2649,10 +2761,24 @@
     // watching. Without this, checking the same list again five minutes later
     // would compare against nothing and say nothing, and the reader would
     // reasonably conclude the feature does not work.
-    if (!watchState) { watchState = watchNext; watchName = nombre; showWatch(); }
-    status.textContent = "Saved as “" + nombre + "”. Keep it, and load it back here " +
-      "next time. It is the list of what you have been reading: keep it where you " +
-      "would keep your own notes.";
+    if (!watchState) { watchState = guardar; watchName = nombre; showWatch(); }
+    // Dropped from the file AND from the tab. Leaving the tab holding the long
+    // version would mean the next check in this session compares against
+    // references the saved file no longer has, and says "new" about them.
+    // Dropped from the tab as well, and the offer withdrawn: a second click on
+    // Save with the box since unticked would otherwise hand back a file with
+    // the reference in it again, while the page believes it is gone.
+    if (olvidando) {
+      watchState = guardar;
+      watchNext = guardar;
+      $("watchForgetLabel").hidden = true;
+      $("watchForget").checked = false;
+      showWatch();
+    }
+    status.textContent = "Saved as “" + nombre + "”. " +
+      (olvidando ? "The references that had left your bibliography are not in it. " : "") +
+      "Keep it, and load it back here next time. It is the list of what you have " +
+      "been reading: keep it where you would keep your own notes.";
   });
 
   // Typing while a file is held would mean the box shows one thing and the

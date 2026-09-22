@@ -1924,6 +1924,78 @@ def actualiza_vigilancia(estado, resultados, ahora=None):
     return estado
 
 
+def solapa_vigilancia(estado, resultados):
+    """How much of what this state watches the file in front of us still holds.
+
+    Asymmetric on purpose. "How many of the watched references are in this file"
+    stays at 100% when a bibliography GROWS, which is the common legitimate
+    change between two runs and the one a symmetric measure would flag.
+
+    Measured on 2026-09-22 over a real 1,000-reference export
+    (research/measure_watch_mixup.py), the state's coverage by the file is 100%
+    for a re-run and for a review that grew, 80% when a fifth of the references
+    were dropped, 50% when half were rewritten — and 0% when the watch file
+    belongs to a different bibliography altogether. That is why the only figure
+    anything is ever refused on is zero: no innocent way of using this lands
+    there, while everything between 1% and 99% is somebody's ordinary Tuesday.
+    """
+    vigiladas = set(estado.get("vistas", {}))
+    del_fichero = {c for c in (clave_vigilada(r) for r in resultados) if c}
+    return {"vigiladas": len(vigiladas), "en_fichero": len(del_fichero),
+            "solapan": len(vigiladas & del_fichero),
+            "huerfanas": sorted(vigiladas - del_fichero)}
+
+
+def olvida_vigilancia(estado, resultados):
+    """Drop from the state everything this file no longer contains.
+
+    The state is normally never pruned, and that is a deliberate choice: someone
+    who points --watch at the wrong file once would otherwise destroy the only
+    baseline they have. The price is that a watch file kept for years fills up
+    with references nobody cites any more, and that two bibliographies fused by
+    one mistaken run can never be told apart again. This is the way back, and it
+    is opt-in for exactly that reason.
+
+    It declines when the file and the state have NOTHING in common, because that
+    is not a bibliography that shrank — it is the mistaken run itself, and here
+    pruning would not tidy the state, it would empty it. Returns the number of
+    entries removed, or None when it declined.
+    """
+    solapa = solapa_vigilancia(estado, resultados)
+    if solapa["vigiladas"] and not solapa["solapan"]:
+        return None
+    for clave in solapa["huerfanas"]:
+        estado.get("vistas", {}).pop(clave, None)
+    return len(solapa["huerfanas"])
+
+
+def aviso_de_solapamiento(solapa, ancho=78):
+    """The line that says a watch file and a bibliography do not know each other.
+
+    Only at zero. Measured (see solapa_vigilancia) a mix-up is invisible in the
+    report today: a watch file from a different bibliography produces exactly
+    what a heavily rewritten review produces — a wall of "new to this file" and
+    a state that silently doubles in size. The fusion does not make any later
+    verdict wrong, which is why this warns instead of refusing; what it costs is
+    noise now and a state that cannot be taken apart afterwards.
+    """
+    if not solapa["vigiladas"] or solapa["solapan"]:
+        return ""
+    return "\n".join([
+        "",
+        "  " + "!" * min(60, ancho - 2),
+        "  THIS WATCH FILE AND THIS BIBLIOGRAPHY HAVE NOTHING IN COMMON",
+        "  " + "!" * min(60, ancho - 2),
+        "    The watch file follows %d reference(s) and not one of them is in"
+        % solapa["vigiladas"],
+        "    this text. Either it belongs to a different bibliography, or this",
+        "    is a different one from the text it was built on.",
+        "    Nothing is wrong with the verdicts below, and nothing was lost: the",
+        "    two sets will simply be merged into one file, with no way to",
+        "    separate them later. Stop here if that was not what you meant.",
+    ])
+
+
 def informe_vigilancia(cambios, estado, ancho=78):
     """The changes block, printed above the ordinary report.
 
@@ -2049,10 +2121,18 @@ def main():
     p.add_argument("--only-new", action="store_true",
                    help="with --watch, print only what changed — and nothing at "
                         "all when nothing did, so it can be run from cron")
+    p.add_argument("--forget", action="store_true",
+                   help="with --watch, drop from the watch file the references "
+                        "this bibliography no longer contains. Off by default: "
+                        "keeping them is what stops one run against the wrong "
+                        "file from destroying a baseline. Declines when the file "
+                        "and the watch file have nothing in common at all")
     a = p.parse_args()
 
     if a.only_new and not a.watch:
         p.error("--only-new needs --watch")
+    if a.forget and not a.watch:
+        p.error("--forget needs --watch")
     if a.only_new and a.json:
         p.error("--only-new and --json are different answers to different "
                 "questions; pick one")
@@ -2133,16 +2213,29 @@ def main():
     if ruidoso:
         print("\r" + " " * 30 + "\r", end="", file=sys.stderr)
 
-    cambios = bloque = None
+    cambios = bloque = solapa = None
+    alerta = ""
     if a.watch:
         if estado_previo is not None:
             cambios = compara_vigilancia(estado_previo, resultados)
             bloque = informe_vigilancia(cambios, estado_previo)
+            solapa = solapa_vigilancia(estado_previo, resultados)
+            alerta = aviso_de_solapamiento(solapa)
 
     if a.json:
+        # On stderr, so the JSON on stdout stays machine-readable. A pipeline
+        # whose watch file has stopped following its own bibliography should not
+        # be the only caller that never hears about it.
+        if alerta:
+            print(alerta, file=sys.stderr)
         json.dump(resultados, sys.stdout, ensure_ascii=False, indent=1)
         print()
     elif a.only_new:
+        # The alert prints even from cron, and even when there is no news. A
+        # watch that has quietly stopped looking at your bibliography is exactly
+        # the thing a silent cron job must not keep to itself.
+        if alerta:
+            print(alerta)
         if bloque:
             print(bloque)
         # No previous state means there is nothing to compare against, and a
@@ -2153,14 +2246,40 @@ def main():
             print("Baseline saved: %d reference(s). Run this again later to see "
                   "what changed." % len(resultados), file=sys.stderr)
     else:
+        if alerta:
+            print(alerta)
         if bloque:
             print(bloque)
         print(informe(resultados))
         if estado_previo is None:
             print("  Watching %d reference(s) from now on: %s"
                   % (len(resultados), a.watch))
+        elif solapa:
+            # Said on every run, not only when something looks wrong: a count
+            # that appears exclusively in bad news is a count nobody has ever
+            # seen before, and it arrives on the day it needs to be understood.
+            print("  Watch file: %d reference(s) followed, %d of them in this file."
+                  % (solapa["vigiladas"], solapa["solapan"]))
+            if solapa["huerfanas"] and not a.forget:
+                print("    %d not in this text are kept anyway, in case the wrong "
+                      "file\n    was checked. --forget drops them."
+                      % len(solapa["huerfanas"]))
 
     if a.watch:
+        # Pruned BEFORE the update, never after. Asking "do these two have
+        # anything in common?" of a state that has already been given this run's
+        # references answers yes by construction — the guard could not fail, and
+        # a --forget against the wrong file would have quietly deleted the real
+        # baseline it exists to protect. Found by running it, not by reading it.
+        if a.forget and estado_previo is not None:
+            podadas = olvida_vigilancia(estado_previo, resultados)
+            if podadas is None:
+                print("--forget did nothing: this file has nothing in common with "
+                      "the watch file, so pruning would empty it rather than tidy "
+                      "it.", file=sys.stderr)
+            elif podadas:
+                print("Forgot %d reference(s) no longer in this bibliography."
+                      % podadas, file=sys.stderr)
         try:
             escribe_vigilancia(a.watch, actualiza_vigilancia(estado_previo, resultados))
         except OSError as e:

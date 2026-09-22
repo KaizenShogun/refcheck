@@ -2647,6 +2647,14 @@ VIGILANCIA_ANTES = [
     {"doi": "10.5555/f", "estado": "ok", "titulo": "F", "avisos": []},
 ]
 
+# A different bibliography altogether: not one identifier in common with the two
+# above. This is the mix-up — the watch file from one review meeting the text of
+# another — and the only case either side is allowed to refuse to prune.
+VIGILANCIA_AJENA = [
+    {"doi": "10.7777/x", "estado": "ok", "titulo": "X", "avisos": []},
+    {"doi": "10.7777/y", "estado": "ok", "titulo": "Y", "avisos": []},
+]
+
 VIGILANCIA_HOY = [
     # unchanged
     {"doi": "10.5555/a", "estado": "ok", "titulo": "A", "avisos": [
@@ -2706,7 +2714,8 @@ class ParidadDeLaVigilancia(unittest.TestCase):
         self.assertIsNotNone(bloque)
         guion = (bloque +
                  "\nconst ANTES = " + json.dumps(VIGILANCIA_ANTES) + ";\n"
-                 "const HOY = " + json.dumps(VIGILANCIA_HOY) + ";\n" + cuerpo)
+                 "const HOY = " + json.dumps(VIGILANCIA_HOY) + ";\n"
+                 "const AJENA = " + json.dumps(VIGILANCIA_AJENA) + ";\n" + cuerpo)
         with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False,
                                          encoding="utf-8") as fh:
             fh.write(guion)
@@ -2811,6 +2820,80 @@ class ParidadDeLaVigilancia(unittest.TestCase):
         self.assertEqual(vacio, [0, 0, 0, 0],
                          "la página ve novedades en un fichero del CLI con los "
                          "mismos datos")
+
+    def test_el_solapamiento_se_cuenta_igual_en_los_dos_sitios(self):
+        """The number both sides decide on: how much of what is being watched
+        this text still contains. A drift here would mean the page warning about
+        a mix-up the terminal thinks is fine, or the reverse."""
+        js = self._js(
+            "const antes = actualizaVigilancia(null, JSON.parse(JSON.stringify(ANTES)), 1000000);\n"
+            "const out = {\n"
+            "  hoy: solapaVigilancia(antes, JSON.parse(JSON.stringify(HOY))),\n"
+            "  misma: solapaVigilancia(antes, JSON.parse(JSON.stringify(ANTES))),\n"
+            "  ajena: solapaVigilancia(antes, JSON.parse(JSON.stringify(AJENA))),\n"
+            "  vacio: solapaVigilancia({vistas: {}}, JSON.parse(JSON.stringify(HOY)))\n"
+            "};\n"
+            "console.log(JSON.stringify(out));\n")
+        antes = refcheck.actualiza_vigilancia(None, copy.deepcopy(VIGILANCIA_ANTES),
+                                              ahora=1_000_000)
+        casos = {"hoy": VIGILANCIA_HOY, "misma": VIGILANCIA_ANTES,
+                 "ajena": VIGILANCIA_AJENA}
+        for nombre, refs in casos.items():
+            py = refcheck.solapa_vigilancia(antes, copy.deepcopy(refs))
+            with self.subTest(caso=nombre):
+                self.assertEqual({"vigiladas": py["vigiladas"],
+                                  "enFichero": py["en_fichero"],
+                                  "solapan": py["solapan"],
+                                  "huerfanas": py["huerfanas"]}, js[nombre])
+        vacio = refcheck.solapa_vigilancia({"vistas": {}},
+                                           copy.deepcopy(VIGILANCIA_HOY))
+        self.assertEqual(vacio["solapan"], 0)
+        self.assertEqual(vacio["vigiladas"], 0)
+        self.assertEqual(js["vacio"]["vigiladas"], 0)
+        # The cases have to cover the three shapes or this proves nothing: a
+        # file that dropped some references, an identical one, and a foreign one.
+        self.assertTrue(js["hoy"]["huerfanas"], "ningún caso con referencias que se van")
+        self.assertEqual(js["misma"]["huerfanas"], [], "ningún caso idéntico")
+        self.assertEqual(js["ajena"]["solapan"], 0, "ningún caso de fichero ajeno")
+
+    def test_olvidar_poda_y_declina_igual_en_los_dos_sitios(self):
+        """--forget on the page and in the terminal, including the refusal.
+
+        The refusal is the half that matters: a state with nothing in common
+        with the text is not a bibliography that shrank, it is the wrong file,
+        and pruning there empties the only baseline there is.
+        """
+        js = self._js(
+            "function base() { return actualizaVigilancia(null,"
+            " JSON.parse(JSON.stringify(ANTES)), 1000000); }\n"
+            "const a = base(), b = base(), c = { vistas: {} };\n"
+            "const out = {\n"
+            "  podadas: olvidaVigilancia(a, JSON.parse(JSON.stringify(HOY))),\n"
+            "  quedan: Object.keys(a.vistas).sort(),\n"
+            "  declina: olvidaVigilancia(b, JSON.parse(JSON.stringify(AJENA))),\n"
+            "  intactas: Object.keys(b.vistas).sort(),\n"
+            "  vacio: olvidaVigilancia(c, JSON.parse(JSON.stringify(AJENA)))\n"
+            "};\n"
+            "console.log(JSON.stringify(out));\n")
+
+        def base():
+            return refcheck.actualiza_vigilancia(None, copy.deepcopy(VIGILANCIA_ANTES),
+                                                 ahora=1_000_000)
+
+        a, b, c = base(), base(), {"vistas": {}}
+        py = {"podadas": refcheck.olvida_vigilancia(a, copy.deepcopy(VIGILANCIA_HOY)),
+              "quedan": sorted(a["vistas"]),
+              "declina": refcheck.olvida_vigilancia(b, copy.deepcopy(VIGILANCIA_AJENA)),
+              "intactas": sorted(b["vistas"]),
+              "vacio": refcheck.olvida_vigilancia(c, copy.deepcopy(VIGILANCIA_AJENA))}
+        self.assertEqual(py, js, "CLI y página no olvidan lo mismo")
+        self.assertEqual(py["podadas"], 1, "la poda legítima no quitó lo que sobra")
+        self.assertNotIn("10.5555/f", py["quedan"])
+        self.assertIsNone(py["declina"], "podó contra un fichero ajeno")
+        self.assertEqual(py["intactas"], sorted(base()["vistas"]),
+                         "el fichero ajeno se llevó la línea base por delante")
+        # An empty state is not a mix-up, it is a first run: nothing to refuse.
+        self.assertEqual(py["vacio"], 0)
 
     def test_la_pagina_rechaza_lo_que_el_cli_rechaza(self):
         """Both must refuse a foreign file rather than treat it as an empty
@@ -2948,6 +3031,103 @@ class VigilanciaEnLaCLI(unittest.TestCase):
             c, _, err, _ = self._corre(["refcheck.py", self.refs, "--watch", ruta])
         self.assertEqual(c, 2)
         self.assertIn("Could not write the watch file", err)
+
+    def _otra_bibliografia(self):
+        """A second bibliography with nothing in common with the first."""
+        otras = os.path.join(self.dir, "otras.txt")
+        with open(otras, "w", encoding="utf-8") as f:
+            f.write("10.5555/xxx\n10.5555/yyy\n")
+        self.obras["10.5555/xxx"] = {"DOI": "10.5555/xxx", "title": ["Equis"]}
+        self.obras["10.5555/yyy"] = {"DOI": "10.5555/yyy", "title": ["Ye"]}
+        return otras
+
+    def test_el_fichero_equivocado_se_dice_en_voz_alta(self):
+        """Measured on 2026-09-22 over a real 1,000-reference export: a watch
+        file meeting a different bibliography produces exactly what a heavily
+        rewritten review produces — a wall of "new to this file" and a state
+        that silently doubles. Nothing in the report separated the two."""
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        otras = self._otra_bibliografia()
+        _, texto, _, _ = self._corre(["refcheck.py", otras, "--watch", self.watch])
+        self.assertIn("NOTHING IN COMMON", texto)
+        self.assertIn("2 reference(s) followed, 0 of them in this file", texto)
+        # It warns, it does not refuse: the merge makes no verdict wrong, and a
+        # tool that refused to run here would be unusable the day it is wrong.
+        with open(self.watch, encoding="utf-8") as f:
+            self.assertEqual(len(json.load(f)["vistas"]), 4)
+
+    def test_el_fichero_equivocado_tambien_despierta_a_cron(self):
+        """--only-new is silence unless something happened. A watch that has
+        quietly stopped looking at your bibliography is something that happened,
+        and it is the one case where the silence would last for ever."""
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        otras = self._otra_bibliografia()
+        _, texto, _, _ = self._corre(["refcheck.py", otras, "--watch", self.watch,
+                                      "--only-new"])
+        self.assertIn("NOTHING IN COMMON", texto)
+        self.assertNotIn("reference(s) checked", texto,
+                         "--only-new printed the whole report")
+
+    def test_el_aviso_llega_tambien_a_un_pipeline(self):
+        """--json keeps stdout machine-readable, so the alert goes to stderr.
+        A pipeline should not be the only caller that never hears this."""
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        otras = self._otra_bibliografia()
+        _, texto, err, _ = self._corre(["refcheck.py", otras, "--watch", self.watch,
+                                        "--json"])
+        self.assertIn("NOTHING IN COMMON", err)
+        json.loads(texto)          # stdout is still nothing but JSON
+
+    def test_el_recuento_sale_en_cada_tirada_no_solo_en_la_mala(self):
+        """A number that only ever appears inside bad news is a number nobody
+        has seen before, arriving on the day it has to be understood."""
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        _, texto, _, _ = self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self.assertIn("2 reference(s) followed, 2 of them in this file", texto)
+        self.assertNotIn("NOTHING IN COMMON", texto)
+        self.assertNotIn("--forget", texto, "ofreció podar sin nada que podar")
+
+    def test_forget_poda_lo_que_ya_no_esta(self):
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        with open(self.refs, "w", encoding="utf-8") as f:
+            f.write("10.5555/aaa\n")
+        _, texto, _, _ = self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        self.assertIn("--forget drops them", texto,
+                      "no dijo que hay una forma de limpiarlo")
+        _, _, err, _ = self._corre(["refcheck.py", self.refs, "--watch", self.watch,
+                                    "--forget"])
+        self.assertIn("Forgot 1 reference(s)", err)
+        with open(self.watch, encoding="utf-8") as f:
+            self.assertEqual(sorted(json.load(f)["vistas"]), ["10.5555/aaa"])
+
+    def test_forget_contra_el_fichero_equivocado_no_borra_la_linea_base(self):
+        """The regression that matters, and it was real for an hour on
+        2026-09-22: the guard was asked of a state that had already been given
+        this run's references, so it answered "they have plenty in common" by
+        construction and pruned the whole baseline away. A guard that cannot
+        fail is not a guard."""
+        self._corre(["refcheck.py", self.refs, "--watch", self.watch])
+        otras = self._otra_bibliografia()
+        _, _, err, _ = self._corre(["refcheck.py", otras, "--watch", self.watch,
+                                    "--forget"])
+        self.assertIn("--forget did nothing", err)
+        with open(self.watch, encoding="utf-8") as f:
+            vistas = sorted(json.load(f)["vistas"])
+        self.assertEqual(vistas, ["10.5555/aaa", "10.5555/bbb",
+                                  "10.5555/xxx", "10.5555/yyy"],
+                         "la línea base original desapareció del fichero")
+
+    def test_forget_en_la_primera_tirada_no_revienta(self):
+        _, texto, err, _ = self._corre(["refcheck.py", self.refs, "--watch",
+                                        self.watch, "--forget"])
+        self.assertIn("Watching 2 reference(s)", texto)
+        self.assertNotIn("Forgot", err)
+        with open(self.watch, encoding="utf-8") as f:
+            self.assertEqual(len(json.load(f)["vistas"]), 2)
+
+    def test_forget_sin_watch_no_arranca(self):
+        with self.assertRaises(SystemExit):
+            self._corre(["refcheck.py", self.refs, "--forget"])
 
     def test_un_fichero_corrupto_para_la_tirada(self):
         with open(self.watch, "w", encoding="utf-8") as f:

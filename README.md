@@ -675,7 +675,68 @@ screening a systematic review an erratum that changes a table is not a footnote.
    cache, which helps the next ordinary run and misleads no one.
 3. **References that leave your file are kept, not pruned.** Point `--watch` at
    the wrong file once and you would otherwise destroy the only baseline you
-   have. Stale entries cost a few hundred bytes.
+   have. Stale entries cost a few hundred bytes. `--forget` prunes them when you
+   ask for it — see below, including the one case where it refuses.
+
+### When the watch file and the bibliography are strangers
+
+Rule 3 has a price, and on 2026-09-22 I measured it instead of arguing about it.
+Take a real 1,000-reference PubMed export, one `--json` run so every verdict is a
+real answer, and replay six ways a watch file can meet a bibliography
+(`research/measure_watch_mixup.py`):
+
+| scenario | of the watched references, still in the file | new refs reported | state after |
+|---|---:|---:|---:|
+| same file again | 100% | 0 | 1,000 |
+| review grew by a quarter | 100% | 200 | 1,000 |
+| a fifth of it dropped | 80% | 0 | 1,000 |
+| half of it rewritten | 50% | 300 | 900 |
+| almost entirely rewritten | 10% | 500 | 1,000 |
+| **watch file from a different bibliography** | **0%** | 500 | 1,000 |
+
+The last two rows are the finding: a mix-up produced *exactly* what a heavily
+rewritten review produces — a wall of "new to this file", eleven of them already
+carrying a notice, and a state that silently doubled. Nothing on screen told them
+apart.
+
+**How bad is it, measured and not assumed.** After the mix-up, the next correct
+run over the right file gives the same four drawers as a clean state, number for
+number. No verdict becomes wrong. What it costs is noise now, and 500 references
+fused into a file nobody can take apart again. So this **warns and does not
+refuse** — a tool that refused to run here would be unusable the day it guessed
+wrong:
+
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      THIS WATCH FILE AND THIS BIBLIOGRAPHY HAVE NOTHING IN COMMON
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+It prints under `--only-new` too. A cron job whose watch has quietly stopped
+looking at your bibliography is the one silence that would last for ever.
+
+**Zero is the only number anything is refused on**, and the table is why. The
+figure is asymmetric on purpose — *how much of what I am watching is still in
+this file* stays at 100% when a bibliography grows, which is the common
+legitimate change a symmetric measure would flag. Everything between 1% and 99%
+is somebody's ordinary Tuesday, so it is reported as a plain count on every run
+and nothing more:
+
+    Watch file: 40 reference(s) followed, 30 of them in this file.
+      10 not in this text are kept anyway, in case the wrong file
+      was checked. --forget drops them.
+
+`--forget` does the pruning, and declines exactly once: when the file and the
+watch file share nothing at all. That is not a bibliography that shrank, it is
+the mistaken run itself, and pruning there would not tidy the file, it would
+empty it. On the page the same thing is a checkbox on the save bar, offered only
+when there is something to drop and dropping it is safe — the same shared rule,
+asserted by the parity test.
+
+That guard was wrong for an hour on the day it was written, and only running it
+found it: the prune happened *after* the state had been updated with this run's
+references, so the question "do these two have anything in common?" was being put
+to a state that already contained the answer. It said yes by construction and
+deleted the real baseline. A guard that cannot fail is not a guard; there is a
+regression test named after it.
 
 A notice really disappearing *is* reported, under `NO LONGER REPORTED`, and it is
 deliberately not phrased as good news: neither register has a vocabulary for a
@@ -1136,14 +1197,14 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 236 offline, 10 network cases skipped
-REFCHECK_RED=1 python3 test_refcheck.py   # all 246, adding the live-API cases
+python3 test_refcheck.py                  # 246 offline, 10 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 256, adding the live-API cases
 ```
 
 "Offline" is checked rather than promised:
 
 ```
-REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 236 must pass
+REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 246 must pass
 ```
 
 That caught two tests on 2026-09-15. A mocked batch that finds nothing now sends
@@ -1161,7 +1222,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 177 checks driving the real page in
+The browser version has its own battery — 185 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:

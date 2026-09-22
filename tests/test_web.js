@@ -1317,6 +1317,91 @@
   ok("and the watch state is not smuggled into sessionStorage either",
      !claves.some((k) => /watch/i.test(k)), claves.join(","));
 
+  // 9. the watch file that belongs to a DIFFERENT bibliography (2026-09-22).
+  //    Measured that day over a real 1,000-reference export: a mix-up produces
+  //    exactly what a heavily rewritten review produces — a wall of "new to
+  //    this file" and a state that silently doubles — so nothing on the screen
+  //    told the two apart. It warns and does not refuse, because the merge
+  //    makes no verdict wrong; what it costs is a file nobody can unfuse.
+  const OTRO = "10.5555/somebody-elses";
+  const otroStub = (dois) => function (u) {
+    const url = String(u);
+    if (/api\.crossref\.org/.test(url)) {
+      return isBatch(url)
+        ? reply({ message: { items: dois.map((d) => ({ DOI: d,
+            title: ["Paper " + d], "container-title": ["J Test"] })) } })
+        : reply({ message: null });
+    }
+    if (/doi\.org\/ra\//.test(url)) return reply(dois.map((d) => ({ DOI: d, RA: "Crossref" })));
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+    return reply({});
+  };
+  coldTab();
+  await cargaWatch(estadoCon([avisoXref], AYER));
+  window.fetch = otroStub([OTRO]);
+  s = await check(OTRO);
+  ok("a watch file with nothing in common with the text says so, loudly",
+     /NOTHING IN COMMON/.test(txtAbierto()), txt().slice(0, 300));
+  ok("and it says how many references it is following that are not here",
+     /follows 1 reference/.test(txtAbierto()));
+  ok("the save bar counts the overlap on an ordinary run too",
+     /Watching 1 reference\(s\), 0 of them in this text/
+       .test($("#watchSaveText").textContent), $("#watchSaveText").textContent);
+  // The refusal, on the page: tidying up here would not tidy the file, it would
+  // empty it. The option is not offered rather than offered and declined.
+  ok("forgetting is NOT offered when the two share nothing at all",
+     oculto("#watchForgetLabel"), getComputedStyle($("#watchForgetLabel")).display);
+
+  // 10. forgetting what really did leave the bibliography.
+  coldTab();
+  const VIEJO = "10.5555/dropped-last-year";
+  const dosVistas = JSON.stringify({
+    refcheck_watch: 1, creado: AYER, actualizado: AYER,
+    vistas: {
+      [WDOI]: { visto: AYER, estado: "ok", titulo: "A watched paper", avisos: [] },
+      [VIEJO]: { visto: AYER, estado: "ok", titulo: "Dropped", avisos: [] }
+    }
+  });
+  await cargaWatch(dosVistas);
+  window.fetch = otroStub([WDOI]);
+  s = await check(WDOI);
+  ok("forgetting IS offered when a reference really left the bibliography",
+     !oculto("#watchForgetLabel") &&
+     /Also forget the 1 reference/.test($("#watchForgetText").textContent),
+     $("#watchForgetText").textContent);
+
+  const guarda = async () => {
+    let b = null;
+    const c = URL.createObjectURL, r = URL.revokeObjectURL,
+          k = HTMLAnchorElement.prototype.click;
+    URL.createObjectURL = function (x) { b = x; return "blob:stub"; };
+    URL.revokeObjectURL = function () {};
+    HTMLAnchorElement.prototype.click = function () {};
+    $("#watchSave").click();
+    const t = b ? await b.text() : "";
+    URL.createObjectURL = c; URL.revokeObjectURL = r;
+    HTMLAnchorElement.prototype.click = k;
+    try { return JSON.parse(t); } catch (e) { return null; }
+  };
+  let sinTocar = await guarda();
+  ok("unticked, the reference that left is kept — that is the default and the "
+     + "reason one run against the wrong file cannot destroy a baseline",
+     !!sinTocar && !!sinTocar.vistas[VIEJO] && !!sinTocar.vistas[WDOI]);
+  $("#watchForget").checked = true;
+  let podado = await guarda();
+  ok("ticked, the saved file drops it and keeps the rest",
+     !!podado && !podado.vistas[VIEJO] && !!podado.vistas[WDOI],
+     podado ? Object.keys(podado.vistas).join(",") : "");
+  // The bytes and the tab have to agree: if the page kept the long version in
+  // memory, the next check in this same session would call the dropped
+  // reference news all over again.
+  window.fetch = otroStub([WDOI]);
+  s = await check(WDOI);
+  ok("and the tab forgets it too, so the next run does not resurrect it",
+     /Watching 1 reference\(s\), 1 of them in this text/
+       .test($("#watchSaveText").textContent), $("#watchSaveText").textContent);
+
   quitaWatch();
   ok("removing the watch file clears it from the page, screen included",
      oculto("#watchLoaded") && !$("#watchLoadedText").textContent,
