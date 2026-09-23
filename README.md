@@ -56,8 +56,8 @@ month" is not a mess, it is the only part you have not already read.
 **→ [kaizenshogun.github.io/refcheck](https://kaizenshogun.github.io/refcheck/)**
 
 Paste your reference list, or open the file you already have — a `.nbib`
-straight from PubMed's **Send to → Citation manager**, a `.ris`, a `.bib`, a
-`.txt`. Drag it onto the box or use the file button. Press one button. No
+straight from PubMed's **Send to → Citation manager**, a `.ris` out of Scopus,
+Web of Science, Embase, Rayyan or Zotero, a `.bib`, a `.txt`. Drag it onto the box or use the file button. Press one button. No
 account, no upload, no terminal.
 
 The file is read *inside your browser* by the same page, and its bytes never
@@ -84,7 +84,7 @@ no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 177-check battery in a real headless browser against the real APIs.
+is driven by a 193-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -93,6 +93,7 @@ python3 refcheck.py refs.bib          # a BibTeX file
 python3 refcheck.py dois.txt          # one DOI per line, or a pasted bibliography
 python3 refcheck.py pubmed.txt        # PMIDs work too — see below
 python3 refcheck.py export.nbib       # PubMed's "Send to → Citation manager" file
+python3 refcheck.py scopus.ris        # Scopus, Web of Science, Embase, Rayyan, Zotero…
 python3 refcheck.py refs.bib --json   # machine-readable, for pipelines
 echo 10.1371/journal.pone.0161231 | python3 refcheck.py -
 ```
@@ -355,6 +356,99 @@ One good side effect — the file already states every article's own DOI *and*
 PMID, so a `.nbib` needs **no lookup at all** to work out what you are asking
 about. No round trip to NCBI, and the references with no DOI keep their title and
 year straight from your file, so they can be named back to you offline.
+
+## And then I measured what a `.ris` was doing, which was worse
+
+`.ris` is the format everything else exports: Scopus, Web of Science, Embase,
+Rayyan, Covidence, EndNote, Zotero. If you are screening a review, it is almost
+certainly the file you have.
+
+This tool read it as loose text, under a comment I had written that said its
+DOIs "are found perfectly well". I had never measured that. On 2026-09-23 I did,
+on **40 `.ris` files real people deposited on Zenodo beside their reviews** —
+Scopus exports, Web of Science `savedrecs`, Embase, Rayyan, Publish or Perish,
+**17,140 records** — and it was wrong in the expensive direction:
+
+| of 17,140 records in 39 real `.ris` files | |
+|---|---:|
+| carry a DOI of their own | 9,916 (57.9%) |
+| carry a PubMed id and no DOI | 9 (0.1%) |
+| **carry no checkable identifier at all** | **7,215 (42.1%)** |
+
+Read as loose text those 7,215 were not reported as unchecked. They were
+**invisible**: the tool never knew they existed. One of the files is a genuine
+Scopus export of **1,409 papers**, and Scopus had not been asked for the DOI
+column. Here is what this tool used to say about it:
+
+```
+  1 reference(s) checked · 0 carry a change notice
+  Nothing found. That is the expected result most of the time;
+  it is the 1-in-N that this exists for.
+```
+
+One. Out of 1,409. Under a sentence that anyone skimming reads as *your
+bibliography is clean*. That is the same failure the `.nbib` reader had above,
+at forty times the scale, and in a tool whose silence reads as "clean" it is the
+costly one.
+
+It said something else that was false, too: *"Watching 1409 reference(s)"* — over
+a watch file that held none of them, because a reference with no identifier
+cannot be recognised on a later run and is not stored. Fixed at the same time.
+
+Now a `.ris` is parsed as the record format it is, and it says:
+
+```
+  0 reference(s) checked · 0 carry a change notice
+  Your file lists 1409 reference(s) in all. 1409 of them name no DOI and no
+  PubMed id of their own, so NOTHING could be asked about them —
+  not clean, unknown. Re-export including the DOI field to check those.
+```
+
+**The whitelist is measured, not copied from the RIS spec.** `M3` is "type of
+work" in the spec and holds **2,469** of the corpus's DOIs, because that is
+where Scopus puts them — a spec-pure reader that only read `DO` would have
+thrown those away. And `AN` *looks* like an id field and is deliberately not
+read: its real values in the corpus are `pub.1168151018` (Dimensions),
+`rayyan-510015106` and bare counters like `105`, so reading it as a PubMed id
+would have checked a stranger's paper. `C2` **is** the PubMed id — not assumed:
+40 of the corpus's 741 values were sampled and asked of PubMed, and the title
+that came back is the record's own in **40 of 40**.
+
+### What it costs, measured against itself
+
+A fix that quietly drops references that used to be checked is not a fix, so
+both directions were measured on the same frozen corpus:
+
+| | |
+|---|---:|
+| records that were invisible and are now named | **7,205** |
+| DOIs the loose reader reported that belong to **no record in the file** | **322** |
+| records where the loose reader did find a DOI and this one does not | **10** |
+
+Those 322 are abstracts citing other work and dataset DOIs sitting in notes.
+They were shown to readers as *their own references* — and if one of them
+carried a retraction, this tool would have told you that a paper you never cited
+was retracted.
+
+The 10 are the real cost, and I asked Crossref whose papers they are instead of
+guessing: **8 are the record's own DOI, quoted inside its own abstract** (a
+"How to cite:" line), one is a different item, and one does not exist. So
+guessing would be right 8 times out of 10 — and the other 2 are the one thing
+this tool must never do. Those 10 are not dropped, and they are not claimed to
+have no DOI either, because that would be false. They are named, with the DOI
+the record mentions, marked *not checked, may be a cited paper*, so you can
+settle it in one click.
+
+One file in the corpus is correctly **not** treated as RIS: a Lattes CV dump
+whose lines read `TY  - MEMBRO`, `NOME  - …`. Detection requires an `ER  -`
+closing a record, which is what keeps it out.
+
+Reproduce all of it:
+
+```
+python3 research/fetch_ris_corpus.py --out ris_corpus/
+python3 research/measure_ris.py ris_corpus/ --confirma
+```
 
 ## My own extractor was inventing DOIs that do not exist
 
@@ -1197,14 +1291,14 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 246 offline, 10 network cases skipped
-REFCHECK_RED=1 python3 test_refcheck.py   # all 256, adding the live-API cases
+python3 test_refcheck.py                  # 269 offline, 10 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 279, adding the live-API cases
 ```
 
 "Offline" is checked rather than promised:
 
 ```
-REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 246 must pass
+REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 269 must pass
 ```
 
 That caught two tests on 2026-09-15. A mocked batch that finds nothing now sends
@@ -1222,7 +1316,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 185 checks driving the real page in
+The browser version has its own battery — 193 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:

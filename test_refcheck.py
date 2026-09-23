@@ -3140,6 +3140,316 @@ class VigilanciaEnLaCLI(unittest.TestCase):
             self.assertEqual(f.read(), "not json at all")
 
 
+# Real records, copied unedited out of .ris files people deposited on Zenodo
+# beside their systematic reviews (10426096, 17755970, 18229590, 17789492).
+# Written by hand they would be written to be kind to me: these have the real
+# wrapped abstracts, the real Scopus UR links and the real missing DOI fields.
+RIS = """TY  - JOUR
+AU  - Srivastava, A.
+TI  - Putting women at the center: A review of Indian policy
+PY  - 2017
+T2  - BMC Public Health
+DO  - 10.1186/s12889-017-4575-2
+UR  - https://www.scopus.com/inward/record.uri?eid=2-s2.0-85024096317&doi=10.1186%2fs12889-017-4575-2
+C2  - 29325535
+AB  - Background: Person-centered care is a critical component of quality care.
+KW  - Abortion
+ER  -
+
+TY  - JOUR
+T1  - Bioethical implications of artificial intelligence use in the health area
+A1  - da Conceicao, R G
+Y1  - 2025///
+JF  - Revista Bioetica
+DO  - 10.1590/1983-803420253847EN
+N1  - Export Date: 19 September 2025; Cited By: 0
+ER  -
+
+TY  - JOUR
+AU  - Musah, A.
+TI  - The moderating role of entrepreneurial orientation
+PY  - 2026
+T2  - Sustainable Futures
+UR  - https://www.scopus.com/inward/record.uri?eid=2-s2.0-105026246388&partnerID=40
+AB  - This study investigates the determinants of tax compliance among SMEs.
+ER  -
+
+TY  - JOUR
+TI  - Measuring the degree of digitalization in cultural organizations
+PY  - 2024
+AB  - This article aims to present the digitization index developed for a sample
+  of organizations. Como citar: Nauzan Ceballos, V. H. (2024). Revista De
+  Metodos Cuantitativos, 38. https://doi.org/10.46661/rev.metodoscuant.econ.empresa.7708
+ER  -
+"""
+
+
+# Edge cases, kept separate from the real records above so nobody mistakes them
+# for corpus evidence. Each one is here because a mutation survived without it:
+# a parity test is only worth the cases it carries, which is the lesson of
+# 2026-09-17, when the page and the CLI disagreed on a character none of my
+# fourteen cases contained.
+RIS_BORDES = """TY  - JOUR
+TI  - An id field that is not an id field
+PY  - 2020
+AN  - 31978945
+ER  -
+
+TY  - JOUR
+TI  - RefMan writes the PubMed id into UR
+UR  - http://example.org/PM:31978945
+ER  -
+
+TY  - JOUR
+TI  - A PMID spelled out in C2
+C2  - PMID: 0031978945
+ER  -
+
+TY  - JOUR
+TI  - Scopus puts the DOI in M3
+M3  - 10.1234/scopus.style
+ER  -
+
+TY  - JOUR
+TI  - A note that cites somebody else
+DO  - 10.1234/mine
+N1  - see also 10.5678/theirs
+ER  -
+"""
+
+
+class LectorRis(unittest.TestCase):
+    """A .ris is the file a systematic reviewer actually has on disk.
+
+    Until 2026-09-23 it went down the loose-text path under a comment claiming
+    its DOIs were "found perfectly well". Measured on 17,140 real records that
+    was wrong in the expensive direction: 42.1% of records carry no DOI and were
+    not merely unchecked but invisible, and 322 DOIs belonging to no record at
+    all were reported to readers as their own references.
+    """
+
+    def test_se_reconoce_como_ris(self):
+        self.assertTrue(refcheck.es_ris(RIS))
+
+    def test_una_bibliografia_normal_no_es_ris(self):
+        self.assertFalse(refcheck.es_ris(
+            "Smith J. Something. Nature 2020. doi:10.1/x\nJones A. 2019.\n"))
+
+    def test_un_nbib_no_se_confunde_con_ris(self):
+        self.assertFalse(refcheck.es_ris(NBIB))
+
+    def test_etiquetas_con_forma_de_ris_pero_sin_ER_no_son_ris(self):
+        """The corpus holds a Lattes CV dump whose lines read `TY  - MEMBRO`,
+        `NOME  - …` and which closes no record. Requiring ER is what keeps it
+        out — and it is why detection is not just "has TY"."""
+        lattes = ("TY  - MEMBRO\nNOME  - Alberico Blohem\n"
+                  "CITA  - CARVALHO JUNIOR, A. B.\nDATA  - 16/11/2017\n"
+                  "ENDE  - Universidade Federal de Sergipe\n")
+        self.assertFalse(refcheck.es_ris(lattes))
+
+    def test_cada_registro_del_fichero_sale(self):
+        regs = refcheck.registros_ris(RIS)
+        self.assertEqual(len(regs), 4)
+
+    def test_el_doi_propio_se_lee_de_DO(self):
+        regs = refcheck.registros_ris(RIS)
+        self.assertEqual(regs[0]["doi"], "10.1186/s12889-017-4575-2")
+        self.assertEqual(regs[1]["doi"], "10.1590/1983-803420253847en")
+
+    def test_el_pmid_se_lee_de_C2(self):
+        """C2 is the PMID in Ovid/Embase/EndNote exports — checked against
+        PubMed on 40 of the corpus's values, title matches 40 of 40."""
+        self.assertEqual(refcheck.registros_ris(RIS)[0]["pmid"], "29325535")
+
+    def test_AN_no_se_lee_como_pmid(self):
+        """AN looks like an id field and is not one. Its real values in the
+        corpus are `pub.1168151018` (Dimensions), `rayyan-510015106` and bare
+        counters like `105` — reading it as a PMID checks a stranger's paper."""
+        texto = "TY  - JOUR\nTI  - Something\nAN  - 31978945\nER  - \n"
+        self.assertEqual(refcheck.registros_ris(texto)[0]["pmid"], "")
+
+    def test_una_referencia_sin_identificador_no_desaparece(self):
+        """The whole reason this reader exists. Read as loose text the third
+        record produced nothing at all — not an unchecked entry, no entry."""
+        dois, _, sueltos = refcheck._referencias_ris(RIS, usar_pubmed=False)
+        sin_id = [s for s in sueltos if s["estado"] == "sin_identificador"]
+        self.assertEqual(len(sin_id), 2)
+        titulos = " ".join(s["titulo"] for s in sin_id)
+        self.assertIn("moderating role", titulos)
+        self.assertIn("2026", [s["fecha"] for s in sin_id])
+
+    def test_el_doi_del_abstract_no_se_comprueba(self):
+        """The fourth record quotes a DOI in its abstract. Measured over the
+        corpus, guessing that it is the record's own would be right 8 times in
+        10 — and the other 2 are a different paper, which is the one thing this
+        tool must never report. So it is shown and not used."""
+        dois, _, sueltos = refcheck._referencias_ris(RIS, usar_pubmed=False)
+        self.assertNotIn("10.46661/rev.metodoscuant.econ.empresa.7708", dois)
+        mencion = [s for s in sueltos if s.get("doi_mencionado")]
+        self.assertEqual(len(mencion), 1)
+        self.assertEqual(mencion[0]["doi_mencionado"],
+                         "10.46661/rev.metodoscuant.econ.empresa.7708")
+
+    def test_un_doi_ajeno_del_abstract_no_entra_como_referencia(self):
+        """An abstract citing the study it replicates. Read as loose text that
+        DOI was checked and reported as the reader's own reference."""
+        texto = ("TY  - JOUR\nTI  - A replication study\nPY  - 2020\n"
+                 "DO  - 10.1234/own\n"
+                 "N2  - This replicates Schuldt 2018, 10.1016/j.jenvp.2018.02.001\n"
+                 "ER  - \n")
+        dois, _, _ = refcheck._referencias_ris(texto, usar_pubmed=False)
+        self.assertEqual(dois, ["10.1234/own"])
+
+    def test_un_doi_partido_en_una_continuacion_de_abstract_tampoco(self):
+        dois, _, sueltos = refcheck._referencias_ris(RIS, usar_pubmed=False)
+        for d in dois:
+            self.assertNotIn("46661", d)
+
+    def test_el_informe_da_el_denominador(self):
+        """1 of 1,409 checked is not a clean bibliography. The count alone
+        cannot say that; the denominator can."""
+        dois, _, sueltos = refcheck._referencias_ris(RIS, usar_pubmed=False)
+        res = sueltos + [{"doi": "10.1234/x", "estado": "ok", "avisos": []}]
+        txt = refcheck.informe(res)
+        self.assertIn("Your file lists 3 reference(s) in all", txt)
+        self.assertIn("2 of them name no DOI", txt)
+        self.assertIn("no identifier in the file", txt)
+
+    def test_lo_no_comprobable_no_cuenta_como_comprobado(self):
+        dois, _, sueltos = refcheck._referencias_ris(RIS, usar_pubmed=False)
+        txt = refcheck.informe(sueltos)
+        self.assertIn("0 reference(s) checked", txt)
+        # And with nothing checked, the line that reads as a clean bill stays
+        # away — the same rule as 2026-09-15.
+        self.assertNotIn("Nothing found.", txt)
+
+    def test_una_referencia_sin_identificador_no_se_vigila(self):
+        """It cannot be recognised on a later run, so it is not stored — and
+        the line on screen must not claim otherwise."""
+        _, _, sueltos = refcheck._referencias_ris(RIS, usar_pubmed=False)
+        self.assertEqual(refcheck._vigilables(sueltos), 0)
+        estado = refcheck.actualiza_vigilancia(None, sueltos, ahora=1.0)
+        self.assertEqual(estado["vistas"], {})
+
+    def test_el_nombre_de_una_referencia_sin_identificador_es_su_titulo(self):
+        """"?" would be true and useless: the title and year from the file are
+        the only handle the reader has to find the line again."""
+        _, _, sueltos = refcheck._referencias_ris(RIS, usar_pubmed=False)
+        sin_id = [s for s in sueltos if s["estado"] == "sin_identificador"]
+        n = refcheck.nombre(sin_id[0])
+        self.assertIn("moderating role", n)
+        self.assertIn("(2026)", n)
+
+    def test_un_registro_sin_cerrar_cuenta_igual(self):
+        """A truncated download is exactly when someone needs to be told what
+        is missing."""
+        regs = refcheck.registros_ris("TY  - JOUR\nTI  - Cut short\nPY  - 2020\n")
+        self.assertEqual(len(regs), 1)
+        self.assertEqual(regs[0]["titulo"], "Cut short")
+
+    def test_CRLF(self):
+        regs = refcheck.registros_ris(RIS.replace("\n", "\r\n"))
+        self.assertEqual(len(regs), 4)
+        self.assertEqual(regs[0]["doi"], "10.1186/s12889-017-4575-2")
+
+    def test_vacio(self):
+        self.assertEqual(refcheck.registros_ris(""), [])
+        self.assertFalse(refcheck.es_ris(""))
+
+
+class ParidadDelLectorRis(unittest.TestCase):
+    """The same file must get the same answer on the page and on the CLI.
+
+    This is the fourth rule that lives in two places. The first two — the DOI
+    cleaner and the glued-PMID rescue — disagreed for months with nobody able
+    to see it, so this one is born with its parity test.
+    """
+
+    @staticmethod
+    def _bloque():
+        ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "docs", "index.html")
+        with open(ruta, encoding="utf-8") as fh:
+            html = fh.read()
+        m = re.search(r"// <ris-reader>(.*?)// </ris-reader>", html, re.S)
+        if not m:
+            return None
+        # The block leans on two things defined elsewhere in the page. Taken
+        # from the page itself rather than rewritten here: a private copy would
+        # let this test pass over a cleaner the page no longer uses.
+        trozos = []
+        for nombre_var in ("DOI_RE", "MARCADO", "COLA_RUTA", "PARES"):
+            d = re.search(r"^  var %s = .*$" % nombre_var, html, re.M)
+            if not d:
+                return None
+            trozos.append(d.group(0))
+        limpia = re.search(r"^  function limpiaDoi\(bruto\) \{.*?^  \}$",
+                           html, re.M | re.S)
+        if not limpia:
+            return None
+        trozos.append(limpia.group(0))
+        return "\n".join(trozos) + "\n" + m.group(1)
+
+    def test_el_bloque_sigue_delimitado(self):
+        self.assertIsNotNone(self._bloque(),
+                             "los marcadores <ris-reader> (o DOI_RE/limpiaDoi) "
+                             "han desaparecido de docs/index.html: la paridad "
+                             "ya no se está probando")
+
+    def _node(self, guion):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node no está instalado")
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False,
+                                         encoding="utf-8") as fh:
+            fh.write(guion)
+            ruta = fh.name
+        try:
+            salida = subprocess.run([node, ruta], capture_output=True, text=True,
+                                    timeout=60)
+            self.assertEqual(salida.returncode, 0, salida.stderr)
+            return json.loads(salida.stdout)
+        finally:
+            os.unlink(ruta)
+
+    def test_los_casos_de_paridad_cubren_los_bordes(self):
+        """A parity test is worth exactly the cases it carries. Each of these
+        is here because a mutation of the page survived without it."""
+        regs = refcheck.registros_ris(RIS_BORDES)
+        self.assertEqual(regs[0]["pmid"], "", "AN must not be read as a PMID")
+        self.assertEqual(regs[1]["pmid"], "31978945", "UR PM: is a PMID")
+        self.assertEqual(regs[2]["pmid"], "31978945", "leading zeros dropped")
+        self.assertEqual(regs[3]["doi"], "10.1234/scopus.style", "M3 carries DOIs")
+        self.assertEqual(regs[4]["doi"], "10.1234/mine", "a note is not the record")
+
+    def test_los_mismos_registros(self):
+        bloque = self._bloque()
+        self.assertIsNotNone(bloque)
+        js = self._node(
+            bloque + "\nconst texto = " + json.dumps(RIS + RIS_BORDES) + ";\n"
+            "console.log(JSON.stringify({\n"
+            "  es: isRis(texto),\n"
+            "  regs: risRecords(texto).map(function (r) {\n"
+            "    return [r.doi, r.pmid, r.titulo, r.fecha, r.doi_mencionado];\n"
+            "  })\n"
+            "}));\n")
+        py = [[r["doi"], r["pmid"], r["titulo"], r["fecha"],
+               r["doi_mencionado"]]
+              for r in refcheck.registros_ris(RIS + RIS_BORDES)]
+        self.assertTrue(js["es"])
+        self.assertEqual(js["regs"], py)
+
+    def test_la_misma_deteccion(self):
+        bloque = self._bloque()
+        casos = [RIS, NBIB, "", "Smith J. 2020. doi:10.1/x\nJones A.\n",
+                 "TY  - MEMBRO\nNOME  - X\nCITA  - Y\nDATA  - 1\nENDE  - Z\n",
+                 "TY  - JOUR\nER  - \n"]
+        js = self._node(
+            bloque + "\nconst casos = " + json.dumps(casos) + ";\n"
+            "console.log(JSON.stringify(casos.map(isRis)));\n")
+        self.assertEqual(js, [refcheck.es_ris(c) for c in casos])
+
+
 if __name__ == "__main__":
     if os.environ.get("REFCHECK_SIN_RED") == "1":
         # Enforces the promise in the module docstring instead of trusting it.

@@ -1410,5 +1410,62 @@
 
   window.fetch = realFetch;
 
+  // ---- 14. a .ris, which is the file a systematic reviewer actually has ----
+  // Scopus, Web of Science, Embase, Rayyan, Covidence, EndNote and Zotero all
+  // export RIS, and until 2026-09-23 this page read it as loose text. Measured
+  // on 17,140 records from 40 .ris files real people deposited on Zenodo:
+  // 42.1% carry no DOI, and read as loose text they were not "unchecked", they
+  // were invisible — one real Scopus export of 1,409 papers reported "1
+  // reference checked · Nothing found".
+  //
+  // These checks do not read the report first. They read WHAT THE PAGE ASKED
+  // FOR, because the strong claim is not that the report looks right, it is
+  // that a stranger's DOI was never sent anywhere.
+  const RIS_SCOPUS =
+    "TY  - JOUR\nTI  - A paper Scopus exported without its DOI\nPY  - 2026\n" +
+    "UR  - https://www.scopus.com/inward/record.uri?eid=2-s2.0-105026246388\n" +
+    "AB  - An abstract with no DOI in it.\nER  -\n\n" +
+    "TY  - JOUR\nTI  - A paper that kept its DOI\nPY  - 2020\n" +
+    "DO  - 10.1056/NEJMoa2001017\nER  -\n\n" +
+    "TY  - JOUR\nTI  - A paper whose abstract cites somebody else\nPY  - 2019\n" +
+    "DO  - 10.1186/s12889-017-4575-2\nN2  - This replicates 10.5678/stranger, see there.\nER  -\n\n" +
+    "TY  - JOUR\nTI  - A paper with only a quoted DOI in its abstract\nPY  - 2024\n" +
+    "AB  - How to cite: Somebody (2024). https://doi.org/10.4321/quoted\nER  -\n";
+
+  let pedidosRis = [];
+  window.fetch = function (u, o) {
+    pedidosRis.push(String(u) + " " + ((o && o.body) || ""));
+    return realFetch.apply(window, arguments);
+  };
+  coldTab();
+  s = await check(RIS_SCOPUS);
+  const rt = txtAbierto();
+  const preguntado = pedidosRis.join(" | ");
+
+  ok("a stranger's DOI quoted in an abstract is never asked about",
+     !/10\.5678%2Fstranger|10\.5678\/stranger/i.test(preguntado),
+     preguntado.slice(0, 300));
+  ok("a DOI only quoted inside an abstract is not asked about either",
+     !/10\.4321%2Fquoted|10\.4321\/quoted/i.test(preguntado),
+     preguntado.slice(0, 300));
+  ok("the DOIs the records really own are asked about",
+     /10\.1056%2FNEJMoa2001017|10\.1056\/NEJMoa2001017/i.test(preguntado) &&
+     /10\.1186%2Fs12889-017-4575-2|10\.1186\/s12889-017-4575-2/i.test(preguntado),
+     preguntado.slice(0, 300));
+  // The whole point: the two records with no DOI used to produce nothing at
+  // all, and the header counted the file as two references instead of four.
+  ok("the file's own total is on screen, not just what could be checked",
+     /lists 4 references in all/.test(rt), rt.slice(0, 500));
+  ok("and it says how many carry no identifier",
+     /2 of them name no DOI and no PubMed id/.test(rt), rt.slice(0, 500));
+  ok("a reference with no identifier is named by its title, not dropped",
+     /A paper Scopus exported without its DOI/.test(rt), rt.slice(0, 900));
+  ok("a quoted DOI is shown, flagged as not checked",
+     /10\.4321\/quoted/.test(rt) && /not checked/.test(rt), rt.slice(0, 900));
+  ok("what nobody could check does not count as checked",
+     /2 references checked/.test(rt), rt.slice(0, 200));
+  window.fetch = realFetch;
+  coldTab();
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()

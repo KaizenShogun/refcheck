@@ -1,0 +1,65 @@
+{
+ "ficheros": 40,
+ "ris": 39,
+ "no_ris": [
+  "1998464_019.ris"
+ ],
+ "registros": 17140,
+ "con_doi": 9916,
+ "con_pmid": 9,
+ "sin_id": 7215,
+ "ganados": 7205,
+ "dois_de_nadie": 322,
+ "perdidos": [
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "Neither Roll nor Codex: Accordion Genealogies of the Kings of England from the Fifteenth Century",
+   "doi": "10.1515/9783110645200"
+  },
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "Hommes et structures du Moyen \u00e2ge",
+   "doi": "10.1515/9783112319260-015"
+  },
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "Fantasies of Troy: Classical Tales and the Social Imaginary in Medieval and Early Modern Europe",
+   "doi": "10.2307/20478409"
+  },
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "Historia Regis Henrici Septimi, a Bernardo Andrea Tholosate Conscripta",
+   "doi": "10.1017/cbo9781139162883"
+  },
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "Reading Images: The Grammar of Visual Design",
+   "doi": "10.4324/9781003099857"
+  },
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "Translation and Temporality in Beno\u00eet De Sainte-Maure's Roman De Troie",
+   "doi": "10.2307/j.ctv24tr7fb"
+  },
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "Princely and Noble Genealogies, Twelfth to Fourteenth Century: Form and Function",
+   "doi": "10.1163/9789004488519_009"
+  },
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "Chapter 6 Early Reactions to Geoffrey\u2019s Work",
+   "doi": "10.1163/9789004410398_008"
+  },
+  {
+   "fichero": "17789492_039.ris",
+   "titulo": "A Companion to Geoffrey of Monmouth",
+   "doi": "10.1163/9789004410398"
+  },
+  {
+   "fichero": "18229590_025.ris",
+   "titulo": "Measuring the degree of digitalization in cultural and creative organizations",
+   "doi": "10.46661/rev.metodoscuant.econ.empresa.7708"
+  }
+ ]
+}

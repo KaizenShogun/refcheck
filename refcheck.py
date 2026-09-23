@@ -361,6 +361,177 @@ def registros_medline(texto):
     return [r for r in registros if r["pmid"] or r["doi"]]
 
 
+# RIS is the other record format that arrives as a FILE, and it is the one the
+# people this tool is for actually have on disk: Scopus, Web of Science, Embase,
+# Rayyan, Covidence, EndNote and Zotero all export it.
+#
+# Until 2026-09-23 it went down the loose-text path, under a comment claiming its
+# DOIs "are found perfectly well". Nobody had measured that. Measured on 40 .ris
+# files that real people deposited on Zenodo next to their reviews — 17,141
+# records — it is wrong in the expensive direction:
+#
+#   · 7,215 of the 17,141 records (42.1%) carry no DOI anywhere. Read as loose
+#     text they are not missing from the report, they are INVISIBLE to it: the
+#     tool never knew they existed. One real Scopus export of 1,409 papers
+#     printed "1 reference(s) checked · Nothing found", and in a tool whose
+#     silence reads as "clean" that is the costly failure, the same one the
+#     .nbib reader had on 2026-09-12.
+#   · The free-text fields carry OTHER people's DOIs, exactly like MEDLINE's
+#     cross-references: an abstract that cites the study it replicates, a
+#     dataset DOI in a note. Ten records had no DOI of their own but a
+#     stranger's in N2.
+#
+# So a .ris is parsed as the record format it is, and only the tags that speak
+# about the record they sit in are read.
+#
+# The whitelist is measured, not copied from the RIS spec. `M3` is "type of
+# work" in the spec and carries 2,469 of the corpus's DOIs because that is where
+# Scopus puts them — a spec-pure reader that only read `DO` would have thrown
+# those away. `AN` looks like an id field and is NOT here: its real values in the
+# corpus are `pub.1168151018` (Dimensions), `rayyan-510015106` and bare counters
+# like `105`, so reading it as a PMID would check a stranger's paper.
+RIS_ETIQUETA = re.compile(r"^([A-Z][A-Z0-9]{1,3})\s{1,2}-\s?(.*)$")
+RIS_DOI = {"DO", "DI", "M3", "UR", "L1", "L2", "L4", "LK"}
+# `C2` holds the PMID in Ovid/Embase/EndNote exports. Not assumed: 40 of the
+# corpus's 741 C2 values were sampled and asked of PubMed on 2026-09-23, and the
+# title PubMed returned is the record's own title in 40 of 40. (One looked like a
+# mismatch and was the same paper under a translated title — my comparison was
+# wrong, C2 was not.)
+RIS_PMID = {"C2"}
+RIS_TITULO = {"TI", "T1"}
+RIS_FECHA = {"PY", "Y1", "DA"}
+RIS_LEIDAS = RIS_DOI | RIS_PMID | RIS_TITULO | RIS_FECHA
+# RefMan writes the PMID into UR as `PM:12345678` — Zotero's own RIS translator
+# special-cases it, which is where this came from.
+RIS_UR_PMID = re.compile(r"\bPM:\s*(\d{4,8})\b")
+RIS_PMID_VALOR = re.compile(r"^(?:PMID:?\s*)?0*(\d{4,8})$", re.I)
+
+
+def es_ris(texto):
+    """Does this look like a RIS export rather than prose or BibTeX?
+
+    Three conditions, all necessary: a `TY  - ` that opens a record, an `ER  -`
+    that closes one, and enough tagged lines that a bibliography which happens
+    to contain those letters cannot trip it. Requiring ER is what keeps a
+    non-RIS file with RIS-shaped tags out — the corpus contains a Lattes CV dump
+    whose lines read `TY  - MEMBRO`, `NOME  - …`, and which closes nothing.
+    """
+    abre = cierra = etiquetadas = 0
+    for linea in texto.splitlines():
+        m = RIS_ETIQUETA.match(linea)
+        if not m:
+            continue
+        etiquetadas += 1
+        if m.group(1) == "TY":
+            abre += 1
+        elif m.group(1) == "ER":
+            cierra += 1
+    return abre >= 1 and cierra >= 1 and etiquetadas >= 5
+
+
+def registros_ris(texto):
+    """The articles in a RIS export, in file order, with nothing borrowed.
+
+    Each entry is {'pmid', 'doi', 'titulo', 'fecha'}. Both ids may be empty:
+    42% of real records have no DOI, and a record nobody can check is a fact to
+    report, not a reason to drop the reference on the floor.
+    """
+    registros, actual, etiqueta = [], None, None
+    valores = {}
+    mencionado = [""]
+
+    def cierra():
+        if actual is None:
+            return
+        doi = ""
+        for tag in ("DO", "DI", "M3", "UR", "L1", "L2", "L4", "LK"):
+            for v in valores.get(tag, []):
+                hallado = DOI_RE.search(v)
+                if hallado:
+                    doi = _limpia_doi(hallado.group(0))
+                    break
+            if doi:
+                break
+        pmid = ""
+        for v in valores.get("C2", []):
+            m = RIS_PMID_VALOR.match(v.strip())
+            if m:
+                pmid = str(int(m.group(1)))
+                break
+        if not pmid:
+            for v in valores.get("UR", []):
+                m = RIS_UR_PMID.search(v)
+                if m:
+                    pmid = str(int(m.group(1)))
+                    break
+        titulo = ""
+        for tag in ("TI", "T1"):
+            if valores.get(tag):
+                titulo = " ".join(valores[tag])[:300]
+                break
+        fecha = ""
+        for tag in ("PY", "Y1", "DA"):
+            for v in valores.get(tag, []):
+                m = re.search(r"\b(1[5-9]\d\d|20\d\d)\b", v)
+                if m:
+                    fecha = m.group(1)
+                    break
+            if fecha:
+                break
+        registros.append({"pmid": pmid, "doi": doi, "titulo": titulo.strip(),
+                          "fecha": fecha,
+                          # A DOI seen in a field that does NOT identify the
+                          # record — usually an abstract. Kept only when the
+                          # record has no identifier of its own, and never used
+                          # as the reference: measured on 2026-09-23, of the 10
+                          # records in the corpus where this is all there is, 8
+                          # are the record's own DOI quoted in its abstract, one
+                          # is a different item (a chapter of the book) and one
+                          # does not exist. Guessing would be right 8 times out
+                          # of 10, and reporting a stranger's retraction as the
+                          # reader's reference is the most expensive thing this
+                          # tool can do. So it is shown and not used.
+                          "doi_mencionado": "" if doi else mencionado[0]})
+        mencionado[0] = ""
+
+    for linea in texto.splitlines():
+        m = RIS_ETIQUETA.match(linea)
+        if m:
+            etiqueta, valor = m.group(1), m.group(2).strip()
+            if etiqueta == "TY":
+                # An unterminated record still counts: a truncated download is
+                # exactly when someone needs to be told what is missing.
+                cierra()
+                actual, valores = {}, {}
+                continue
+            if etiqueta == "ER":
+                cierra()
+                actual, valores, etiqueta = None, {}, None
+                continue
+            if actual is not None and etiqueta in RIS_LEIDAS:
+                valores.setdefault(etiqueta, []).append(valor)
+            elif actual is not None and not mencionado[0] and "10." in valor:
+                hallado = DOI_RE.search(valor)
+                if hallado:
+                    mencionado[0] = _limpia_doi(hallado.group(0))
+            continue
+        if actual is not None and etiqueta and linea.strip():
+            # A wrapped value continues the tag above it. Folded only into tags
+            # we read, so a wrapped abstract stays unread — which is the point:
+            # 181 of the corpus's DOI hits live on continuation lines, and some
+            # of them continue an abstract that cites somebody else.
+            if etiqueta in RIS_LEIDAS and valores.get(etiqueta):
+                valores[etiqueta][-1] += " " + linea.strip()
+            elif not mencionado[0] and "10." in linea:
+                # 181 of the corpus's DOI hits live on continuation lines, and a
+                # wrapped abstract is exactly where a stranger's DOI hides.
+                hallado = DOI_RE.search(linea)
+                if hallado:
+                    mencionado[0] = _limpia_doi(hallado.group(0))
+    cierra()
+    return registros
+
+
 def _limpia_doi(bruto):
     """Trim what the surrounding document glued onto a DOI.
 
@@ -1085,6 +1256,12 @@ def rescata_pmid_pegado(dois, resolutor=None):
 # wearing a hat.
 SEGUNDAS_MAX = int(os.environ.get("REFCHECK_SECOND_CHANCES", "100"))
 
+# How many no-identifier references the report names before it says "and N more".
+# A real Scopus export has 1,408 of them; a report that is 1,408 identical lines
+# gets skipped whole, taking the ones that DID carry a notice down with it. The
+# count above is never capped — only the naming is.
+SIN_ID_MAX = int(os.environ.get("REFCHECK_NAME_UNCHECKABLE", "10"))
+
 
 def segunda_oportunidad(doi):
     """What to report about a DOI the batch filter did not find.
@@ -1312,6 +1489,8 @@ def referencias_de(texto, usar_pubmed=True):
     """
     if es_medline(texto):
         return _referencias_medline(texto)
+    if es_ris(texto):
+        return _referencias_ris(texto)
 
     dois = dois_de(texto)
     origen, sueltos = {}, []
@@ -1364,6 +1543,69 @@ def _referencias_medline(texto):
     return dois, origen, sueltos
 
 
+def _referencias_ris(texto, usar_pubmed=True):
+    """Same three lists as referencias_de, from a RIS export.
+
+    The difference that matters is the third one. A RIS record with neither a
+    DOI nor a PMID cannot be checked by anybody — but the file names it, with a
+    title and a year, and 42% of real records are in that state. Reporting it is
+    the whole reason this reader exists: read as loose text those references did
+    not come out as "unchecked", they did not come out at all, and the header
+    counted a 1,409-paper export as one reference.
+    """
+    dois, origen, sueltos, vistos = [], {}, [], set()
+    pendientes = []
+    for r in registros_ris(texto):
+        doi, pmid = r["doi"], r["pmid"]
+        if doi:
+            if pmid:
+                origen.setdefault(doi, pmid)
+            if doi.lower() not in vistos:
+                vistos.add(doi.lower())
+                dois.append(doi)
+        elif pmid:
+            pendientes.append(r)
+        else:
+            sueltos.append({"doi": "", "pmid": "", "estado": "sin_identificador",
+                            "titulo": r["titulo"], "fecha": r["fecha"],
+                            "doi_mencionado": r.get("doi_mencionado", ""),
+                            "avisos": []})
+    if not pendientes:
+        return dois, origen, sueltos
+    if not usar_pubmed:
+        for r in pendientes:
+            sueltos.append({"doi": "", "pmid": r["pmid"], "estado": "pmid_sin_doi",
+                            "titulo": r["titulo"], "fecha": r["fecha"],
+                            "avisos": []})
+        return dois, origen, sueltos
+    # A RIS PMID, unlike a MEDLINE one, arrives without the article's DOI beside
+    # it, so it still needs the round trip to NCBI.
+    del_pmid = {r["pmid"]: r for r in pendientes}
+    for pmid, res in resuelve_pmids([r["pmid"] for r in pendientes]).items():
+        propio = del_pmid.get(pmid, {})
+        if res["estado"] == "ok":
+            doi = res["doi"]
+            origen.setdefault(doi, pmid)
+            if doi.lower() not in vistos:
+                vistos.add(doi.lower())
+                dois.append(doi)
+        elif res["estado"] == "sin_doi":
+            sueltos.append({"doi": "", "pmid": pmid, "estado": "pmid_sin_doi",
+                            # The file's own title beats PubMed's here: it is
+                            # what the reader will search their document for.
+                            "titulo": propio.get("titulo") or res.get("titulo", ""),
+                            "fecha": propio.get("fecha") or res.get("fecha", ""),
+                            "avisos": []})
+        elif res["estado"] == "desconocido":
+            sueltos.append({"doi": "", "pmid": pmid, "estado": "pmid_desconocido",
+                            "titulo": propio.get("titulo", ""), "avisos": []})
+        else:
+            sueltos.append({"doi": "", "pmid": pmid, "estado": "sin_comprobar",
+                            "titulo": propio.get("titulo", ""),
+                            "error": res.get("error", ""), "avisos": []})
+    return dois, origen, sueltos
+
+
 def edad_legible(segundos):
     if segundos < 3600:
         return f"{max(1, round(segundos / 60))} min"
@@ -1384,7 +1626,16 @@ def nombre(r):
         if r.get("doi_citado") and r["doi_citado"] != r["doi"]:
             base += f" — your file says {r['doi_citado']}"
         return base
-    return f"PMID {r['pmid']}" if r.get("pmid") else "?"
+    if r.get("pmid"):
+        return f"PMID {r['pmid']}"
+    # No identifier at all: the title and year from the file are the only handle
+    # the reader has to find the line again, so they ARE the name. "?" would be
+    # true and useless.
+    titulo = (r.get("titulo") or "").strip()
+    if titulo:
+        fecha = f" ({r['fecha']})" if r.get("fecha") else ""
+        return f"{titulo[:96]}{fecha}"
+    return "?"
 
 
 def informe(resultados, ancho=78):
@@ -1399,6 +1650,13 @@ def informe(resultados, ancho=78):
     sinc = [r for r in resultados if r["estado"] == "sin_comprobar"]
     sin_doi = [r for r in resultados if r["estado"] == "pmid_sin_doi"]
     pmid_desc = [r for r in resultados if r["estado"] == "pmid_desconocido"]
+    # References the file lists and no register can be asked about, because the
+    # export carries no identifier for them. Their own drawer, not folded into
+    # "not found": nothing is wrong with the citation and there is nothing to
+    # fix — what is missing is a DOI in the export, and the fix is to re-export
+    # asking for one. Folding them in with broken DOIs would send the reader to
+    # correct 1,408 perfectly good references.
+    sin_id = [r for r in resultados if r["estado"] == "sin_identificador"]
     # Crossref has merged this DOI into another record and does not say why.
     sust = [r for r in resultados if r["estado"] == "sustituido"]
     # Checked against one register instead of two. Not a failure, not an answer
@@ -1468,8 +1726,24 @@ def informe(resultados, ancho=78):
     # count is 0 and the "Nothing found" line — which is gated on this number —
     # stays away.
     comprobadas = (len(resultados) - len(sinc) - len(sin_doi) - len(pmid_desc)
-                   - len(desc) - len(sust) - len(inexistentes) - len(ajenos))
+                   - len(desc) - len(sust) - len(inexistentes) - len(ajenos)
+                   - len(sin_id))
     cab = [f"  {comprobadas} reference(s) checked · {len(con)} carry a change notice"]
+    if sin_id:
+        # Printed second, right under the count, because it is the number that
+        # decides whether the count means anything: 1 of 1,409 checked is not a
+        # clean bibliography, and the reader has to see the denominator.
+        cab.append(f"  Your file lists {len(resultados)} reference(s) in all. "
+                   f"{len(sin_id)} of them name no DOI and no")
+        cab.append("  PubMed id of their own, so NOTHING could be asked about them —")
+        cab.append("  not clean, unknown. Re-export including the DOI field to check those.")
+        mencionan = [r for r in sin_id if r.get("doi_mencionado")]
+        if mencionan:
+            # Said, never used. See the note in registros_ris: guessing would be
+            # right 8 times in 10, and the other 2 are a stranger's paper.
+            cab.append(f"  ({len(mencionan)} of them mention a DOI somewhere in the "
+                       "record — an abstract,")
+            cab.append("  a note. It is shown below, unchecked: it may not be that paper's.)")
     # An answer read off the disk is an answer about the day it was fetched, and
     # a notice published since then is invisible. Say it, do not let it pass as
     # today's silence.
@@ -1530,7 +1804,7 @@ def informe(resultados, ancho=78):
         cab.append("  Nothing found. That is the expected result most of the time;")
         cab.append("  it is the 1-in-N that this exists for.")
     if (sinc or sin_doi or pmid_desc or a_medias or sust or inexistentes
-            or ajenos or reparados):
+            or ajenos or reparados or sin_id):
         lineas.append("")           # do not let these hang off the last notice
     # Named whatever the verdict, including a clean one: the header promises
     # both strings appear, and a repaired DOI that turned out to carry no notice
@@ -1557,6 +1831,19 @@ def informe(resultados, ancho=78):
         t = (r.get("titulo") or "")[:ancho - 24]
         fecha = f" · {r['fecha']}" if r.get("fecha") else ""
         lineas.append(f"      ? no DOI, not checked: PMID {r['pmid']}{fecha}{'  ' + t if t else ''}")
+    # Capped for the same reason the Crossref-only list is: a 1,409-record export
+    # whose report ends in 1,408 identical lines gets skipped whole, and then the
+    # ones that DID carry a notice go unread too. --json lists every one.
+    # Named cheapest-to-act-on first: a record that mentions a DOI can be
+    # settled by the reader in one click, one that names none cannot.
+    for r in sorted(sin_id, key=lambda r: not r.get("doi_mencionado"))[:SIN_ID_MAX]:
+        lineas.append(f"      ? no identifier in the file: {nombre(r)}")
+        if r.get("doi_mencionado"):
+            lineas.append(f"          the record mentions {r['doi_mencionado']} "
+                          "— NOT checked, may be a cited paper")
+    if len(sin_id) > SIN_ID_MAX:
+        lineas.append(f"      ? …and {len(sin_id) - SIN_ID_MAX} more with no identifier "
+                      "(--json lists every one)")
     for r in pmid_desc:
         lineas.append(f"      ? no such record: PMID {r['pmid']}")
     for r in sust:
@@ -1727,6 +2014,11 @@ def escribe_cache(fichas, ruta=None, ahora=None, registros=REGISTROS):
 # the next ordinary run and does not lie to anyone.
 # ---------------------------------------------------------------------------
 VIGILANCIA_V = 1
+
+
+def _vigilables(resultados):
+    """How many of these can actually be recognised on a later run."""
+    return sum(1 for r in resultados if clave_vigilada(r))
 
 
 def clave_vigilada(r):
@@ -2244,7 +2536,7 @@ def main():
         # cron job that mails stdout stays quiet.
         elif estado_previo is None:
             print("Baseline saved: %d reference(s). Run this again later to see "
-                  "what changed." % len(resultados), file=sys.stderr)
+                  "what changed." % _vigilables(resultados), file=sys.stderr)
     else:
         if alerta:
             print(alerta)
@@ -2252,8 +2544,17 @@ def main():
             print(bloque)
         print(informe(resultados))
         if estado_previo is None:
+            seguidas = _vigilables(resultados)
             print("  Watching %d reference(s) from now on: %s"
-                  % (len(resultados), a.watch))
+                  % (seguidas, a.watch))
+            # A reference with no identifier cannot be recognised next run, so
+            # it is not stored (see clave_vigilada) — and until 2026-09-23 this
+            # line counted it anyway. On a real Scopus export that printed
+            # "Watching 1409" over a state file holding none of them.
+            if seguidas < len(resultados):
+                print("  The other %d have no identifier, so they cannot be "
+                      "recognised next\n  time and are NOT being watched."
+                      % (len(resultados) - seguidas))
         elif solapa:
             # Said on every run, not only when something looks wrong: a count
             # that appears exclusively in bad news is a count nobody has ever

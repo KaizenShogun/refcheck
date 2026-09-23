@@ -804,10 +804,11 @@
   // kind of cross-reference, and a blacklist would let it through in silence.
   var MEDLINE_ID = { PMID: 1, AID: 1, LID: 1, SO: 1, TI: 1, DP: 1 };
 
-  // RIS looks superficially the same — "TY  - JOUR", "DO  - 10.x/y" — and must
-  // keep going through the forgiving path, where its DOIs are found perfectly
-  // well. So detection asks for a tag that exists in MEDLINE and nowhere else,
-  // rather than trusting that no RIS file ever starts a line with PMID.
+  // RIS looks superficially the same — "TY  - JOUR", "DO  - 10.x/y" — so
+  // detection asks for a tag that exists in MEDLINE and nowhere else, rather
+  // than trusting that no RIS file ever starts a line with PMID. RIS has its
+  // own reader below; it used to go down the forgiving path, and that was a
+  // mistake measured on 2026-09-23.
   var MEDLINE_OWN = { AID: 1, LID: 1, SO: 1, OWN: 1, STAT: 1, JT: 1, MH: 1,
                       PT: 1, PST: 1, BTI: 1 };
 
@@ -926,6 +927,131 @@
     });
     return { dois: dois, origen: origen, sueltos: sueltos };
   }
+
+  // <ris-reader>
+  // RIS is the file the people this tool is for actually have on disk: Scopus,
+  // Web of Science, Embase, Rayyan, Covidence, EndNote and Zotero all export it.
+  // Until 2026-09-23 it went down the loose-text path. Measured on 40 .ris files
+  // real people deposited on Zenodo beside their reviews — 17,140 records:
+  //
+  //   · 7,215 (42.1%) carry no DOI at all. Read as loose text they were not
+  //     "unchecked", they were INVISIBLE: one real Scopus export of 1,409 papers
+  //     printed "1 reference(s) checked · Nothing found".
+  //   · 322 DOIs the loose reader reported belong to NO record in the file —
+  //     abstracts citing other work, dataset DOIs in notes — and were shown to
+  //     the reader as references of their own.
+  //
+  // The whitelist is measured, not taken from the RIS spec: M3 is "type of work"
+  // in the spec and holds 2,469 of the corpus's DOIs because that is where
+  // Scopus puts them. AN looks like an id field and is deliberately absent — its
+  // real values are "pub.1168151018" (Dimensions), "rayyan-510015106" and bare
+  // counters, so reading it as a PMID would check a stranger's paper. C2 IS the
+  // PMID: 40 sampled and asked of PubMed, title matches in 40 of 40.
+  var RIS_TAG = /^([A-Z][A-Z0-9]{1,3})\s{1,2}-\s?(.*)$/;
+  var RIS_DOI_TAGS = ["DO", "DI", "M3", "UR", "L1", "L2", "L4", "LK"];
+  var RIS_READ = { DO: 1, DI: 1, M3: 1, UR: 1, L1: 1, L2: 1, L4: 1, LK: 1,
+                   C2: 1, TI: 1, T1: 1, PY: 1, Y1: 1, DA: 1 };
+  var RIS_UR_PMID = /\bPM:\s*(\d{4,8})\b/;
+  var RIS_PMID_VALUE = /^(?:PMID:?\s*)?0*(\d{4,8})$/i;
+
+  // Three conditions, all necessary. Requiring ER is what keeps out a file with
+  // RIS-shaped tags that is not RIS — the corpus holds a Lattes CV dump whose
+  // lines read "TY  - MEMBRO", "NOME  - …" and which closes nothing.
+  function isRis(text) {
+    var lines = text.split(/\r?\n/), opens = 0, closes = 0, tagged = 0, m, i;
+    for (i = 0; i < lines.length; i++) {
+      m = RIS_TAG.exec(lines[i]);
+      if (!m) continue;
+      tagged++;
+      if (m[1] === "TY") opens++;
+      else if (m[1] === "ER") closes++;
+    }
+    return opens >= 1 && closes >= 1 && tagged >= 5;
+  }
+
+  function risRecords(text) {
+    var lines = text.split(/\r?\n/), recs = [], cur = null, vals = {}, tag = null,
+        mentioned = "";
+
+    function close() {
+      if (!cur) return;
+      var doi = "", i, j, v, hit;
+      for (i = 0; i < RIS_DOI_TAGS.length && !doi; i++) {
+        v = vals[RIS_DOI_TAGS[i]] || [];
+        for (j = 0; j < v.length && !doi; j++) {
+          DOI_RE.lastIndex = 0;
+          hit = DOI_RE.exec(v[j]);
+          if (hit) doi = limpiaDoi(hit[0]);
+        }
+      }
+      var pmid = "", m;
+      v = vals.C2 || [];
+      for (i = 0; i < v.length && !pmid; i++) {
+        m = RIS_PMID_VALUE.exec(v[i].trim());
+        if (m) pmid = String(parseInt(m[1], 10));
+      }
+      if (!pmid) {
+        v = vals.UR || [];
+        for (i = 0; i < v.length && !pmid; i++) {
+          m = RIS_UR_PMID.exec(v[i]);
+          if (m) pmid = String(parseInt(m[1], 10));
+        }
+      }
+      var titulo = "";
+      if (vals.TI && vals.TI.length) titulo = vals.TI.join(" ").slice(0, 300);
+      else if (vals.T1 && vals.T1.length) titulo = vals.T1.join(" ").slice(0, 300);
+      var fecha = "", tags = ["PY", "Y1", "DA"];
+      for (i = 0; i < tags.length && !fecha; i++) {
+        v = vals[tags[i]] || [];
+        for (j = 0; j < v.length && !fecha; j++) {
+          m = /\b(1[5-9]\d\d|20\d\d)\b/.exec(v[j]);
+          if (m) fecha = m[1];
+        }
+      }
+      recs.push({ pmid: pmid, doi: doi, titulo: titulo.trim(), fecha: fecha,
+                  // Shown, never used. Of the 10 records in the corpus where
+                  // this is all there is, 8 are the record's own DOI quoted in
+                  // its abstract, 1 is a different item and 1 does not exist.
+                  // Guessing would be right 8 times in 10, and reporting a
+                  // stranger's retraction as the reader's reference is the most
+                  // expensive thing this tool can do.
+                  doi_mencionado: doi ? "" : mentioned });
+      mentioned = "";
+    }
+
+    for (var n = 0; n < lines.length; n++) {
+      var line = lines[n], m2 = RIS_TAG.exec(line), hit2;
+      if (m2) {
+        tag = m2[1];
+        var value = m2[2].trim();
+        if (tag === "TY") { close(); cur = {}; vals = {}; continue; }
+        if (tag === "ER") { close(); cur = null; vals = {}; tag = null; continue; }
+        if (cur && RIS_READ[tag]) {
+          if (!vals[tag]) vals[tag] = [];
+          vals[tag].push(value);
+        } else if (cur && !mentioned && value.indexOf("10.") !== -1) {
+          DOI_RE.lastIndex = 0;
+          hit2 = DOI_RE.exec(value);
+          if (hit2) mentioned = limpiaDoi(hit2[0]);
+        }
+        continue;
+      }
+      if (cur && tag && line.trim()) {
+        // A wrapped value continues the tag above it, folded only into tags we
+        // read — so a wrapped abstract stays unread, which is the point.
+        if (RIS_READ[tag] && vals[tag] && vals[tag].length) {
+          vals[tag][vals[tag].length - 1] += " " + line.trim();
+        } else if (!mentioned && line.indexOf("10.") !== -1) {
+          DOI_RE.lastIndex = 0;
+          hit2 = DOI_RE.exec(line);
+          if (hit2) mentioned = limpiaDoi(hit2[0]);
+        }
+      }
+    }
+    close();
+    return recs;
+  }
+  // </ris-reader>
 
   function extractPmids(text) {
     var seen = Object.create(null), list = [], m, raw;
@@ -1761,14 +1887,24 @@
     elsewhere = elsewhere || [];
     var noDoi = sueltos.filter(function (s) { return s.estado === "pmid_no_doi"; });
     var noPmid = sueltos.filter(function (s) { return s.estado === "pmid_not_found"; });
+    // References the file lists that carry no identifier at all. Their own
+    // drawer: nothing is wrong with the citation, what is missing is a DOI in
+    // the export, and folding them in with broken DOIs would send the reader
+    // off to correct 1,408 perfectly good references.
+    var noId = sueltos.filter(function (s) { return s.estado === "ris_no_id"; });
     // notFound and superseded come off the count too, and until 2026-09-15 they
     // did not. One mistyped DOI printed three lines that cannot all be true:
     // "1 reference checked", then "1 not found in Crossref … not checked", then
     // "Nothing found". Whoever skims the top of that walks away with a clean
     // bill for a reference nobody managed to look up. Nothing was checked, so
     // it says 0 — and the "Nothing found" line, gated on this number, stays out.
+    // `total` counts what was asked about; the no-identifier drawer never was,
+    // so it is NOT subtracted here — it was never in the numerator. It is added
+    // to the denominator below, which is the number the reader needs: 1 of
+    // 1,409 checked is not a clean bibliography.
     var checked = total - unchecked.length - notFound.length - superseded.length -
                   nonexistent.length - elsewhere.length;
+    var totalFichero = total + noId.length;
 
     var box = el("div", "summary");
     var h = el("h2");
@@ -1877,6 +2013,20 @@
         " half-checked, not clean. Run them again.");
       p.style.fontWeight = "600";
       box.appendChild(p);
+    }
+    if (noId.length) {
+      // Right under the count, because it is the number that decides whether
+      // the count means anything: 1 of 1,409 checked is not a clean
+      // bibliography, and the reader has to see the denominator.
+      var pn = el("p", null,
+        "Your file lists " + totalFichero + " reference" +
+        (totalFichero === 1 ? "" : "s") +
+        " in all. " + noId.length + " of them name no DOI and no PubMed id of " +
+        "their own, so nothing could be asked about " +
+        (noId.length === 1 ? "it" : "them") + " — not clean, unknown. " +
+        "Re-export including the DOI field to check those.");
+      pn.style.fontWeight = "600";
+      box.appendChild(pn);
     }
     if (noDoi.length) {
       box.appendChild(el("p", null,
@@ -2138,6 +2288,40 @@
       out.appendChild(det);
     }
 
+    if (noId.length) {
+      var detN = el("details");
+      detN.appendChild(el("summary", null,
+        "References with no identifier in the file — not checked (" +
+        noId.length + ")"));
+      detN.appendChild(el("p", "hint",
+        "Your export lists these papers but gives no DOI and no PubMed id for " +
+        "them, so no register can be asked about them. Measured on 2026-09-23 " +
+        "over 40 real .ris files deposited beside systematic reviews: 42.1% of " +
+        "17,140 records are in this state — one Scopus export of 1,409 papers " +
+        "carried a single DOI. The fix is at the source: re-export ticking the " +
+        "DOI field. A DOI shown below was found somewhere in the record, such " +
+        "as an abstract, and was NOT checked: it may be a paper the abstract " +
+        "cites rather than the reference itself."));
+      var ulN = el("ul");
+      lines.push("");
+      lines.push("References with no identifier in the file (not checked):");
+      // Cheapest to act on first: a record that mentions a DOI can be settled
+      // in one click, one that names none cannot.
+      noId.slice().sort(function (x, y) {
+        return (y.doi_mencionado ? 1 : 0) - (x.doi_mencionado ? 1 : 0);
+      }).forEach(function (s) {
+        var t = (s.titulo || "(no title in the file)") +
+                (s.fecha ? " (" + s.fecha + ")" : "") +
+                (s.doi_mencionado
+                  ? " — the record mentions " + s.doi_mencionado +
+                    ", not checked" : "");
+        ulN.appendChild(el("li", "meta", t));
+        lines.push("  " + t);
+      });
+      detN.appendChild(ulN);
+      out.appendChild(detN);
+    }
+
     if (noDoi.length) {
       var det1 = el("details");
       det1.appendChild(el("summary", null,
@@ -2205,6 +2389,70 @@
         return;
       }
       check(refs.dois, refs.origen, refs.sueltos);
+      return;
+    }
+
+    if (isRis(text)) {
+      var recs = risRecords(text);
+      if (!recs.length) {
+        status.textContent = "That looks like a RIS export, but no records " +
+          "could be read out of it.";
+        out.textContent = "";
+        copyBtn.hidden = true;
+        $("watchSaveBar").hidden = true;
+        return;
+      }
+      var rDois = [], rOrigen = Object.create(null), rSueltos = [],
+          rSeen = Object.create(null), rPend = [], byPmid = Object.create(null);
+      recs.forEach(function (r) {
+        if (r.doi) {
+          if (r.pmid && !rOrigen[r.doi]) rOrigen[r.doi] = r.pmid;
+          if (!rSeen[r.doi.toLowerCase()]) {
+            rSeen[r.doi.toLowerCase()] = 1;
+            rDois.push(r.doi);
+          }
+        } else if (r.pmid) {
+          rPend.push(r.pmid);
+          byPmid[r.pmid] = r;
+        } else {
+          // The drawer this whole reader exists for: 42% of real records, and
+          // read as loose text they were not unchecked, they were invisible.
+          rSueltos.push({ estado: "ris_no_id", titulo: r.titulo,
+                          fecha: r.fecha, doi_mencionado: r.doi_mencionado });
+        }
+      });
+      go.disabled = true;
+      copyBtn.hidden = true;
+      $("watchSaveBar").hidden = true;
+      out.textContent = "";
+      lastError = "";
+      var seguir = function (dois2, origen2, sueltos2) {
+        if (!dois2.length) {
+          status.textContent = "Done. Nothing could be checked against Crossref.";
+          render([], [], [], 0, sueltos2);
+          go.disabled = false;
+          return;
+        }
+        check(dois2, origen2, sueltos2);
+      };
+      if (!rPend.length) { seguir(rDois, rOrigen, rSueltos); return; }
+      // A RIS PMID, unlike a MEDLINE one, arrives without the article's DOI
+      // beside it, so it still needs the round trip to NCBI.
+      status.textContent = "Looking up " + rPend.length + " PubMed id" +
+        (rPend.length === 1 ? "" : "s") + "…";
+      resolvePmids(rPend, rDois).then(function (res) {
+        res.sueltos.forEach(function (s) {
+          // The file's own title beats PubMed's: it is what the reader will
+          // search their document for.
+          var own = byPmid[s.pmid];
+          if (own && own.titulo && !s.titulo) s.titulo = own.titulo;
+          if (own && own.fecha && !s.fecha) s.fecha = own.fecha;
+        });
+        Object.keys(rOrigen).forEach(function (d) {
+          if (!res.origen[d]) res.origen[d] = rOrigen[d];
+        });
+        seguir(res.dois, res.origen, rSueltos.concat(res.sueltos));
+      });
       return;
     }
 
@@ -2707,7 +2955,8 @@
         // Counting the records here, not at check time, so the chip can say
         // what is in there before anything is sent anywhere.
         var n = isMedline(text) ? medlineRecords(text).length
-                                : extractDois(text).length;
+              : isRis(text) ? risRecords(text).length
+                            : extractDois(text).length;
         held = { name: f.name, text: text, records: n };
         input.value = "";
         showHeld();
