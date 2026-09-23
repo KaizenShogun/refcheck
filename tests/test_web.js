@@ -1467,5 +1467,26 @@
   window.fetch = realFetch;
   coldTab();
 
+  // A real Scopus export is megabytes, so it is held aside rather than shown,
+  // and the chip has to say how many records are in there BEFORE anything is
+  // sent anywhere. That count came from the loose DOI extractor until today,
+  // which on a DOI-less export said "0 records" about 1,200 papers.
+  let bigRis = "";
+  for (let i = 0; i < 1200; i++) {
+    bigRis += "TY  - JOUR\nTI  - Record number " + i +
+      " with a long enough title to make this file realistically large\n" +
+      "AU  - Somebody, A.\nPY  - 2024\nT2  - Journal of Fixtures\n" +
+      "UR  - https://www.scopus.com/inward/record.uri?eid=2-s2.0-1050262463" + i +
+      "\nAB  - " + "An abstract with no DOI in it at all. ".repeat(20) + "\nER  -\n\n";
+  }
+  ok("the test's own .ris fixture is past the inline threshold",
+     bigRis.length > 256 * 1024, bigRis.length + " bytes");
+  s = await openFile("scopus_export.ris", bigRis);
+  ok("a megabyte .ris is accepted, not turned away", /Loaded/.test(s), s);
+  ok("and the chip counts records, not DOIs it could not find",
+     /1200 records/.test($("#loadedText").textContent),
+     $("#loadedText").textContent);
+  $("#unload").click();
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()
