@@ -921,14 +921,25 @@ again on 2026-09-08. The honest landscape:
   aimed mainly at fabricated and mistyped citations, with retraction flagging.
 - **[agbarnett/retraction_watch](https://github.com/agbarnett/retraction_watch)** —
   a Shiny app for a BibTeX file. Retractions.
+- **[`retraction`](https://cran.r-project.org/package=retraction)** (R, on CRAN
+  since 2026-07-10, GPL-3) — **if you work in R, use this instead.** It reads
+  BibTeX, RIS, EndNote XML, Word and PDF, matches by DOI, PMID and then fuzzy
+  title, can ask Retraction Watch, Crossref, PubMed, Europe PMC, OpenAlex and
+  DataCite at once and flag when they disagree, reports reinstated works as
+  reinstated (which this tool cannot; see the 31 below), and has a watch mode, a
+  Zotero-library scan and a CI gate. Its default source is Retraction Watch;
+  per its changelog the Crossref source adds corrections and expressions of
+  concern, so ask for it if you want those. I found it on 2026-10-11, after this
+  section had claimed a gap it was already filling.
 - **scite.ai**, **Proofig RefGuard** — commercial, and they do far more than this.
 
-**The gap this fills, stated narrowly enough to be checkable:** among the free
-tools with no login, the ones that take a *whole bibliography* report retractions,
-and the one that reports *every kind of change notice* takes one identifier at a
-time. This does both at once, and it does it without an account, an install, or a
-server that sees your reading list. That is the whole claim — if one of the tools
-above already suits you, use it.
+**The gap this fills, stated narrowly enough to be checkable** (corrected
+2026-10-11; the old wording said no free tool checked a whole bibliography for
+every kind of notice, and `retraction` does): a **web page** that takes a whole
+bibliography and reports corrections, errata and expressions of concern as well
+as retractions, with **nothing to install**, no account, and no server that sees
+your reading list. That is for the person at a library desk without R or a
+terminal. If you have R, the package above does more.
 
 ## One register was not enough, and here is the size of the hole
 
