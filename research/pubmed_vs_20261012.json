@@ -1,0 +1,5226 @@
+{
+ "seed": 20261012,
+ "n": 300,
+ "filas": [
+  {
+   "poblacion": "retraction",
+   "pmid": "27220837",
+   "doi": "10.3892/or.2016.4824",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27220600",
+   "doi": "10.3892/mmr.2016.5294",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27220536",
+   "doi": "10.1186/s12974-016-0585-8",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27219539",
+   "doi": "10.1371/journal.pone.0155697",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27217558",
+   "doi": "10.1073/pnas.1600406113",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27217194",
+   "doi": "10.1038/srep26639",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27216190",
+   "doi": "10.1158/0008-5472.can-15-2555",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27215980",
+   "doi": "10.1007/s11356-016-6815-x",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27203611",
+   "doi": "10.1021/acs.nanolett.6b01525",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "27203442",
+   "doi": "10.1038/mt.2016.104",
+   "anno": 2016
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22669246",
+   "doi": "10.1152/ajpendo.00163.2012",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22668778",
+   "doi": "10.1016/j.nbd.2012.05.020",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22666147",
+   "doi": "10.1100/2012/736730",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22665019",
+   "doi": "10.1007/s13758-012-0040-z",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22662229",
+   "doi": "10.1371/journal.pone.0037804",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22661329",
+   "doi": "10.1007/s00701-012-1328-y",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22661007",
+   "doi": "10.1096/fj.11-202366",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22659245",
+   "doi": "10.1177/0192623312448936",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22655027",
+   "doi": "10.1371/journal.pone.0036177",
+   "anno": 2012
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "22654681",
+   "doi": "10.1016/j.jcm.2011.02.003",
+   "anno": 2011
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30738809",
+   "doi": "10.1016/j.bbadis.2019.01.017",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30733594",
+   "doi": "10.1038/s41380-019-0364-x",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30714427",
+   "doi": "10.1080/14647273.2019.1569268",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30700178",
+   "doi": "10.1080/14767058.2019.1569619",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30663424",
+   "doi": "10.1080/21691401.2018.1544141",
+   "anno": 2019
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30663389",
+   "doi": "10.1080/21691401.2018.1549062",
+   "anno": 2019
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32190150",
+   "doi": "10.5114/aoms.2019.81311",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30571848",
+   "doi": "10.1002/cbin.11087",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30565052",
+   "doi": "10.1007/s11845-018-1952-5",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "30560522",
+   "doi": "10.1007/s10943-018-00741-2",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777631",
+   "doi": "10.1155/2021/2684855",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777570",
+   "doi": "10.1155/2021/9642677",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777569",
+   "doi": "10.1155/2021/9549287",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777567",
+   "doi": "10.1155/2021/7152576",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777566",
+   "doi": "10.1155/2021/6000385",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777537",
+   "doi": "10.1155/2021/8753076",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777535",
+   "doi": "10.1155/2021/5754114",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777494",
+   "doi": "10.1155/2021/6801161",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777491",
+   "doi": "10.1155/2021/3338840",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34777490",
+   "doi": "10.1155/2021/8180154",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38045126",
+   "doi": "10.1016/j.heliyon.2023.e21829",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38044279",
+   "doi": "10.1111/iwj.14504",
+   "anno": 2024
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38043916",
+   "doi": "10.1016/j.jchemneu.2023.102367",
+   "anno": 2024
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38042394",
+   "doi": "10.1016/j.brainres.2023.148688",
+   "anno": 2024
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38042071",
+   "doi": "10.1016/j.jenvman.2023.119616",
+   "anno": 2024
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38041775",
+   "doi": "10.1007/s12033-023-00980-z",
+   "anno": 2025
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38041472",
+   "doi": "10.1002/tox.24063",
+   "anno": 2024
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38041324",
+   "doi": "10.1364/oe.502875",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38038915",
+   "doi": "10.1007/s11356-023-30763-7",
+   "anno": 2024
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "38037852",
+   "doi": "10.1111/iwj.14508",
+   "anno": 2024
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20357676",
+   "doi": "10.1097/jom.0b013e3181d8d9e4",
+   "anno": 2010
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20351245",
+   "doi": "10.1073/pnas.1001946107",
+   "anno": 2010
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20351176",
+   "doi": "10.1128/mcb.01480-09",
+   "anno": 2010
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20350804",
+   "doi": "10.1016/j.biortech.2010.02.088",
+   "anno": 2010
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20350405",
+   "doi": "10.3201/eid1604.091583",
+   "anno": 2010
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20348248",
+   "doi": "10.2353/ajpath.2010.091049",
+   "anno": 2010
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20348208",
+   "doi": "10.1165/rcmb.2009-0284oc",
+   "anno": 2011
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20345520",
+   "doi": "10.1111/j.1423-0410.2010.01333.x",
+   "anno": 2010
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "20339378",
+   "doi": "10.1038/cdd.2010.27",
+   "anno": 2010
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32452513",
+   "doi": "10.1042/bsr20191062",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32451660",
+   "doi": "10.1007/s00404-020-05603-5",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32450897",
+   "doi": "10.1186/s12974-020-01830-4",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32450109",
+   "doi": "10.1016/s0140-6736(20)31174-0",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32450107",
+   "doi": "10.1016/s0140-6736(20)31180-6",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32448237",
+   "doi": "10.1186/s12906-020-02947-y",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32447529",
+   "doi": "10.1007/s00586-020-06466-9",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32446904",
+   "doi": "10.1016/j.cellsig.2020.109675",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32446435",
+   "doi": "10.1053/j.sult.2020.03.001",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "32445140",
+   "doi": "10.1007/s11356-020-09129-w",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24804829",
+   "doi": "10.1007/s10653-014-9620-9",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24804208",
+   "doi": "10.1155/2014/272101",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24804196",
+   "doi": "10.1155/2014/134658",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24802031",
+   "doi": "10.1007/s13304-014-0251-6",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24801871",
+   "doi": "10.1371/journal.pone.0096236",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24800852",
+   "doi": "10.1371/journal.pone.0096501",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24800807",
+   "doi": "10.1371/journal.pone.0095908",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24800233",
+   "doi": "10.1155/2014/486407",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24798398",
+   "doi": "10.1007/s00221-014-3946-5",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "24798310",
+   "doi": "10.1097/tp.0000000000000112",
+   "anno": 2014
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31578769",
+   "doi": "10.1002/jcb.28985",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31573758",
+   "doi": "10.1002/mgg3.991",
+   "anno": 2019
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31571500",
+   "doi": "10.1080/21691401.2019.1669622",
+   "anno": 2019
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31571495",
+   "doi": "10.1080/21691401.2019.1671855",
+   "anno": 2019
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31570035",
+   "doi": "10.1080/21655979.2019.1673937",
+   "anno": 2019
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31569012",
+   "doi": "10.1016/j.cyto.2019.154861",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31568693",
+   "doi": "10.1002/cam4.786",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31566798",
+   "doi": "10.1111/sltb.12590",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31563724",
+   "doi": "10.1016/j.chemosphere.2019.124887",
+   "anno": 2020
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "31563120",
+   "doi": "10.1016/j.omtn.2019.08.010",
+   "anno": 2019
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34733336",
+   "doi": "10.1155/2021/1990838",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34733329",
+   "doi": "10.1155/2021/5070099",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34733325",
+   "doi": "10.1155/2021/7149631",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34731183",
+   "doi": "10.1371/journal.pone.0259284",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34729278",
+   "doi": "10.7759/cureus.18401",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34729077",
+   "doi": "10.1155/2021/1221899",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34727104",
+   "doi": "10.1371/journal.pone.0259222",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34725587",
+   "doi": "10.7759/cureus.18316",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34725554",
+   "doi": "10.1155/2021/2938625",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "34722765",
+   "doi": "10.1155/2021/5058899",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35976925",
+   "doi": "10.1371/journal.pone.0271163",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35974873",
+   "doi": "10.2147/ijn.s375908",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35973569",
+   "doi": "10.1016/j.biortech.2022.127790",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35972957",
+   "doi": "10.1371/journal.pgen.1010323",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35971560",
+   "doi": "10.1007/s12652-022-04360-4",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35971448",
+   "doi": "10.1155/2022/5333928",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35971447",
+   "doi": "10.1155/2022/7799243",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35971427",
+   "doi": "10.1155/2022/6387030",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35971426",
+   "doi": "10.1155/2022/7306597",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35971403",
+   "doi": "10.1155/2022/2553048",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28880896",
+   "doi": "10.1371/journal.pone.0184348",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28880337",
+   "doi": "10.3928/1081597x-20170620-02",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28880271",
+   "doi": "10.1038/cddis.2017.394",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28878290",
+   "doi": "10.1038/s41598-017-11142-y",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28878261",
+   "doi": "10.1038/s41598-017-10991-x",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28875428",
+   "doi": "10.1007/s12035-017-0747-4",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28874794",
+   "doi": "10.1038/s41598-017-10966-y",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28874658",
+   "doi": "10.1038/s41467-017-00508-5",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28872184",
+   "doi": "10.1111/jre.12492",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "28871471",
+   "doi": "10.1007/s00404-017-4501-y",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35669166",
+   "doi": "10.1155/2022/7344375",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35668906",
+   "doi": "10.1007/s00500-022-07200-x",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35668862",
+   "doi": "10.1155/2022/9936211",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35668788",
+   "doi": "10.1155/2022/1527488",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35668781",
+   "doi": "10.1155/2022/4651194",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35668777",
+   "doi": "10.1155/2022/2327669",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35668774",
+   "doi": "10.1155/2022/1127095",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35668773",
+   "doi": "10.1155/2022/2268591",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35667505",
+   "doi": "10.1016/j.chemosphere.2022.135074",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35666074",
+   "doi": "10.1002/advs.202202550",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898602",
+   "doi": "10.1155/2022/6962542",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898601",
+   "doi": "10.1155/2022/7187863",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898489",
+   "doi": "10.1155/2022/9469134",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898487",
+   "doi": "10.1155/2022/4915402",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898486",
+   "doi": "10.1155/2022/1020504",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898484",
+   "doi": "10.1155/2022/4065527",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898483",
+   "doi": "10.1155/2022/2423333",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898481",
+   "doi": "10.1155/2022/1331237",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898479",
+   "doi": "10.1155/2022/4487864",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35898477",
+   "doi": "10.1155/2022/4955287",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193323",
+   "doi": "10.1155/2022/7800298",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193322",
+   "doi": "10.1155/2022/1761434",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193320",
+   "doi": "10.1155/2022/3235238",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193317",
+   "doi": "10.1155/2022/4537195",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193315",
+   "doi": "10.1155/2022/4411054",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193314",
+   "doi": "10.1155/2022/9212561",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193313",
+   "doi": "10.1155/2022/5217625",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193312",
+   "doi": "10.1155/2022/1279961",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193309",
+   "doi": "10.1155/2022/7352489",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36193306",
+   "doi": "10.1155/2022/8012018",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16842121",
+   "doi": "10.2174/092986606777145850",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16840747",
+   "doi": "10.1164/rccm.200601-072oc",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16840440",
+   "doi": "10.1093/carcin/bgl129",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16838032",
+   "doi": "10.1038/sj.gt.3302808",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16835876",
+   "doi": "10.1002/ptr.1964",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16835357",
+   "doi": "10.1124/mol.106.026344",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16832828",
+   "doi": "10.1002/pds.1165",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16831439",
+   "doi": "10.1016/j.fertnstert.2006.02.097",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16824631",
+   "doi": "10.1016/j.ijcard.2006.03.051",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16823852",
+   "doi": "10.1002/ijc.22077",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33578037",
+   "doi": "10.1016/j.ymthe.2021.02.008",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33577844",
+   "doi": "10.1016/j.lfs.2021.119184",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33577776",
+   "doi": "10.1016/j.molcel.2021.01.021",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33576964",
+   "doi": "10.1007/s11356-021-12733-z",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33576460",
+   "doi": "10.3892/ijmm.2021.4887",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33576437",
+   "doi": "10.3892/mmr.2021.11902",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33576289",
+   "doi": "10.1080/13625187.2021.1879781",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33575938",
+   "doi": "10.1007/s11356-021-12769-1",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33575473",
+   "doi": "10.1016/j.omto.2020.10.014",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33575336",
+   "doi": "10.1155/2021/6659701",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "12024037",
+   "doi": "10.1128/mcb.22.12.4256-4267.2002",
+   "anno": 2002
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "12023603",
+   "doi": "10.1097/00002060-200206000-00010",
+   "anno": 2002
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "12016224",
+   "doi": "10.1074/jbc.m203353200",
+   "anno": 2002
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "12009527",
+   "doi": "10.1016/s0304-3940(02)00147-7",
+   "anno": 2002
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "12009041",
+   "doi": "10.1111/1467-9280.00441",
+   "anno": 2002
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "12003802",
+   "doi": "10.1152/ajpheart.01012.2001",
+   "anno": 2002
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19420137",
+   "doi": "10.1091/mbc.e09-03-0197",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19418497",
+   "doi": "10.1002/pros.20963",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19417563",
+   "doi": "10.1097/mat.0b013e3181a05795",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19417521",
+   "doi": "10.1088/0957-4484/20/10/105601",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19417133",
+   "doi": "10.1158/0008-5472.can-08-3669",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19414801",
+   "doi": "10.4049/jimmunol.0802378",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19413639",
+   "doi": "10.1111/j.1365-2559.2009.03279.x",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19406979",
+   "doi": "10.1681/asn.2008070734",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "19406812",
+   "doi": "10.1099/ijs.0.004978-0",
+   "anno": 2009
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35752024",
+   "doi": "10.1016/j.drugalcdep.2022.109537",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35751432",
+   "doi": "10.1111/iwj.13858",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35750908",
+   "doi": "10.1007/s11356-022-21489-z",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35749526",
+   "doi": "10.1371/journal.pone.0269025",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35748325",
+   "doi": "10.1177/17448069221106844",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35748029",
+   "doi": "10.1080/17434440.2022.2075726",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35747730",
+   "doi": "10.1155/2022/8294613",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35747729",
+   "doi": "10.1155/2022/1429042",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35747720",
+   "doi": "10.1155/2022/6935758",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "35747718",
+   "doi": "10.1155/2022/2005188",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29168185",
+   "doi": "10.1002/ijc.31173",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29164980",
+   "doi": "10.1177/0394632017742224",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29164635",
+   "doi": "10.1111/jcpt.12653",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29164126",
+   "doi": "10.3389/fnut.2017.00051",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29163810",
+   "doi": "10.18632/oncotarget.21376",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29162670",
+   "doi": "10.1042/bsr20170926",
+   "anno": 2017
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29161544",
+   "doi": "10.1016/j.jclinane.2017.10.013",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16651437",
+   "doi": "10.1158/0008-5472.can-05-3752",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16648433",
+   "doi": "10.1097/00006250-200605000-00050",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16646082",
+   "doi": "10.1002/ijc.22031",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16645640",
+   "doi": "10.1038/sj.cdd.4401929",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16645343",
+   "doi": "10.4142/jvs.2006.7.2.167",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16645094",
+   "doi": "10.1126/science.1123480",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16644507",
+   "doi": "10.1016/s1015-9584(09)60112-3",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16642001",
+   "doi": "10.1038/nature04695",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "16641989",
+   "doi": "10.1038/nature04577",
+   "anno": 2006
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213035",
+   "doi": "10.1155/2022/1420542",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213034",
+   "doi": "10.1155/2022/5991087",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213031",
+   "doi": "10.1155/2022/2464083",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213027",
+   "doi": "10.1155/2022/4096566",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213026",
+   "doi": "10.1155/2022/9461377",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213025",
+   "doi": "10.1155/2022/8354429",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213024",
+   "doi": "10.1155/2022/4879466",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213022",
+   "doi": "10.1155/2022/8918871",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213021",
+   "doi": "10.1155/2022/2987270",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36213020",
+   "doi": "10.1155/2022/6563526",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29311165",
+   "doi": "10.1158/1055-9965.epi-17-0221",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29310682",
+   "doi": "10.1186/s12943-017-0752-2",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29310118",
+   "doi": "10.1159/000486253",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29310013",
+   "doi": "10.1016/j.ecoenv.2017.12.068",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29307496",
+   "doi": "10.1016/j.biopha.2018.01.018",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29307185",
+   "doi": "10.1021/acs.langmuir.7b03866",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29306212",
+   "doi": "10.1016/j.biopha.2017.11.132",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29306075",
+   "doi": "10.1016/j.bbalip.2017.12.012",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29305865",
+   "doi": "10.1016/j.bbrc.2017.12.170",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "29302792",
+   "doi": "10.1007/s00705-018-3704-2",
+   "anno": 2018
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17701801",
+   "doi": "10.1080/01443610701405812",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17701044",
+   "doi": "10.1007/s00345-007-0190-7",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17698563",
+   "doi": "10.1093/intimm/dxm069",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17697904",
+   "doi": "10.1016/j.clinthera.2007.05.019",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17697500",
+   "doi": "10.1016/s1472-6483(10)60711-0",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17691785",
+   "doi": "10.1021/ja072918x",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17690890",
+   "doi": "10.1007/s00345-007-0202-7",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17689277",
+   "doi": "10.1016/j.semcdb.2007.06.005",
+   "anno": 2008
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17687689",
+   "doi": "10.1080/15569520701212340",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33986940",
+   "doi": "10.1155/2021/5529981",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33986876",
+   "doi": "10.3892/ol.2021.12777",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33986824",
+   "doi": "10.1155/2021/5574376",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33985956",
+   "doi": "10.3174/ajnr.a7166",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33985788",
+   "doi": "10.1016/j.isatra.2021.05.007",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33984908",
+   "doi": "10.1016/j.chemosphere.2021.130092",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36133732",
+   "doi": "10.1039/d1na00214g",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33984023",
+   "doi": "10.1371/journal.pone.0251471",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33983956",
+   "doi": "10.1371/journal.pone.0249147",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "33983512",
+   "doi": "10.1007/s00404-021-06087-7",
+   "anno": 2021
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212961",
+   "doi": "10.1155/2022/7897027",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212958",
+   "doi": "10.1155/2022/5075447",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212954",
+   "doi": "10.1155/2022/4425680",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212952",
+   "doi": "10.1155/2022/1890823",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212946",
+   "doi": "10.1155/2022/5665921",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212943",
+   "doi": "10.1155/2022/4229436",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212808",
+   "doi": "10.1155/2022/1937714",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212723",
+   "doi": "10.1155/2022/7562990",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212722",
+   "doi": "10.1155/2022/9421738",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "36212720",
+   "doi": "10.1155/2022/2904910",
+   "anno": 2022
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "25762632",
+   "doi": "10.18632/oncotarget.3126",
+   "anno": 2015
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "25761122",
+   "doi": "10.1021/es505590j",
+   "anno": 2015
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "25760705",
+   "doi": "10.1107/s2053230x15001806",
+   "anno": 2015
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "25758424",
+   "doi": "10.1016/j.urolonc.2015.02.003",
+   "anno": 2015
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "25756408",
+   "doi": "10.1097/bsd.0000000000000266",
+   "anno": 2015
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "25755062",
+   "doi": "10.1016/j.ijcard.2015.03.055",
+   "anno": 2015
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "25754232",
+   "doi": "10.1007/s00425-015-2269-5",
+   "anno": 2015
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "25751743",
+   "doi": "10.1038/ncomms7473",
+   "anno": 2015
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37287429",
+   "doi": "10.1111/iwj.14271",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37287012",
+   "doi": "10.1186/s12906-023-03992-z",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37286825",
+   "doi": "10.1007/s11356-023-27947-6",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37284029",
+   "doi": "10.1155/2023/7570587",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37283104",
+   "doi": "10.3724/zdxbyxb-2022-0519",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37280498",
+   "doi": "10.1007/s11356-023-27918-x",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37280357",
+   "doi": "10.1038/s41598-023-36277-z",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37279293",
+   "doi": "10.1089/rej.2023.0013",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37278189",
+   "doi": "10.1111/nmo.14623",
+   "anno": 2024
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "37277912",
+   "doi": "10.1111/iwj.14259",
+   "anno": 2023
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17237390",
+   "doi": "10.4049/jimmunol.178.3.1426",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17237224",
+   "doi": "10.1074/jbc.m610308200",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17230541",
+   "doi": "10.1002/jso.20742",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17230513",
+   "doi": "10.1002/ijc.22403",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17229471",
+   "doi": "10.1016/j.jneuroim.2006.11.030",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17227430",
+   "doi": "10.1111/j.1462-2920.2006.01136.x",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17223697",
+   "doi": "10.1021/bi062184l",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17222507",
+   "doi": "10.1016/j.jhazmat.2006.11.060",
+   "anno": 2007
+  },
+  {
+   "poblacion": "retraction",
+   "pmid": "17218375",
+   "doi": "10.1093/bja/ael341",
+   "anno": 2007
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33551848",
+   "doi": "10.3389/fphys.2020.629199",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33654480",
+   "doi": "10.1007/s00779-021-01541-4",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32982405",
+   "doi": "10.2147/cmar.s257482",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33408476",
+   "doi": "10.2147/tcrm.s292504",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32333910",
+   "doi": "10.1053/j.gastro.2020.03.087",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32771406",
+   "doi": "10.1053/j.gastro.2020.07.049",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31105056",
+   "doi": "10.1016/j.molmet.2019.05.002",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33428982",
+   "doi": "10.1016/j.ajic.2021.01.005",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33316718",
+   "doi": "10.1016/j.jad.2020.12.004",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33341732",
+   "doi": "10.1016/j.chemosphere.2020.129240",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35316511",
+   "doi": "10.1007/s12105-022-01441-w",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32584192",
+   "doi": "10.1152/physrev.00038.2019",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36238372",
+   "doi": "10.1007/s13534-022-00235-x",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35787105",
+   "doi": "10.1021/acs.nanolett.2c00760",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35786073",
+   "doi": "10.1177/01455613221112340",
+   "anno": 2025
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "23743481",
+   "doi": "10.1039/c3dt50955a",
+   "anno": 2013
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36124894",
+   "doi": "10.1039/d2cc03588j",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31976511",
+   "doi": "10.1039/c9nr09835f",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36124994",
+   "doi": "10.1039/d2ay01016j",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36050846",
+   "doi": "10.1080/14756366.2022.2117317",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36204210",
+   "doi": "10.1093/hr/uhac163",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38745906",
+   "doi": "10.1016/j.ijnsa.2020.100005",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34399564",
+   "doi": "10.5468/ogs.21116",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31413257",
+   "doi": "10.1038/s41467-019-11591-1",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34330893",
+   "doi": "10.1038/s41419-021-04026-7",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34535625",
+   "doi": "10.1038/s41398-021-01562-w",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35447413",
+   "doi": "10.1016/j.redox.2022.102312",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35594769",
+   "doi": "10.1016/j.foodchem.2022.133144",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35581021",
+   "doi": "10.1016/j.tibtech.2022.04.007",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35709890",
+   "doi": "10.1016/j.jbiotec.2022.06.002",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38728238",
+   "doi": "10.1371/journal.pone.0299352",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36346807",
+   "doi": "10.1371/journal.pone.0273290",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "41071805",
+   "doi": "10.1371/journal.pone.0333637",
+   "anno": 2025
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "41166268",
+   "doi": "10.1371/journal.pone.0335242",
+   "anno": 2025
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "41686759",
+   "doi": "10.1371/journal.pone.0342569",
+   "anno": 2026
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "41571948",
+   "doi": "10.1007/s10461-025-04944-z",
+   "anno": 2026
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "41642467",
+   "doi": "10.1007/s13730-025-01066-2",
+   "anno": 2026
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38228807",
+   "doi": "10.1007/s00198-023-07012-1",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "41824061",
+   "doi": "10.1007/s00103-026-04216-8",
+   "anno": 2026
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "41811474",
+   "doi": "10.1007/s00101-026-01657-3",
+   "anno": 2026
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25398144",
+   "doi": "10.1021/ja5105602",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26335297",
+   "doi": "10.7554/elife.08245",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "24692141",
+   "doi": "10.1002/cphy.c130020",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26301808",
+   "doi": "10.1172/jci83823",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "20679726",
+   "doi": "10.1172/jci43230",
+   "anno": 2010
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25243837",
+   "doi": "10.1021/jp507283n",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25080338",
+   "doi": "10.1371/journal.pone.0103415",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25177353",
+   "doi": "10.1186/1742-4933-11-12",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25745311",
+   "doi": "10.4103/0972-2327.144311",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "24744440",
+   "doi": "10.1681/asn.2013090931",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33119788",
+   "doi": "10.1007/s00404-020-05847-1",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32488397",
+   "doi": "10.1007/s00404-020-05615-1",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34109919",
+   "doi": "10.1017/ice.2021.174",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34405695",
+   "doi": "10.1027/0227-5910/a000805",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34544504",
+   "doi": "10.1017/s0007114521003767",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34505915",
+   "doi": "10.1007/s00248-021-01853-1",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34146219",
+   "doi": "10.1007/s11255-021-02924-5",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34628598",
+   "doi": "10.1007/s12975-021-00948-8",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34117358",
+   "doi": "10.1038/s41390-021-01591-7",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35188481",
+   "doi": "10.1097/01.asw.0000818572.31307.7b",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29330855",
+   "doi": "10.1002/cpt.978",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29603191",
+   "doi": "10.1002/cpt.1065",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29590198",
+   "doi": "10.1371/journal.pone.0195112",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28771624",
+   "doi": "10.1371/journal.pone.0182423",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29715041",
+   "doi": "10.1021/acs.langmuir.8b00741",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29694029",
+   "doi": "10.1021/acs.analchem.8b01112",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30344996",
+   "doi": "10.1177/2045125318782694",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30102648",
+   "doi": "10.1097/mph.0000000000001293",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29505717",
+   "doi": "10.1021/acs.analchem.7b04260",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28383254",
+   "doi": "10.1021/acs.est.6b05875",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30772748",
+   "doi": "10.1016/j.jad.2019.02.037",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "24021757",
+   "doi": "10.1016/j.biomaterials.2013.08.032",
+   "anno": 2013
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30642978",
+   "doi": "10.4049/jimmunol.1800197",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35687941",
+   "doi": "10.1016/j.animal.2022.100557",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29058908",
+   "doi": "10.1021/acs.nanolett.7b03021",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35404687",
+   "doi": "10.1177/00031348221084954",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32658476",
+   "doi": "10.1021/jacs.0c05039",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34081857",
+   "doi": "10.1021/acs.jmedchem.0c01961",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35404763",
+   "doi": "10.1080/15459624.2022.2063877",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35730661",
+   "doi": "10.1039/d2ob00572g",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31441038",
+   "doi": "10.1111/bph.14761",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30731359",
+   "doi": "10.1016/j.bioorg.2019.01.057",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25809148",
+   "doi": "10.1002/pros.22989",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33415622",
+   "doi": "10.1007/s11356-020-11869-8",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33398699",
+   "doi": "10.1007/s10508-020-01845-1",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33616635",
+   "doi": "10.1001/jamapediatrics.2020.6371",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33427861",
+   "doi": "10.1001/jamapediatrics.2020.5218",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28241237",
+   "doi": "10.1001/jamainternmed.2016.9540",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33492361",
+   "doi": "10.1001/jamainternmed.2020.8360",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31177935",
+   "doi": "10.1080/17461391.2019.1629631",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27443162",
+   "doi": "10.1007/s11239-016-1402-z",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25956522",
+   "doi": "10.1016/j.arth.2015.04.026",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27469324",
+   "doi": "10.1007/s11095-016-1982-5",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26831433",
+   "doi": "10.1002/jcp.25329",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27393972",
+   "doi": "10.1016/j.sbi.2016.06.009",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26948758",
+   "doi": "10.2217/fon.16.10",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27154719",
+   "doi": "10.1186/s13613-016-0147-3",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27406732",
+   "doi": "10.1007/s00248-016-0813-x",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27473215",
+   "doi": "10.1007/s12350-016-0608-y",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27392971",
+   "doi": "10.1007/s00281-016-0578-9",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30914310",
+   "doi": "10.1016/j.cllc.2019.02.017",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32087313",
+   "doi": "10.1016/j.fct.2020.111210",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31809942",
+   "doi": "10.1016/j.ejrad.2019.108766",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32007888",
+   "doi": "10.1016/j.scitotenv.2020.136913",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31154025",
+   "doi": "10.1016/j.cgh.2019.05.039",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31959224",
+   "doi": "10.1186/s13063-019-4018-8",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31937257",
+   "doi": "10.1186/s12881-020-0950-4",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32027742",
+   "doi": "10.1182/bloodadvances.2019001148",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30952678",
+   "doi": "10.1182/bloodadvances.2018025908",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31913072",
+   "doi": "10.2214/ajr.19.22074",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36567374",
+   "doi": "10.1007/s00431-022-04772-6",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35796837",
+   "doi": "10.1007/s00586-022-07309-5",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36581689",
+   "doi": "10.1007/s00268-022-06871-9",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36587944",
+   "doi": "10.1093/eurheartj/ehac750",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35930274",
+   "doi": "10.1210/endrev/bnac020",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34240091",
+   "doi": "10.1039/d1nr02620h",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "1452719",
+   "doi": "10.1128/jcm.30.12.3286-3287.1992",
+   "anno": 1992
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33782000",
+   "doi": "10.1128/aac.00002-21",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36069282",
+   "doi": "10.1039/d1fo04323d",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36255349",
+   "doi": "10.1259/dmfr.20220164",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36472299",
+   "doi": "10.1039/d2cp04184g",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36864569",
+   "doi": "10.1080/00365521.2023.2185476",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36787796",
+   "doi": "10.1098/rspb.2022.2500",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28720577",
+   "doi": "10.1158/0008-5472.can-16-3152",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36569111",
+   "doi": "10.1097/oi9.0000000000000217",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35602663",
+   "doi": "10.2147/jir.s363610",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36030544",
+   "doi": "10.1111/pce.14426",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35859140",
+   "doi": "10.1186/s43058-022-00321-2",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36217172",
+   "doi": "10.1186/s43058-022-00355-6",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36755284",
+   "doi": "10.1186/s13034-023-00568-0",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37553571",
+   "doi": "10.1186/s12916-023-02990-9",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38486246",
+   "doi": "10.1186/s12916-024-03342-x",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38182602",
+   "doi": "10.1038/s41531-023-00625-7",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34174204",
+   "doi": "10.1016/j.ajog.2021.06.071",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38527461",
+   "doi": "10.1111/luts.12511",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37984074",
+   "doi": "10.1111/luts.12507",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37777036",
+   "doi": "10.1016/j.jpain.2023.09.018",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37813484",
+   "doi": "10.1136/oemed-2023-108981",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37778563",
+   "doi": "10.1016/j.scitotenv.2023.167492",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38636529",
+   "doi": "10.1016/s2214-109x(24)00092-5",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27124939",
+   "doi": "10.1093/ajcp/aqw025",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27250835",
+   "doi": "10.1186/s12917-016-0709-5",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27138803",
+   "doi": "10.1016/j.gene.2016.04.037",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27138524",
+   "doi": "10.1007/s10439-016-1626-2",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27246121",
+   "doi": "10.1007/s00267-016-0715-1",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27278677",
+   "doi": "10.1007/s11999-016-4918-9",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25971692",
+   "doi": "10.1007/s00391-015-0907-y",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26096141",
+   "doi": "10.1002/chem.201500025",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26177833",
+   "doi": "10.1002/chem.201502226",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26929124",
+   "doi": "10.1002/chem.201504935",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35749118",
+   "doi": "10.1001/jamanetworkopen.2022.14885",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "32706311",
+   "doi": "10.1164/rccm.202005-2032st",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25881103",
+   "doi": "10.1160/th14-10-0880",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35044196",
+   "doi": "10.1128/spectrum.01381-21",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "24487590",
+   "doi": "10.1172/jci72466",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29355840",
+   "doi": "10.1172/jci96218",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "22946891",
+   "doi": "10.3109/0167482x.2012.717129",
+   "anno": 2012
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35535399",
+   "doi": "10.1080/03630242.2022.2072049",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35284366",
+   "doi": "10.3389/fpubh.2022.843164",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35647389",
+   "doi": "10.15167/2421-4248/jpmh2022.63.1.2299",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "15975110",
+   "doi": "10.1111/j.1464-5491.2005.01558.x",
+   "anno": 2005
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "17403122",
+   "doi": "10.1111/j.1464-5491.2007.02136.x",
+   "anno": 2007
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26560132",
+   "doi": "10.1186/s12911-015-0213-z",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25125007",
+   "doi": "10.1016/j.ijcard.2014.06.084",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25802340",
+   "doi": "10.1074/jbc.m115.647933",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26429911",
+   "doi": "10.1074/jbc.m115.661611",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "23770673",
+   "doi": "10.1074/jbc.m113.463885",
+   "anno": 2013
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26238783",
+   "doi": "10.1158/0008-5472.can-15-0602",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26243474",
+   "doi": "10.1242/jcs.166330",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26767572",
+   "doi": "10.1136/bmj.i240",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25870442",
+   "doi": "10.1136/neurintsurg-2015-011749",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "23818288",
+   "doi": "10.1177/2047487313494835",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25707698",
+   "doi": "10.1080/17457300.2014.996985",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25501963",
+   "doi": "10.1530/eje-14-0766",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25692519",
+   "doi": "10.1038/ncomms7312",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25831544",
+   "doi": "10.1073/pnas.1420932112",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "23382203",
+   "doi": "10.1073/pnas.1215707110",
+   "anno": 2013
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "20133790",
+   "doi": "10.1073/pnas.0908239106",
+   "anno": 2010
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25608501",
+   "doi": "10.1038/ncomms7059",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "20406680",
+   "doi": "10.1016/j.freeradbiomed.2010.04.013",
+   "anno": 2010
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38070596",
+   "doi": "10.1016/j.jtho.2023.12.008",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38453326",
+   "doi": "10.1016/j.jtho.2023.12.018",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38453325",
+   "doi": "10.1016/j.jtho.2023.12.007",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38822793",
+   "doi": "10.1021/acs.jctc.4c00434",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "39030627",
+   "doi": "10.1186/s12984-024-01401-1",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37950265",
+   "doi": "10.1186/s13019-023-02418-8",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34872592",
+   "doi": "10.1186/s13643-021-01856-6",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38484990",
+   "doi": "10.1016/j.chemosphere.2024.141687",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36379397",
+   "doi": "10.1016/j.ijpharm.2022.122391",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30077053",
+   "doi": "10.1016/j.drugalcdep.2018.06.018",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31792424",
+   "doi": "10.1038/s41563-019-0536-8",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30930130",
+   "doi": "10.1016/j.neuroscience.2019.03.049",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30290203",
+   "doi": "10.1016/j.tiv.2018.09.021",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31839133",
+   "doi": "10.1016/s2214-109x(19)30441-3",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30970470",
+   "doi": "10.1016/j.scitotenv.2019.02.169",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31653401",
+   "doi": "10.1016/j.prosdent.2019.06.015",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30836124",
+   "doi": "10.1016/j.fitote.2019.03.003",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31801525",
+   "doi": "10.1186/s12929-019-0588-8",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31230571",
+   "doi": "10.1098/rsta.2018.0418",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "22056830",
+   "doi": "10.3810/hp.2011.10.929",
+   "anno": 2011
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25722201",
+   "doi": "10.1093/cid/civ153",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28388275",
+   "doi": "10.1177/0956797617693005",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25645367",
+   "doi": "10.1002/prot.24769",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27409253",
+   "doi": "10.1164/rccm.201604-0733oc",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27997758",
+   "doi": "10.1002/cyto.b.21502",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27444544",
+   "doi": "10.1111/jcmm.12907",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27232140",
+   "doi": "10.1111/jvec.12209",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25401733",
+   "doi": "10.1111/bjd.13539",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27469990",
+   "doi": "10.1111/bjd.14895",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26581342",
+   "doi": "10.1111/bjd.14296",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "20927323",
+   "doi": "10.1593/neo.10704",
+   "anno": 2010
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38691404",
+   "doi": "10.2196/54948",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38457498",
+   "doi": "10.1126/sciadv.adk6084",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38701213",
+   "doi": "10.1126/sciadv.adj8395",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38857050",
+   "doi": "10.1001/jamanetworkopen.2024.14122",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38967833",
+   "doi": "10.1007/s10661-024-12867-w",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38236022",
+   "doi": "10.1080/21645515.2024.2302685",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25483829",
+   "doi": "10.3892/or.2014.3653",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28944867",
+   "doi": "10.3892/mmr.2017.7554",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30219896",
+   "doi": "10.1093/annonc/mdy412",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31348480",
+   "doi": "10.1039/c9nr05049c",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31012788",
+   "doi": "10.1080/09553002.2019.1606957",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31179719",
+   "doi": "10.4155/bio-2018-0303",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30516854",
+   "doi": "10.1002/adma.201806202",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30586150",
+   "doi": "10.1002/ajpa.23764",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31353371",
+   "doi": "10.1039/c9cc03806j",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "31406398",
+   "doi": "10.1007/s12639-018-01076-1",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30525564",
+   "doi": "10.1021/jacs.8b12136",
+   "anno": 2019
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29396989",
+   "doi": "10.1111/tpj.13853",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25671069",
+   "doi": "10.4162/nrp.2015.9.1.57",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25775023",
+   "doi": "10.1371/journal.pone.0119946",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25710168",
+   "doi": "10.1371/journal.pgen.1004927",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25775128",
+   "doi": "10.1371/journal.pone.0118698",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25144665",
+   "doi": "10.1371/journal.pone.0105515",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "24260223",
+   "doi": "10.1371/journal.pone.0079446",
+   "anno": 2013
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25671638",
+   "doi": "10.1371/journal.pgen.1004935",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25360890",
+   "doi": "10.1371/journal.pone.0111548",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "24922054",
+   "doi": "10.1371/journal.pgen.1004400",
+   "anno": 2014
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25710174",
+   "doi": "10.1371/journal.pone.0117840",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34279218",
+   "doi": "10.7554/elife.68583",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33735594",
+   "doi": "10.1513/annalsats.202009-1131oc",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35246776",
+   "doi": "10.1186/s13613-022-00982-1",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "33273287",
+   "doi": "10.1097/ijg.0000000000001753",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34453468",
+   "doi": "10.1111/jpc.15707",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35191441",
+   "doi": "10.1039/d1dt03671h",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35112121",
+   "doi": "10.1039/d1cc06407j",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34569935",
+   "doi": "10.7554/elife.65415",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34418285",
+   "doi": "10.1002/smll.202103348",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "34293124",
+   "doi": "10.1093/jn/nxab235",
+   "anno": 2021
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38283345",
+   "doi": "10.3389/fimmu.2023.1340446",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37900904",
+   "doi": "10.4330/wjc.v15.i10.508",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37876374",
+   "doi": "10.1016/j.ccrj.2023.06.001",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37841433",
+   "doi": "10.3389/fonc.2023.1238464",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38304776",
+   "doi": "10.1016/j.heliyon.2024.e24630",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38107283",
+   "doi": "10.1016/j.heliyon.2023.e22444",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38455563",
+   "doi": "10.1016/j.heliyon.2024.e27058",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28858669",
+   "doi": "10.1016/j.plaphy.2017.08.012",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30118797",
+   "doi": "10.1016/j.phrs.2018.08.011",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29802054",
+   "doi": "10.1016/j.ejvs.2018.02.025",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30269875",
+   "doi": "10.1016/s0140-6736(18)31720-3",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29224751",
+   "doi": "10.1016/j.ijporl.2017.10.026",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28919246",
+   "doi": "10.1016/j.earlhumdev.2017.09.008",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "30219626",
+   "doi": "10.1016/s1470-2045(18)30447-9",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29292176",
+   "doi": "10.1016/j.vaccine.2017.12.058",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29503036",
+   "doi": "10.1016/j.jos.2018.02.007",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "29433579",
+   "doi": "10.1186/s13287-017-0764-2",
+   "anno": 2018
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "39422240",
+   "doi": "10.1093/plcell/koae283",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38427898",
+   "doi": "10.1103/physrevlett.132.073804",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "39783703",
+   "doi": "10.1111/cts.70042",
+   "anno": 2025
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "40104750",
+   "doi": "10.21037/tcr-24-1542",
+   "anno": 2025
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "35117291",
+   "doi": "10.21037/tcr-20-1992",
+   "anno": 2020
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "40458715",
+   "doi": "10.3389/fonc.2025.1573735",
+   "anno": 2025
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "40212695",
+   "doi": "10.1002/smsc.202300192",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "36258685",
+   "doi": "10.3389/frhs.2022.850427",
+   "anno": 2022
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "37622051",
+   "doi": "10.2478/jofnem-2023-0033",
+   "anno": 2023
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "38292315",
+   "doi": "10.1016/j.mex.2023.102484",
+   "anno": 2024
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26420736",
+   "doi": "10.1177/1071100715603999",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27394112",
+   "doi": "10.1063/1.4954964",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "28111214",
+   "doi": "10.1016/j.cmet.2016.12.011",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27889388",
+   "doi": "10.1016/j.cmet.2016.10.023",
+   "anno": 2017
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27977801",
+   "doi": "10.1371/journal.pone.0168657",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27275601",
+   "doi": "10.1371/journal.pone.0155457",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "25886648",
+   "doi": "10.1371/journal.pone.0123579",
+   "anno": 2015
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "22348090",
+   "doi": "10.1371/journal.pone.0031460",
+   "anno": 2012
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "27898736",
+   "doi": "10.1371/journal.pone.0167492",
+   "anno": 2016
+  },
+  {
+   "poblacion": "erratum",
+   "pmid": "26418064",
+   "doi": "10.1371/journal.pone.0139096",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31431517",
+   "doi": "10.1042/bsr20190503",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29229675",
+   "doi": "10.1042/bsr20171001",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30061181",
+   "doi": "10.1042/bsr20180538",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24675711",
+   "doi": "10.1371/journal.pntd.0002751",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33568477",
+   "doi": "10.1126/sciadv.abd7180",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25260592",
+   "doi": "10.1093/nar/gku877",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21685453",
+   "doi": "10.1093/nar/gkr428",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27067542",
+   "doi": "10.1093/nar/gkw240",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24106720",
+   "doi": "10.1155/2013/846724",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25802548",
+   "doi": "10.1155/2015/984850",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "15340854",
+   "doi": "10.1007/s00411-004-0252-9",
+   "anno": 2004
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "15178763",
+   "doi": "10.1073/pnas.0400744101",
+   "anno": 2004
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18279948",
+   "doi": "10.1016/s0140-6736(08)60207-x",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19815770",
+   "doi": "10.1126/science.1174094",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19246643",
+   "doi": "10.2353/ajpath.2009.080697",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "16258088",
+   "doi": "10.1200/jco.2004.00.9787",
+   "anno": 2005
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19289646",
+   "doi": "10.1161/circulationaha.109.192170",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18024456",
+   "doi": "10.1148/radiol.2453061623",
+   "anno": 2007
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "14762100",
+   "doi": "10.1124/jpet.103.063651",
+   "anno": 2004
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "12473561",
+   "doi": "10.1161/01.cir.0000039341.57809.1e",
+   "anno": 2002
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28539331",
+   "doi": "10.1042/bsr20170109",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28381518",
+   "doi": "10.1042/bsr20160542",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25341895",
+   "doi": "10.1093/cvr/cvu220",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28249845",
+   "doi": "10.1161/jaha.116.004780",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21630391",
+   "doi": "10.1002/jbt.20395",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30541900",
+   "doi": "10.1042/bsr20180896",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32542395",
+   "doi": "10.1042/cs20200249",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30230414",
+   "doi": "10.1177/1460458218796636",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "26300649",
+   "doi": "10.2147/ott.s77709",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27785063",
+   "doi": "10.2147/ott.s108890",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "20981152",
+   "doi": "10.4061/2010/748380",
+   "anno": 2010
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33603486",
+   "doi": "10.2147/cmar.s291778",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32273759",
+   "doi": "10.2147/cmar.s242472",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33814931",
+   "doi": "10.2147/cmar.s293322",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33061424",
+   "doi": "10.2147/ott.s245537",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30774364",
+   "doi": "10.2147/ott.s176618",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35191498",
+   "doi": "10.1242/jcs.259196",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28629237",
+   "doi": "10.1080/14767058.2017.1344636",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29560732",
+   "doi": "10.1177/0963689718759473",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32407167",
+   "doi": "10.1089/cbr.2019.3490",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18845178",
+   "doi": "10.1016/j.mad.2008.09.002",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21455311",
+   "doi": "10.1371/journal.pone.0018017",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27301722",
+   "doi": "10.1158/2159-8290.cd-15-1545",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "16222300",
+   "doi": "10.1038/nature04217",
+   "anno": 2005
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23700426",
+   "doi": "10.1371/journal.pone.0063502",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23342042",
+   "doi": "10.1371/journal.pone.0053945",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21264353",
+   "doi": "10.1371/journal.pbio.1000575",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "37728726",
+   "doi": "10.1007/s10787-023-01326-6",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "16214804",
+   "doi": "10.1093/nar/gni144",
+   "anno": 2005
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "26749561",
+   "doi": "10.1002/mbo3.329",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30280501",
+   "doi": "10.1002/mbo3.735",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39720218",
+   "doi": "10.2147/ijn.s476686",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "37824464",
+   "doi": "10.1371/journal.pone.0292582",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25652673",
+   "doi": "10.1111/jpi.12213",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23050266",
+   "doi": "10.1111/j.1600-079x.2012.00984.x",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22220508",
+   "doi": "10.1111/j.1600-079x.2011.00948.x",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22335196",
+   "doi": "10.1111/j.1600-079x.2012.00973.x",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "40029385",
+   "doi": "10.1007/s00210-025-03896-4",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29026144",
+   "doi": "10.1038/s41598-017-12998-w",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29046290",
+   "doi": "10.2215/cjn.00420117",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "8969777",
+   "doi": "10.1161/01.str.27.12.2183",
+   "anno": 1996
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "10669749",
+   "doi": "10.1128/mcb.20.5.1723-1732.2000",
+   "anno": 2000
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22174910",
+   "doi": "10.1371/journal.pone.0028841",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29264897",
+   "doi": "10.15570/actaapa.2017.26",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24929319",
+   "doi": "10.1016/j.saa.2014.04.167",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21486276",
+   "doi": "10.1111/j.1476-5381.2011.01418.x",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29558367",
+   "doi": "10.1172/jci91786",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "12944413",
+   "doi": "10.1074/jbc.m306360200",
+   "anno": 2003
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18227069",
+   "doi": "10.1074/jbc.m706367200",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39398059",
+   "doi": "10.1016/j.heliyon.2024.e38471",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38107293",
+   "doi": "10.1016/j.heliyon.2023.e22331",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38784534",
+   "doi": "10.1016/j.heliyon.2024.e30798",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39524836",
+   "doi": "10.1016/j.heliyon.2024.e39513",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "36873157",
+   "doi": "10.1016/j.heliyon.2023.e13643",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38322836",
+   "doi": "10.1016/j.heliyon.2024.e24799",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38778934",
+   "doi": "10.1016/j.heliyon.2024.e30937",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35677400",
+   "doi": "10.1016/j.heliyon.2022.e09568",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "34159266",
+   "doi": "10.1016/j.heliyon.2021.e07159",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24413384",
+   "doi": "10.1093/molehr/gau001",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "17229938",
+   "doi": "10.2337/db05-1147",
+   "anno": 2007
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22991447",
+   "doi": "10.2337/db12-0339",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "17911169",
+   "doi": "10.1242/jcs.03484",
+   "anno": 2007
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "36961922",
+   "doi": "10.1073/pnas.2300363120",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35521444",
+   "doi": "10.1039/d0ra02631j",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25347529",
+   "doi": "10.1371/journal.pone.0111256",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31393502",
+   "doi": "10.1039/c9ob01547g",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29558489",
+   "doi": "10.1371/journal.pone.0194435",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22923150",
+   "doi": "10.1007/s00404-012-2522-0",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19340313",
+   "doi": "10.1371/journal.pone.0005045",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "17088910",
+   "doi": "10.1038/sj.bjc.6603448",
+   "anno": 2006
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22723988",
+   "doi": "10.1371/journal.pone.0039290",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29243757",
+   "doi": "10.1039/c7fo01454f",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24185007",
+   "doi": "10.1038/nature12688",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18594509",
+   "doi": "10.1038/nature07091",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "40010055",
+   "doi": "10.1016/j.burns.2025.107426",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "36480503",
+   "doi": "10.1371/journal.pone.0271217",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "40272285",
+   "doi": "10.1016/j.rvsc.2024.105460",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33959651",
+   "doi": "10.3389/fvets.2021.645076",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "10928965",
+   "doi": "10.1038/sj.bjp.0703440",
+   "anno": 2000
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23055539",
+   "doi": "10.1124/jpet.112.199497",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21859930",
+   "doi": "10.1124/jpet.111.185694",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25187433",
+   "doi": "10.1124/jpet.114.218735",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "20473939",
+   "doi": "10.1002/ijc.25451",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21403959",
+   "doi": "10.1039/c1cp20064j",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30771739",
+   "doi": "10.1016/j.intimp.2019.01.056",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31876239",
+   "doi": "10.1080/15384101.2019.1706902",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32936716",
+   "doi": "10.1080/15384101.2020.1809259",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31607209",
+   "doi": "10.1080/15384101.2019.1676585",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32931357",
+   "doi": "10.1080/15384101.2020.1807670",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23675499",
+   "doi": "10.1371/journal.pone.0063666",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "34936645",
+   "doi": "10.1371/journal.pone.0256562",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22003395",
+   "doi": "10.1371/journal.pone.0025512",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22325058",
+   "doi": "10.1111/j.1744-313x.2012.01097.x",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "20222840",
+   "doi": "10.3109/09513590903366996",
+   "anno": 2010
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18500755",
+   "doi": "10.1002/jnr.21722",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "36652464",
+   "doi": "10.1371/journal.pone.0279204",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "42203321",
+   "doi": "10.21873/anticanres.18194",
+   "anno": 2026
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27508516",
+   "doi": "10.1097/mib.0000000000000887",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "36227949",
+   "doi": "10.1371/journal.pone.0274706",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "26608701",
+   "doi": "10.3109/02656736.2015.1091953",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18979643",
+   "doi": "10.1080/13547500802030363",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24888736",
+   "doi": "10.3109/1354750x.2014.924997",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21942970",
+   "doi": "10.3109/08923973.2011.613400",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23755163",
+   "doi": "10.1371/journal.pone.0064976",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23700407",
+   "doi": "10.1371/journal.pone.0061595",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "12954774",
+   "doi": "10.1093/nar/gkg728",
+   "anno": 2003
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18974389",
+   "doi": "10.1158/1078-0432.ccr-08-0869",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25340511",
+   "doi": "10.1371/journal.pone.0110802",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22761708",
+   "doi": "10.1371/journal.pone.0038842",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32211804",
+   "doi": "10.1042/bsr20192257",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "34229864",
+   "doi": "10.1016/j.humimm.2021.06.011",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31696510",
+   "doi": "10.1111/bph.14914",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "20473329",
+   "doi": "10.1038/onc.2010.164",
+   "anno": 2010
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28081721",
+   "doi": "10.1186/s12968-016-0318-2",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28085956",
+   "doi": "10.1371/journal.pone.0170088",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27536774",
+   "doi": "10.1371/journal.pone.0161219",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32515474",
+   "doi": "10.1042/bsr20193169",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32490526",
+   "doi": "10.1042/bsr20192800",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23456390",
+   "doi": "10.1007/s12672-013-0137-y",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28275430",
+   "doi": "10.1016/j.nmni.2016.12.009",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31341626",
+   "doi": "10.1016/j.nmni.2019.100573",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31333850",
+   "doi": "10.1016/j.nmni.2019.100576",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27158512",
+   "doi": "10.1016/j.nmni.2016.03.002",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31641516",
+   "doi": "10.1016/j.nmni.2019.100601",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27766158",
+   "doi": "10.1016/j.nmni.2016.09.001",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27408734",
+   "doi": "10.1016/j.nmni.2016.05.007",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27358739",
+   "doi": "10.1016/j.nmni.2016.05.013",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31890230",
+   "doi": "10.1016/j.nmni.2019.100624",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30555706",
+   "doi": "10.1016/j.nmni.2018.10.009",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22984561",
+   "doi": "10.1371/journal.pone.0044798",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33439886",
+   "doi": "10.1371/journal.pone.0245034",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "16431960",
+   "doi": "10.1167/iovs.05-0754",
+   "anno": 2006
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "15623771",
+   "doi": "10.1167/iovs.04-0832",
+   "anno": 2005
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "34851973",
+   "doi": "10.1371/journal.pone.0259659",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33711038",
+   "doi": "10.1371/journal.pone.0247954",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39315385",
+   "doi": "10.1016/j.lansea.2024.100477",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35342084",
+   "doi": "10.3233/hab-220004",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25637283",
+   "doi": "10.1016/j.molonc.2015.01.002",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "36962473",
+   "doi": "10.1371/journal.pgph.0000761",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "12768207",
+   "doi": "10.1038/nature01692",
+   "anno": 2003
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "40038149",
+   "doi": "10.1007/s11010-025-05243-w",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33834074",
+   "doi": "10.1155/2021/7358153",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39834714",
+   "doi": "10.1016/j.eclinm.2024.103020",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28296148",
+   "doi": "10.1002/1878-0261.12051",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27529073",
+   "doi": "10.1155/2016/8962685",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25658110",
+   "doi": "10.1371/journal.pone.0117247",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "37093880",
+   "doi": "10.1371/journal.pone.0284761",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25329062",
+   "doi": "10.1371/journal.pone.0110843",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22581261",
+   "doi": "10.1038/ni.2305",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19056740",
+   "doi": "10.1074/jbc.m805483200",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18305109",
+   "doi": "10.1074/jbc.m800436200",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "16188880",
+   "doi": "10.1074/jbc.m502190200",
+   "anno": 2005
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "15569677",
+   "doi": "10.1074/jbc.m408708200",
+   "anno": 2005
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "14684736",
+   "doi": "10.1074/jbc.m312895200",
+   "anno": 2004
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31350343",
+   "doi": "10.1042/bsr20191123",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31793993",
+   "doi": "10.1042/bsr20193176",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31239367",
+   "doi": "10.1042/bsr20190700",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30910849",
+   "doi": "10.1042/bsr20181815",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30038058",
+   "doi": "10.1042/bsr20180226",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23590398",
+   "doi": "10.1089/zeb.2012.0803",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "10071907",
+   "doi": "10.1016/s8756-3282(98)00189-6",
+   "anno": 1999
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28141803",
+   "doi": "10.1371/journal.pbio.1002593",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23548901",
+   "doi": "10.1074/jbc.m112.447086",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22888003",
+   "doi": "10.1074/jbc.m112.369595",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21489987",
+   "doi": "10.1074/jbc.m111.231878",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31170158",
+   "doi": "10.1371/journal.pgen.1008180",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24147005",
+   "doi": "10.1371/journal.pone.0077487",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30555252",
+   "doi": "10.2147/jpr.s176475",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30349910",
+   "doi": "10.1039/c8nr06115g",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24205431",
+   "doi": "10.1155/2013/102741",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18413068",
+   "doi": "10.1016/s1472-6483(10)60465-8",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19909590",
+   "doi": "10.1016/j.rbmo.2009.06.007",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19153832",
+   "doi": "10.1007/s10495-008-0305-7",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "18651223",
+   "doi": "10.1007/s10495-008-0240-7",
+   "anno": 2008
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24619509",
+   "doi": "10.1007/s10815-014-0198-z",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28630660",
+   "doi": "10.1155/2017/9397631",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30535491",
+   "doi": "10.3892/ijmm.2018.4010",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29332037",
+   "doi": "10.3233/jad-170388",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23255470",
+   "doi": "10.1002/mc.21989",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "42560379",
+   "doi": "10.1093/ndt/gfag177",
+   "anno": 2026
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "37446712",
+   "doi": "10.3390/molecules28135051",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "40358215",
+   "doi": "10.1093/infdis/jiaf234",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "42247491",
+   "doi": "10.1126/sciadv.aee6211",
+   "anno": 2026
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38157330",
+   "doi": "10.1371/journal.pgph.0002724",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35639722",
+   "doi": "10.1371/journal.pone.0269107",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32271770",
+   "doi": "10.1371/journal.pone.0230865",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38593171",
+   "doi": "10.1371/journal.pone.0301727",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "41880291",
+   "doi": "10.1371/journal.pone.0344730",
+   "anno": 2026
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31568505",
+   "doi": "10.1371/journal.pone.0223143",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "20684765",
+   "doi": "10.1186/1743-422x-7-181",
+   "anno": 2010
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32720982",
+   "doi": "10.1093/jxb/eraa352",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19784370",
+   "doi": "10.1371/journal.pone.0007214",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "34796244",
+   "doi": "10.1093/ofid/ofab358",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31079494",
+   "doi": "10.1080/21691401.2019.1614015",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25036143",
+   "doi": "10.1371/journal.pone.0102471",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25794798",
+   "doi": "10.3109/21691401.2015.1019666",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31213092",
+   "doi": "10.1080/21691401.2019.1626404",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31062616",
+   "doi": "10.1080/21691401.2019.1608222",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31851829",
+   "doi": "10.1080/21691401.2019.1699826",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31078520",
+   "doi": "10.1016/j.ebiom.2019.05.003",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33781320",
+   "doi": "10.1186/s13287-021-02283-z",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35858935",
+   "doi": "10.1186/s12951-022-01554-y",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "20101233",
+   "doi": "10.1038/onc.2009.479",
+   "anno": 2010
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39802497",
+   "doi": "10.1016/j.jmccpl.2022.100026",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "22131195",
+   "doi": "10.1002/jsfa.4682",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39479654",
+   "doi": "10.1002/fsn3.4418",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25890105",
+   "doi": "10.1186/s12967-015-0430-3",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39353972",
+   "doi": "10.1038/s41598-024-71562-5",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "37234606",
+   "doi": "10.1016/j.heliyon.2023.e16114",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29122263",
+   "doi": "10.1016/j.ctcp.2017.10.007",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31325178",
+   "doi": "10.1111/jnc.14830",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "12860677",
+   "doi": "10.1111/j.1749-6632.2003.tb07414.x",
+   "anno": 2003
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "17114704",
+   "doi": "10.1196/annals.1374.126",
+   "anno": 2006
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27959392",
+   "doi": "10.3892/ijmm.2016.2824",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27748943",
+   "doi": "10.3892/or.2016.5169",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39848205",
+   "doi": "10.1016/j.nucmedbio.2025.108995",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39869576",
+   "doi": "10.1371/journal.pone.0316536",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19415122",
+   "doi": "10.1371/journal.pntd.0000432",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24748338",
+   "doi": "10.1007/s00404-014-3242-4",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "32202193",
+   "doi": "10.1080/15384101.2020.1732514",
+   "anno": 2020
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24663492",
+   "doi": "10.1371/journal.pone.0092753",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23637537",
+   "doi": "10.2147/tcrm.s43811",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23539444",
+   "doi": "10.1158/0008-5472.can-12-3963",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24801688",
+   "doi": "10.1371/journal.pone.0096381",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25079465",
+   "doi": "10.14310/horm.2002.1489",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29705805",
+   "doi": "10.1159/000489361",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "30048990",
+   "doi": "10.1159/000492089",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "27105918",
+   "doi": "10.1016/j.bbrc.2016.03.164",
+   "anno": 2016
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29673591",
+   "doi": "10.1016/j.bbrc.2018.04.109",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "29965974",
+   "doi": "10.1371/journal.pone.0199476",
+   "anno": 2018
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "11334884",
+   "doi": "10.1016/s0014-5793(01)02337-7",
+   "anno": 2001
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23640462",
+   "doi": "10.1038/cddis.2013.144",
+   "anno": 2013
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "16806195",
+   "doi": "10.1016/j.febslet.2006.06.033",
+   "anno": 2006
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21542052",
+   "doi": "10.1002/hipo.20934",
+   "anno": 2012
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38905169",
+   "doi": "10.1371/journal.pone.0303091",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24651118",
+   "doi": "10.1371/journal.pone.0092574",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24410980",
+   "doi": "10.1111/jeu.12100",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33615359",
+   "doi": "10.1093/hmg/ddab054",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "31262973",
+   "doi": "10.1042/bsr20182297",
+   "anno": 2019
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "16939413",
+   "doi": "10.1042/cs20060212",
+   "anno": 2007
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "20459778",
+   "doi": "10.1186/1423-0127-17-36",
+   "anno": 2010
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "23889105",
+   "doi": "10.3109/14767058.2013.823938",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "19699244",
+   "doi": "10.1016/j.jconrel.2009.08.009",
+   "anno": 2009
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "37311484",
+   "doi": "10.1016/j.ajogmf.2023.101049",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28943922",
+   "doi": "10.3892/ol.2017.6715",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "39966256",
+   "doi": "10.1007/s10534-025-00667-9",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "17342240",
+   "doi": "10.1093/ecam/nel051",
+   "anno": 2007
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "37269482",
+   "doi": "10.1002/jcb.30428",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "24690461",
+   "doi": "10.1186/scrt434",
+   "anno": 2014
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28922411",
+   "doi": "10.1371/journal.pone.0184816",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "28253364",
+   "doi": "10.1371/journal.pone.0173104",
+   "anno": 2017
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25751622",
+   "doi": "10.1371/journal.pone.0119762",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "33889923",
+   "doi": "10.1039/d1nr00388g",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "21567111",
+   "doi": "10.1007/s00134-011-2241-1",
+   "anno": 2011
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35299610",
+   "doi": "10.1016/j.heliyon.2022.e09040",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "16176937",
+   "doi": "10.1242/jcs.02558",
+   "anno": 2005
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "36934727",
+   "doi": "10.1016/s2542-5196(23)00023-2",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38061378",
+   "doi": "10.1016/s2468-1253(23)00242-x",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35028237",
+   "doi": "10.7759/cureus.20378",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35004011",
+   "doi": "10.7759/cureus.20188",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "34976498",
+   "doi": "10.7759/cureus.19878",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35198285",
+   "doi": "10.7759/cureus.21373",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35165571",
+   "doi": "10.7759/cureus.21113",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35165577",
+   "doi": "10.7759/cureus.21121",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "34925993",
+   "doi": "10.7759/cureus.19391",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35004022",
+   "doi": "10.7759/cureus.20201",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35028214",
+   "doi": "10.7759/cureus.20315",
+   "anno": 2021
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35186574",
+   "doi": "10.7759/cureus.21315",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "36700244",
+   "doi": "10.23736/s1973-9087.23.07605-0",
+   "anno": 2023
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "12729904",
+   "doi": "10.1016/s0014-5793(03)00353-3",
+   "anno": 2003
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "40992885",
+   "doi": "10.1136/bmj.r1893",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "40992899",
+   "doi": "10.1136/bmj-2025-085029",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38457403",
+   "doi": "10.1371/journal.pone.0298811",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "41069912",
+   "doi": "10.7759/cureus.91773",
+   "anno": 2025
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "35951767",
+   "doi": "10.1126/sciimmunol.add5446",
+   "anno": 2022
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "38843281",
+   "doi": "10.1371/journal.pone.0298191",
+   "anno": 2024
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25625919",
+   "doi": "10.3892/ijo.2015.2852",
+   "anno": 2015
+  },
+  {
+   "poblacion": "concern",
+   "pmid": "25173427",
+   "doi": "10.1038/nm.3667",
+   "anno": 2014
+  }
+ ]
+}

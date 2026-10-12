@@ -927,10 +927,14 @@ again on 2026-09-08. The honest landscape:
   title, can ask Retraction Watch, Crossref, PubMed, Europe PMC, OpenAlex and
   DataCite at once and flag when they disagree, reports reinstated works as
   reinstated (which this tool cannot; see the 31 below), and has a watch mode, a
-  Zotero-library scan and a CI gate. Its default source is Retraction Watch;
-  per its changelog the Crossref source adds corrections and expressions of
-  concern, so ask for it if you want those. I found it on 2026-10-11, after this
-  section had claimed a gap it was already filling.
+  Zotero-library scan and a CI gate. Its default source is Retraction Watch.
+  On retractions it beats this tool; on corrections it sees almost nothing that
+  Retraction Watch does not list, whichever sources you ask, and asking for all
+  of them loses retractions it had found. Measured, not read off its changelog
+  (which is what this line said on 2026-10-11): see
+  [the head-to-head](#head-to-head-with-the-r-package-retraction) below. I
+  found it on 2026-10-11, after this section had claimed a gap it was already
+  filling.
 - **scite.ai**, **Proofig RefGuard** — commercial, and they do far more than this.
 
 **The gap this fills, stated narrowly enough to be checkable** (corrected
@@ -939,7 +943,75 @@ every kind of notice, and `retraction` does): a **web page** that takes a whole
 bibliography and reports corrections, errata and expressions of concern as well
 as retractions, with **nothing to install**, no account, and no server that sees
 your reading list. That is for the person at a library desk without R or a
-terminal. If you have R, the package above does more.
+terminal. If you have R, the package above does more, with the exceptions
+measured next.
+
+## Head-to-head with the R package `retraction`
+
+Measured 2026-10-12, both tools on the same DOIs on the same day: `retraction`
+0.1.0 in a `rocker/r-ver:4.5` container, refcheck from `main`. Each tool has a
+home field, and scoring a tool on its own source tells you the plumbing works,
+not that the coverage is good. So there are two ground truths and each table
+says whose home it is.
+
+**A. Retraction Watch's home.** The 1,904 rows of the four gold-standard files
+described further down, replayed. `retraction` reads RW by default, so this is
+close to RW checking itself.
+
+| RW says | n | refcheck | `retraction` (default) |
+|---|---|---|---|
+| Retraction | 1,000 | 98.5% | **99.9%** |
+| Expression of concern | 400 | 99.0% | 99.0% |
+| Correction | 349 | **100%** | 99.7% |
+| Reinstatement (silence is right) | 155 | 80.0%, 31 shown as RETRACTED | **100%** |
+
+refcheck's column reproduces to the row what it scored in September, which is
+the control: nothing moved under it in four weeks. `retraction` wins here, and
+the reinstatements are a real advantage it has and this tool cannot have.
+
+**B. PubMed's home.** A fresh draw (seed 20261012, written whole to
+`research/pubmed_vs_20261012.json`): articles PubMed types as `retracted
+publication`, plus the articles behind `published erratum` and `expression of
+concern` notices. 870 with a DOI. **refcheck asks PubMed, so its 100% here is
+circular and I do not count it as a result.** What the table measures is the
+other column: how much of what PubMed knows reaches someone using `retraction`.
+
+| PubMed says | n | `retraction` default | `retraction` `sources = "all"` |
+|---|---|---|---|
+| Retracted | 286 | 85.0% | 83.2% |
+| Erratum / correction | 286 | **0.3%** | **0.3%** |
+| Expression of concern | 298 | 39.3% | 97.7% |
+
+Two things come out of that, and I went to its code to see why rather than guess:
+
+1. **Corrections outside Retraction Watch are invisible to it.** Its Crossref
+   source reads `update-to`, which is the field on the *notice* pointing at what
+   it amends, not `updated-by` on the article you cited; and its PubMed source
+   only recognises the `retracted publication` type. So a correction surfaces
+   only if Retraction Watch happens to list it, and of the PubMed errata in
+   this draw (PubMed held 263,249 that day) one in 286 did. Asking for every
+   source does not help.
+2. **Asking for every source loses 35 retractions out of 286** (12%) that the
+   default had found, and gains 29 others. Re-run on those 65 DOIs: the same 35,
+   so it is not the network. The mechanism, on `10.1038/mt.2016.104`: the
+   publisher deposited the retraction *in place*, so Crossref serves an
+   `update-to` of type `retraction` that points at the article's own DOI, under
+   the title "RETRACTED: …". `retraction` treats any `update-to` as "this DOI is
+   a notice, do not flag it", returns `none` before it looks at the title, and
+   that verdict outranks the four sources (RW, PubMed, Europe PMC, OpenAlex)
+   that all say retracted. The disagreement column does flag it, which is to
+   its credit; the headline still says the paper is fine.
+
+**So, the honest advice:** for retractions, and above all for reinstated works,
+`retraction` with its default source is the better tool. If you also need the
+corrections and errata on your reading list, which are the majority of change
+notices, it will not show them, and this one will. Don't switch it to
+`sources = "all"` hoping for more coverage without reading point 2.
+
+Reproduce: `research/measure_vs_retraction.py` (draw, refcheck, compare) and
+`research/run_retraction.R`. The per-DOI joins are in
+`research/vs_retraction_rw_20261012.json` and
+`research/vs_retraction_pubmed_20261012.json`.
 
 ## One register was not enough, and here is the size of the hole
 
