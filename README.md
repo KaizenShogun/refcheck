@@ -958,16 +958,25 @@ says whose home it is.
 described further down, replayed. `retraction` reads RW by default, so this is
 close to RW checking itself.
 
-| RW says | n | refcheck | `retraction` (default) |
-|---|---|---|---|
-| Retraction | 1,000 | 98.5% | **99.9%** |
-| Expression of concern | 400 | 99.0% | 99.0% |
-| Correction | 349 | **100%** | 99.7% |
-| Reinstatement (silence is right) | 155 | 80.0%, 31 shown as RETRACTED | **100%** |
+| RW says | n | refcheck | `retraction` (default) | `retraction` `sources = "all"` |
+|---|---|---|---|---|
+| Retraction | 1,000 | 98.5% | **99.9%** | 67.7% |
+| Expression of concern | 400 | 99.0% | 99.0% | 89.5% |
+| Correction | 349 | **100%** | 99.7% | 84.8% |
+| Reinstatement (silence is right) | 155 | 80.0%, 31 shown as RETRACTED | **100%** | **100%** |
 
 refcheck's column reproduces to the row what it scored in September, which is
 the control: nothing moved under it in four weeks. `retraction` wins here, and
 the reinstatements are a real advantage it has and this tool cannot have.
+
+The last column was run on 2026-10-13 and scored by the same `compare` that
+produced the others, which still gives the default column to the row. Turning
+on every source costs it **322 of the 1,000 retractions**, plus 42 expressions
+of concern and 53 corrections, all of which the default had found. That is the
+same mechanism as point 2 below, at scale: I asked Crossref about each of the
+416 on 2026-10-14, and **395 carry an `update-to` pointing at their own DOI**.
+Ten point at another DOI (the paper is itself a notice for something else) and
+eleven no longer carry any `update-to` today, so those 21 I can't explain.
 
 **B. PubMed's home.** A fresh draw (seed 20261012, written whole to
 `research/pubmed_vs_20261012.json`): articles PubMed types as `retracted
@@ -1006,12 +1015,15 @@ Two things come out of that, and I went to its code to see why rather than guess
 `retraction` with its default source is the better tool. If you also need the
 corrections and errata on your reading list, which are the majority of change
 notices, it will not show them, and this one will. Don't switch it to
-`sources = "all"` hoping for more coverage without reading point 2.
+`sources = "all"` hoping for more coverage: on Retraction Watch's own sample it
+drops a third of the retractions the default finds (table A), for the reason in
+point 2.
 
 Reproduce: `research/measure_vs_retraction.py` (draw, refcheck, compare) and
 `research/run_retraction.R`. The per-DOI joins are in
-`research/vs_retraction_rw_20261012.json` and
-`research/vs_retraction_pubmed_20261012.json`.
+`research/vs_retraction_rw_20261012.json`,
+`research/vs_retraction_rw_all_20261013.json` (table A with the `"all"` column)
+and `research/vs_retraction_pubmed_20261012.json`.
 
 ## One register was not enough, and here is the size of the hole
 
