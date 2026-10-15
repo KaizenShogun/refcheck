@@ -441,11 +441,40 @@
   // nothing while looking like it worked. Say so instead.
   await drop("thesis.pdf", "%PDF-1.4\n%âãÏÓ binary", "application/pdf");
   ok("a PDF is refused with an explanation, not checked as mojibake",
-     /PDF or a Word/.test($("#status").textContent) && $("#input").value === "",
+     /That is a PDF/.test($("#status").textContent) && $("#input").value === "",
      $("#status").textContent);
+  // Until 2026-10-15 every .docx was refused. Now a Word manuscript is read in
+  // the browser — this one is the synthetic file test_refcheck.py builds, with
+  // a DOI split over three runs, one in an endnote, one only in a Zotero field
+  // code, and one in a tracked deletion that must NOT come through. Inflating
+  // is asynchronous, so this waits for the status rather than a fixed delay.
+  const statusIs = (re) => new Promise((res) => {
+    const t0 = Date.now();
+    const poll = setInterval(() => {
+      if (re.test($("#status").textContent) || Date.now() - t0 > 10000) {
+        clearInterval(poll); res();
+      }
+    }, 50);
+  });
+  const DOCX_B64 = "UEsDBBQAAAAIAKUUT13HHBc8CgAAAAgAAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbLMJqSxILda3AwBQSwMEFAAAAAgApRRPXZNucWizAQAAlwMAABEAAAB3b3JkL2RvY3VtZW50LnhtbH1TW2+bMBT+KxaVUPtQX2AjKiRUFckD1Rqkhae8VAacwAQ2s50mVbX/PjtJk7Ul88Px8bl85+rx/a5rwQuTqhF84hCInft4vA0rUW46xjUwaq7C7cSpte5DhFRZs44qKHrGjW4lZEe1eco12gpZ9VKUTKmGr7sWeRgHqKMNdyxkIapXe/eWSEt0TCBYdI2uwSMEY2QllsqzhY0fqp6WbOL0kikmX5gTV6IJCYYEYw9dL9IkvSH4bnT7LfADt9URCT13rSMfYphkkXe7/ACNjin8m4cHga1PmQIN9r4aiz+YUuyPCPolNpLTFg5b9IIziElAPJ9cjl2x9uRj+JztTEMwvDMHmTfTrIKSrazTu/oMs3f+WsqqrZKaSnDi8tfetK5gazMF9CnRhistLe5wl8HDdJrOwTLLZz+z5zSfPYFk8eM5SfOHPM3m4M39vRE6mmbpgQkP134w3wM0nz0+CWp2gGAysoFP4S6lER8A/vzP+EKBivVUUs2+1Kjj62W9AR728M3QsC7gMV6doYY2hh7BDKEFOsiKk6yQR1HpXnm+H7lXOw8TPxpYBvT+M9D518V/AVBLAwQUAAAACAClFE9dvBrBdpYAAADZAAAAEQAAAHdvcmQvZW5kbm90ZXMueG1sTY1bCsMgEEW3Ii7AR4W2SB476B4kmkSIo4y2dvnV0I/8HGbuGe4M8zcc5OMw+wgjlUzQeRqqdmAhFpdJ05B1HeleStKc52V3wWQWk4Pm1ojBlLbixmtEmzAuLmcPWzj4TYg7D8YDvVSSqr1tn84sdWBHmRQjr+7RrcRGr6VgUqgnB1Pe6ORNPdTA+2Ennkwn/8XXOU8/UEsBAhQDFAAAAAgApRRPXcccFzwKAAAACAAAABMAAAAAAAAAAAAAAIABAAAAAFtDb250ZW50X1R5cGVzXS54bWxQSwECFAMUAAAACAClFE9dk25xaLMBAACXAwAAEQAAAAAAAAAAAAAAgAE7AAAAd29yZC9kb2N1bWVudC54bWxQSwECFAMUAAAACAClFE9dvBrBdpYAAADZAAAAEQAAAAAAAAAAAAAAgAEdAgAAd29yZC9lbmRub3Rlcy54bWxQSwUGAAAAAAMAAwC/AAAA4gIAAAAA";
+  const docxBytes = Uint8Array.from(atob(DOCX_B64), (c) => c.charCodeAt(0));
+  await drop("manuscript.docx", docxBytes,
+             "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+  await statusIs(/Loaded manuscript|could not read/);
+  ok("a Word manuscript is read, not refused",
+     /Loaded manuscript\.docx \(Word\)/.test($("#status").textContent),
+     $("#status").textContent);
+  ok("a DOI Word split over three runs arrives whole",
+     /10\.1371\/journal\.pone\.0161231/.test($("#input").value), $("#input").value);
+  ok("the endnotes are read", /10\.1038\/nature12373/.test($("#input").value));
+  ok("a DOI held only in a citation field code is read",
+     /10\.1056\/NEJMoa2001017/.test($("#input").value));
+  ok("a tracked deletion is not", !/10\.9999\/deleted/.test($("#input").value));
   await drop("refs.docx", "PK zip container", "application/octet-stream");
-  ok("a .docx is refused too", /PDF or a Word/.test($("#status").textContent),
-     $("#status").textContent);
+  await statusIs(/could not read/);
+  ok("a broken zip is refused with a reason, and the box is empty",
+     /could not read it as a Word document/.test($("#status").textContent) &&
+     $("#input").value === "", $("#status").textContent);
 
   // Watch every request the page makes: the strongest statement is not what the
   // report says, it is that a stranger's DOI was never asked about at all.
@@ -537,7 +566,7 @@
     dt.items.add(new File([body], name, { type: "text/plain" }));
     $("#file").files = dt.files;
     $("#file").dispatchEvent(new Event("change"));
-    return waitStatus(/Loaded|limit|could not be read|PDF or a Word/, 60000);
+    return waitStatus(/Loaded|limit|could not be read|That is a PDF|could not read/, 60000);
   };
 
   const BIG = bigNbib(400, "10.1016/j.nbd.2012.05.020");   // ~1.4 MB, 400 records

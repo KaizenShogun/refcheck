@@ -1,0 +1,333 @@
+{
+ "resumen": {
+  "ficheros": 40,
+  "con_doi": 14,
+  "dois_oraculo": 270,
+  "perdidos": 0,
+  "sobrantes": 0,
+  "extra_campos": 0,
+  "perdidos_por_campos": 0
+ },
+ "filas": [
+  {
+   "fichero": "10950447_003.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226158_034.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226160_028.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226162_026.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226164_032.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226166_029.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226168_038.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226172_027.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226176_033.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1226178_037.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "12504874_007.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "13349592_019.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "14441050_022.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "1476501_024.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "15278983_012.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "15773191_006.docx",
+   "oraculo": 9,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "17293753_023.docx",
+   "oraculo": 19,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "17546199_035.docx",
+   "oraculo": 101,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "17913196_013.docx",
+   "oraculo": 3,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "18306026_018.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "18726546_000.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "19732174_031.docx",
+   "oraculo": 2,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "19917464_009.docx",
+   "oraculo": 6,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "20204430_021.docx",
+   "oraculo": 24,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "20534661_020.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "21296828_030.docx",
+   "oraculo": 1,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "21802201_015.docx",
+   "oraculo": 47,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "22013553_005.docx",
+   "oraculo": 12,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "22672811_039.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "23291818_004.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "3402201_016.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "4007021_001.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "4428967_010.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "5109361_014.docx",
+   "oraculo": 1,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "6576288_011.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "6655231_036.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "7346802_025.docx",
+   "oraculo": 41,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "7371876_017.docx",
+   "oraculo": 0,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "7821047_008.docx",
+   "oraculo": 2,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  },
+  {
+   "fichero": "824212_002.docx",
+   "oraculo": 2,
+   "solo_oraculo": [],
+   "solo_refcheck_estricto": [],
+   "extra_por_campos": [],
+   "perdidos_con_campos": []
+  }
+ ]
+}

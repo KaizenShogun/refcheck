@@ -3450,6 +3450,174 @@ class ParidadDelLectorRis(unittest.TestCase):
         self.assertEqual(js, [refcheck.es_ris(c) for c in casos])
 
 
+DOCX_CORPUS = "/root/agent-world/mundo/docx_corpus"
+
+W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+DOCX_DOC = (
+    '<?xml version="1.0"?><w:document ' + W + '><w:body>'
+    '<w:p><w:r><w:t>1. Smith J. </w:t></w:r><w:r><w:t xml:space="preserve">'
+    'doi:10.1002/(SICI)1097-4636&lt;1:2&gt;3.0.CO;2-Z</w:t></w:r></w:p>'
+    # A DOI split over three runs, the way Word stores a word typed in pieces.
+    '<w:p><w:r><w:t>2. https://doi.org/10.1</w:t></w:r><w:r><w:t>371/journal.</w:t>'
+    '</w:r><w:r><w:t>pone.0161231</w:t></w:r></w:p>'
+    # A tracked deletion: the author removed it, so it is not cited.
+    '<w:p><w:del><w:r><w:delText>10.9999/deleted.ref</w:delText></w:r></w:del></w:p>'
+    # A Zotero citation: the DOI exists only in the field instruction, and the
+    # printed result sits right after it.
+    '<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText '
+    'xml:space="preserve"> ADDIN ZOTERO_ITEM CSL_CITATION {&quot;DOI&quot;:'
+    '&quot;10.1056/NEJMoa2001017</w:instrText></w:r><w:r><w:instrText>'
+    '&quot;}</w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r>'
+    '<w:r><w:t>(Zhu 2020)</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>'
+    '<w:p><w:r><w:t>a</w:t><w:tab/><w:t>b</w:t><w:br/><w:t>c&#233;&#x2013;</w:t></w:r></w:p>'
+    '</w:body></w:document>')
+DOCX_NOTES = ('<?xml version="1.0"?><w:endnotes ' + W + '><w:endnote w:id="1"><w:p>'
+              '<w:r><w:t>3. Note ref doi:10.1038/nature12373</w:t></w:r></w:p>'
+              '</w:endnote></w:endnotes>')
+
+
+def _docx(partes, metodo):
+    import io
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", metodo) as z:
+        z.writestr("[Content_Types].xml", "<Types/>")
+        for nombre, xml in partes.items():
+            z.writestr(nombre, xml)
+    return buf.getvalue()
+
+
+class TestDocx(unittest.TestCase):
+    """The .docx reader, in the CLI and in the page (2026-10-15)."""
+
+    def test_lo_que_se_lee_y_lo_que_no(self):
+        datos = _docx({"word/document.xml": DOCX_DOC,
+                       "word/endnotes.xml": DOCX_NOTES}, 8)
+        texto = refcheck.texto_de_docx(datos)
+        dois = refcheck.dois_de(texto)
+        self.assertIn("10.1371/journal.pone.0161231", dois, "runs are joined")
+        self.assertIn("10.1038/nature12373", dois, "endnotes are read")
+        self.assertIn("10.1056/nejmoa2001017", [d.lower() for d in dois],
+                      "field-code DOIs are read")
+        self.assertTrue(any(d.startswith("10.1002/(sici)1097-4636<1:2>")
+                            for d in (x.lower() for x in dois)),
+                        "entities are decoded: %r" % dois)
+        self.assertNotIn("10.9999/deleted.ref", dois, "deletions are not cited")
+        self.assertIn("a\tb\ncé–", texto)
+        self.assertIn('"} (Zhu 2020)', texto, "a field's code and result are apart")
+
+    def test_no_es_word(self):
+        with self.assertRaises(ValueError):
+            refcheck.texto_de_docx(_docx({"content.xml": "<x/>"}, 8))
+        with self.assertRaises(ValueError):
+            refcheck.texto_de_docx(b"PK\x03\x04 not really a zip")
+
+    def test_cli_lee_un_docx(self):
+        """main() hands the Word text, not the zip bytes, to the readers. No
+        network: referencias_de is where the text goes, so that is where it is
+        caught."""
+        datos = _docx({"word/document.xml": DOCX_DOC}, 8)
+        with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as fh:
+            fh.write(datos)
+            ruta = fh.name
+        visto = []
+        try:
+            with mock.patch.object(refcheck, "referencias_de",
+                                   lambda t, usar_pubmed=True:
+                                   (visto.append(t), ([], {}, []))[1]), \
+                 mock.patch.object(sys, "argv", ["refcheck.py", ruta]), \
+                 mock.patch.object(sys, "stderr", io.StringIO()):
+                self.assertEqual(refcheck.main(), 2)
+        finally:
+            os.unlink(ruta)
+        self.assertEqual(visto, [refcheck.texto_de_docx(datos)])
+
+    def test_cli_sigue_normalizando_saltos(self):
+        """Reading bytes to sniff for a zip lost open()'s universal newlines;
+        a CRLF file must still arrive with plain \\n."""
+        with tempfile.NamedTemporaryFile(suffix=".ris", delete=False) as fh:
+            fh.write(b"TY  - JOUR\r\nDO  - 10.1/x\r\nER  - \r\n")
+            ruta = fh.name
+        visto = []
+        try:
+            with mock.patch.object(refcheck, "referencias_de",
+                                   lambda t, usar_pubmed=True:
+                                   (visto.append(t), ([], {}, []))[1]), \
+                 mock.patch.object(sys, "argv", ["refcheck.py", ruta]), \
+                 mock.patch.object(sys, "stderr", io.StringIO()):
+                refcheck.main()
+        finally:
+            os.unlink(ruta)
+        self.assertEqual(visto, ["TY  - JOUR\nDO  - 10.1/x\nER  - \n"])
+
+    # ---- the page's copy, under node ----
+
+    def _bloque(self):
+        html = open(os.path.join(os.path.dirname(refcheck.__file__), "docs",
+                                 "index.html"), encoding="utf-8").read()
+        m = re.search(r"// <docx-reader>\n(.*?)// </docx-reader>", html, re.S)
+        return m.group(1) if m else None
+
+    def test_el_bloque_sigue_delimitado(self):
+        self.assertIsNotNone(self._bloque(), "<docx-reader> markers are gone")
+
+    def _textos_js(self, rutas):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node no está instalado")
+        guion = (self._bloque() + "\nconst fs = require('fs');\n"
+                 "const rutas = " + json.dumps(rutas) + ";\n"
+                 "Promise.all(rutas.map(function (r) {\n"
+                 "  return docxText(new Uint8Array(fs.readFileSync(r)))\n"
+                 "    .then(function (t) { return t; },\n"
+                 "          function (e) { return 'ERROR ' + e.message; });\n"
+                 "})).then(function (t) { console.log(JSON.stringify(t)); });\n")
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False,
+                                         encoding="utf-8") as fh:
+            fh.write(guion)
+            js = fh.name
+        try:
+            salida = subprocess.run([node, js], capture_output=True, text=True,
+                                    timeout=120)
+            self.assertEqual(salida.returncode, 0, salida.stderr)
+            return json.loads(salida.stdout)
+        finally:
+            os.unlink(js)
+
+    def test_paridad_sintetica(self):
+        """Stored and deflated, with every token kind, and the two refusals."""
+        casos = [_docx({"word/document.xml": DOCX_DOC,
+                        "word/endnotes.xml": DOCX_NOTES}, m) for m in (0, 8)]
+        casos.append(_docx({"content.xml": "<x/>"}, 8))
+        rutas = []
+        try:
+            for datos in casos:
+                with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as fh:
+                    fh.write(datos)
+                    rutas.append(fh.name)
+            js = self._textos_js(rutas)
+        finally:
+            for r in rutas:
+                os.unlink(r)
+        py = refcheck.texto_de_docx(casos[0])
+        self.assertEqual(js[0], py)
+        self.assertEqual(js[1], py)
+        self.assertTrue(js[2].startswith("ERROR"), js[2])
+
+    def test_paridad_con_el_corpus_real(self):
+        """40 manuscripts from Zenodo, written by real Word and LibreOffice
+        versions — the zip quirks a synthetic file never has."""
+        if not os.path.isdir(DOCX_CORPUS):
+            self.skipTest("corpus .docx no disponible")
+        rutas = sorted(os.path.join(DOCX_CORPUS, f) for f in os.listdir(DOCX_CORPUS)
+                       if f.endswith(".docx"))
+        js = self._textos_js(rutas)
+        for ruta, t in zip(rutas, js):
+            with open(ruta, "rb") as fh:
+                self.assertEqual(t, refcheck.texto_de_docx(fh.read()),
+                                 os.path.basename(ruta))
+
+
 if __name__ == "__main__":
     if os.environ.get("REFCHECK_SIN_RED") == "1":
         # Enforces the promise in the module docstring instead of trusting it.

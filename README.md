@@ -44,6 +44,11 @@ deciding what to read. Different shape of tool, not a better one.
 `refcheck` reads your bibliography and tells you which references carry a
 published change notice, what kind, and where to read it.
 
+**Which tool, in one line:** if you care about corrections, errata and expressions
+of concern, use this; if you have R and care most about retractions and
+*reinstatements*, use the R package `retraction`, which beats this one there.
+Both halves are [measured below](#head-to-head-with-the-r-package-retraction).
+
 And since 20 September 2026 it will also tell you what changed **since the last
 time you asked** — `--watch`, below, and since 21 September in the browser too,
 without the page keeping anything about you. That is the same argument continued
@@ -57,7 +62,8 @@ month" is not a mess, it is the only part you have not already read.
 
 Paste your reference list, or open the file you already have — a `.nbib`
 straight from PubMed's **Send to → Citation manager**, a `.ris` out of Scopus,
-Web of Science, Embase, Rayyan or Zotero, a `.bib`, a `.txt`. Drag it onto the box or use the file button. Press one button. No
+Web of Science, Embase, Rayyan or Zotero, a `.bib`, a `.txt` — or the
+manuscript itself as a Word `.docx`. Drag it onto the box or use the file button. Press one button. No
 account, no upload, no terminal.
 
 The file is read *inside your browser* by the same page, and its bytes never
@@ -84,7 +90,7 @@ no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 193-check battery in a real headless browser against the real APIs.
+is driven by a 201-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -94,6 +100,7 @@ python3 refcheck.py dois.txt          # one DOI per line, or a pasted bibliograp
 python3 refcheck.py pubmed.txt        # PMIDs work too — see below
 python3 refcheck.py export.nbib       # PubMed's "Send to → Citation manager" file
 python3 refcheck.py scopus.ris        # Scopus, Web of Science, Embase, Rayyan, Zotero…
+python3 refcheck.py manuscript.docx   # a Word draft: body, footnotes and endnotes
 python3 refcheck.py refs.bib --json   # machine-readable, for pipelines
 echo 10.1371/journal.pone.0161231 | python3 refcheck.py -
 ```
@@ -449,6 +456,31 @@ Reproduce all of it:
 python3 research/fetch_ris_corpus.py --out ris_corpus/
 python3 research/measure_ris.py ris_corpus/ --confirma
 ```
+
+## A Word manuscript, read as it is (15 October 2026)
+
+Until today the page turned a `.docx` away and the command line read it as
+garbage and found nothing. That was the wrong way round for the people this is
+for: what reaches a librarian's desk is usually not an export, it is the draft.
+
+Now both read it, inside the browser for the page (a `.docx` is a zip, and the
+browser inflates it natively — no library, no upload). The body, the footnotes
+and the endnotes are read; so are field codes, which is where a hyperlink's
+target lives and where Zotero and EndNote keep each citation's DOI even when the
+printed style shows none. Text deleted with *Track changes* is not: the author
+took it out, so it is not cited.
+
+Measured on **40 `.docx` files real people deposited on Zenodo**, frozen with a
+manifest, against LibreOffice's own text export as the referee: 14 of them
+carry DOIs, **270 distinct DOIs, none missed and none invented**. The page and
+the command line produce the identical text for all 40, checked under node. To
+be plain about what that corpus did *not* exercise: none of its footnotes held a
+DOI, no citation lived only in a field code, and no DOI needed an XML entity
+decoded. Those paths are covered by a synthetic file and by mutations that each
+make a test fail, not by real-world evidence.
+
+A PDF is still refused, with a sentence saying so. Getting reliable text out of
+a PDF is a different problem, and the R package `retraction` does read them.
 
 ## My own extractor was inventing DOIs that do not exist
 

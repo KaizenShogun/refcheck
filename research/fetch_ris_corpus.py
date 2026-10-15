@@ -42,12 +42,12 @@ def pide(url, pausa):
         return r.read()
 
 
-def busca(paginas, por_pagina, pausa):
-    """Zenodo records whose files include a .ris, newest first."""
+def busca(paginas, por_pagina, pausa, ext="ris", extra=""):
+    """Zenodo records whose files include a .<ext>, newest first."""
     vistos = []
     for pagina in range(1, paginas + 1):
         q = urllib.parse.urlencode(
-            {"q": "filetype:ris", "size": por_pagina, "page": pagina}
+            {"q": f"filetype:{ext}" + (f" AND ({extra})" if extra else ""), "size": por_pagina, "page": pagina}
         )
         datos = json.loads(pide(f"{BUSQUEDA}?{q}", pausa))
         hits = datos.get("hits", {}).get("hits", [])
@@ -57,7 +57,7 @@ def busca(paginas, por_pagina, pausa):
     return vistos
 
 
-def descarga(registros, destino, max_bytes, limite, pausa):
+def descarga(registros, destino, max_bytes, limite, pausa, ext="ris"):
     os.makedirs(destino, exist_ok=True)
     manifiesto = []
     for reg in registros:
@@ -72,7 +72,7 @@ def descarga(registros, destino, max_bytes, limite, pausa):
             continue
         for fichero in reg.get("files") or []:
             clave = fichero.get("key") or ""
-            if not clave.lower().endswith(".ris"):
+            if not clave.lower().endswith("." + ext):
                 continue
             tam = fichero.get("size") or 0
             if tam > max_bytes or tam == 0:
@@ -85,7 +85,7 @@ def descarga(registros, destino, max_bytes, limite, pausa):
             except Exception as e:  # a missing file is a fact, not a crash
                 print(f"  ! {reg['id']} {clave}: {e}")
                 continue
-            nombre = f"{reg['id']}_{len(manifiesto):03d}.ris"
+            nombre = f"{reg['id']}_{len(manifiesto):03d}.{ext}"
             with open(os.path.join(destino, nombre), "wb") as f:
                 f.write(crudo)
             lic = meta.get("license") or {}
@@ -115,11 +115,15 @@ def main():
     p.add_argument("--limite", type=int, default=40)
     p.add_argument("--max-bytes", type=int, default=4_000_000)
     p.add_argument("--pausa", type=float, default=1.0)
+    # 2026-10-15: the same freezer for Word manuscripts, which is the shape a
+    # reference list arrives in when someone hands a librarian a draft.
+    p.add_argument("--ext", default="ris")
+    p.add_argument("--q", default="", help="extra Zenodo query, ANDed in")
     a = p.parse_args()
 
-    registros = busca(a.paginas, a.por_pagina, a.pausa)
-    print(f"{len(registros)} Zenodo records with a .ris among their files")
-    manifiesto = descarga(registros, a.out, a.max_bytes, a.limite, a.pausa)
+    registros = busca(a.paginas, a.por_pagina, a.pausa, a.ext, a.q)
+    print(f"{len(registros)} Zenodo records with a .{a.ext} among their files")
+    manifiesto = descarga(registros, a.out, a.max_bytes, a.limite, a.pausa, a.ext)
     ruta = os.path.join(a.out, "manifest.json")
     with open(ruta, "w") as f:
         json.dump(manifiesto, f, indent=1)

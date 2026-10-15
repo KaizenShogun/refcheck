@@ -599,6 +599,77 @@ def limpia_titulo(bruto):
     return re.sub(r"\s+([.,])", r"\1", t)
 
 
+# Word (.docx) is the shape a reference list arrives in when someone hands a
+# librarian a manuscript: not an export, the draft itself. Until 2026-10-15 the
+# CLI read it as UTF-8 and found nothing, and the page refused it outright.
+# A .docx is a zip; the words are in word/document.xml, and the reference list
+# is often in footnotes.xml or endnotes.xml instead, so all three are read.
+# Field-code instructions (w:instrText) are kept: that is where a HYPERLINK's
+# URL lives, and where Zotero and EndNote keep the DOI of each cited item even
+# when the printed style shows none. Tracked deletions (w:delText) are not.
+# The page carries the same tokenizer between <docx-reader> markers, and
+# test_refcheck.py runs both over the same XML.
+DOCX_PARTES = ("word/document.xml", "word/footnotes.xml", "word/endnotes.xml")
+_DOCX_TOKEN = re.compile(
+    r"<w:t(?:\s[^>]*)?>([^<]*)</w:t>"
+    r"|<w:instrText(?:\s[^>]*)?>([^<]*)</w:instrText>"
+    r"|<w:(tab|br|cr|fldChar)(?:\s[^>]*)?/>"
+    r"|</w:p>"
+)
+_DOCX_ENTIDAD = re.compile(r"&(?:#x([0-9a-fA-F]+)|#([0-9]+)|(lt|gt|amp|quot|apos));")
+_NOMBRADAS = {"lt": "<", "gt": ">", "amp": "&", "quot": '"', "apos": "'"}
+
+
+def _desentidad(t):
+    def uno(m):
+        if m.group(1):
+            return chr(int(m.group(1), 16))
+        if m.group(2):
+            return chr(int(m.group(2)))
+        return _NOMBRADAS[m.group(3)]
+    return _DOCX_ENTIDAD.sub(uno, t)
+
+
+def texto_de_docx_xml(xml):
+    """The readable text of one WordprocessingML part, one paragraph a line."""
+    trozos = []
+    for m in _DOCX_TOKEN.finditer(xml):
+        texto, instr, vacio = m.group(1), m.group(2), m.group(3)
+        if texto is not None:
+            trozos.append(_desentidad(texto))
+        elif instr is not None:
+            trozos.append(_desentidad(instr))
+        elif vacio == "tab":
+            trozos.append("\t")
+        elif vacio == "fldChar":
+            # A field's instruction and its printed result sit side by side
+            # with nothing between them; without this, the end of a CSL-JSON
+            # blob and "(Smith 2020)" would read as one token.
+            trozos.append(" ")
+        else:
+            trozos.append("\n")
+    return "".join(trozos)
+
+
+def es_docx(datos):
+    return datos[:2] == b"PK"
+
+
+def texto_de_docx(datos):
+    """All the text of a .docx given as bytes. ValueError if it is not one."""
+    import io
+    import zipfile
+    try:
+        z = zipfile.ZipFile(io.BytesIO(datos))
+    except zipfile.BadZipFile as e:
+        raise ValueError("not a readable zip: %s" % e)
+    nombres = set(z.namelist())
+    if DOCX_PARTES[0] not in nombres:
+        raise ValueError("a zip, but not a Word document (no word/document.xml)")
+    return "\n".join(texto_de_docx_xml(z.read(n).decode("utf-8", "replace"))
+                     for n in DOCX_PARTES if n in nombres)
+
+
 def dois_de(texto):
     """Pull DOIs out of anything: a plain list, a .bib, a pasted bibliography.
 
@@ -2439,8 +2510,19 @@ def main():
     if a.fichero == "-":
         texto = sys.stdin.read()
     else:
-        with open(a.fichero, encoding="utf-8", errors="replace") as f:
-            texto = f.read()
+        with open(a.fichero, "rb") as f:
+            crudo = f.read()
+        if es_docx(crudo):
+            try:
+                texto = texto_de_docx(crudo)
+            except ValueError as e:
+                print("Cannot read %s: %s" % (a.fichero, e), file=sys.stderr)
+                return 2
+        else:
+            # What open() in text mode did before: universal newlines. RIS and
+            # MEDLINE files arrive with CRLF and their readers expect \n.
+            texto = crudo.decode("utf-8", errors="replace")
+            texto = texto.replace("\r\n", "\n").replace("\r", "\n")
     dois, origen, sueltos = referencias_de(texto, usar_pubmed=not a.no_pubmed)
     if not dois and not sueltos:
         pistas = "No DOIs found in that file."
