@@ -1,0 +1,154 @@
+{
+ "totals": {
+  "records": 3008,
+  "with_doi": 2332,
+  "pmid_only": 12,
+  "no_id": 663,
+  "loose_text": {
+   "lost_doi": 1,
+   "lost_pmid_only": 6,
+   "invented": 5,
+   "rescued": 0,
+   "invisible": 663
+  },
+  "reader": {
+   "lost_doi": 1,
+   "lost_pmid_only": 0,
+   "invented": 0,
+   "rescued": 3,
+   "invisible": 0,
+   "rescued_verified": [
+    {
+     "doi": "10.3386/w27407",
+     "record_title": "Racial Disparity in COVID-19 Deaths: Seeking Economic Roots with Census data.",
+     "doi_title": "Racial Disparity in COVID-19 Deaths: Seeking Economic Roots with Census data.",
+     "same": true
+    },
+    {
+     "doi": "10.26099/yece-jt92",
+     "record_title": "Private Health Insurance Coverage in the COVID-19 Public Health Emergency | Commonwealth Fund",
+     "doi_title": "Private Health Insurance Coverage in the COVID-19 Public Health Emergency",
+     "same": true
+    },
+    {
+     "doi": "10.1096/fasebj.30.1_supplement.406.3",
+     "record_title": "Utilizing Machine Learning Approaches to Understand the Interrelationship of Diet, the Human Gastrointestinal Microbiome, and Health",
+     "doi_title": "Utilizing Machine Learning Approaches to Understand the Interrelationship of Diet, the Human Gastrointestinal Microbiome, and Health",
+     "same": true
+    }
+   ]
+  }
+ },
+ "files": [
+  {
+   "file": "greenelab_covid19-review.json",
+   "sha256": "27dbc26e4ba061dac7f1d20f8fc7b6bc0d7c5f0b1af90211f708b23cfb507f04",
+   "records": 2285,
+   "with_doi": 1820,
+   "pmid_only": 7,
+   "no_id": 457,
+   "loose_text": {
+    "lost_doi": 0,
+    "lost_pmid_only": 1,
+    "invisible": 457,
+    "invented": [
+     "10.1101/2020.01.27.20018952v1",
+     "10.1126/science.abc8511",
+     "10.1126/science.abg2334"
+    ]
+   },
+   "reader": {
+    "lost_doi": 0,
+    "lost_pmid_only": 0,
+    "invented": [],
+    "rescued": [
+     {
+      "doi": "10.3386/w27407",
+      "title": "Racial Disparity in COVID-19 Deaths: Seeking Economic Roots with Census data."
+     },
+     {
+      "doi": "10.26099/yece-jt92",
+      "title": "Private Health Insurance Coverage in the COVID-19 Public Health Emergency | Commonwealth Fund"
+     }
+    ],
+    "invisible": 0,
+    "reported_without_id": 455
+   }
+  },
+  {
+   "file": "greenelab_deep-review.json",
+   "sha256": "63d909fbe22e71afdf6b3aa26bac37e369e8b717ef0ae64785e1f75c6671779f",
+   "records": 615,
+   "with_doi": 435,
+   "pmid_only": 5,
+   "no_id": 175,
+   "loose_text": {
+    "lost_doi": 0,
+    "lost_pmid_only": 5,
+    "invisible": 175,
+    "invented": [
+     "10.1093/bib/bbw110/2562646/a-review-of-validation-strategies-for"
+    ]
+   },
+   "reader": {
+    "lost_doi": 0,
+    "lost_pmid_only": 0,
+    "invented": [],
+    "rescued": [
+     {
+      "doi": "10.1096/fasebj.30.1_supplement.406.3",
+      "title": "Utilizing Machine Learning Approaches to Understand the Interrelationship of Diet, the Human Gastrointestinal Microbiome, and Health"
+     }
+    ],
+    "invisible": 0,
+    "reported_without_id": 174
+   }
+  },
+  {
+   "file": "greenelab_meta-review.json",
+   "sha256": "9f04373ad108a4f974b2f47d099fb88172fafbdddb8ea070b194e63b4f66a9fe",
+   "records": 100,
+   "with_doi": 72,
+   "pmid_only": 0,
+   "no_id": 28,
+   "loose_text": {
+    "lost_doi": 1,
+    "lost_pmid_only": 0,
+    "invisible": 28,
+    "invented": [
+     "10.6084/m9.figshare.7946192"
+    ]
+   },
+   "reader": {
+    "lost_doi": 1,
+    "lost_pmid_only": 0,
+    "invented": [],
+    "rescued": [],
+    "invisible": 0,
+    "reported_without_id": 29
+   }
+  },
+  {
+   "file": "manubot_rootstock.json",
+   "sha256": "bb81e082226af1384c346a508984223facfc1dac33eb382127b488d46b7f3c39",
+   "records": 8,
+   "with_doi": 5,
+   "pmid_only": 0,
+   "no_id": 3,
+   "loose_text": {
+    "lost_doi": 0,
+    "lost_pmid_only": 0,
+    "invisible": 3,
+    "invented": []
+   },
+   "reader": {
+    "lost_doi": 0,
+    "lost_pmid_only": 0,
+    "invented": [],
+    "rescued": [],
+    "invisible": 0,
+    "reported_without_id": 3
+   }
+  }
+ ]
+}

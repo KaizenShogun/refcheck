@@ -1517,5 +1517,48 @@
      $("#loadedText").textContent);
   $("#unload").click();
 
+  // ---- 15. CSL-JSON (Zotero's CSL JSON export, Pandoc, Manubot) ----
+  // Until 2026-10-16 it went down the loose-text path. On 3,008 real records
+  // that hid 663 with no identifier, lost 6 known only by `"PMID": "…"`, and
+  // asked about 5 DOIs that were other papers. Items cut from real Manubot
+  // reference lists; the abstract keeps its real JATS link to a companion paper.
+  const CSL_REAL = JSON.stringify([
+    { id: "196k8asXZ", type: "article-journal",
+      title: "Systems biological assessment of immunity to mild versus severe COVID-19 infection in humans",
+      DOI: "10.1126/science.abc6261", PMID: "32788292", URL: "https://doi.org/gg7vf3",
+      issued: { "date-parts": [[2020, 9, 4]] },
+      abstract: '<jats:related-article ext-link-type="doi" xlink:href="10.1126/science.abc8511">eabc8511</jats:related-article>' },
+    { id: "pm1", type: "article-journal", title: "A paper known only by its PMID",
+      PMID: "17112328", issued: { "date-parts": [[2006]] } },
+    { id: "wN3MgkJc", type: "webpage",
+      title: "The Valneva VLA2001 COVID-19 vaccine: What you need to know",
+      URL: "https://www.who.int/news-room/feature-stories/detail/the-valneva-vla2001",
+      issued: { "date-parts": [["2022", 8, 18]] } },
+  ], null, 2);
+  let pedidosCsl = [];
+  window.fetch = function (u, o) {
+    pedidosCsl.push(String(u) + " " + ((o && o.body) || ""));
+    return realFetch.apply(window, arguments);
+  };
+  coldTab();
+  s = await openFile("references.json", CSL_REAL);
+  ok("a CSL-JSON file opens", /Loaded references\.json/.test(s), s);
+  s = await check($("#input").value);
+  const ct = txtAbierto();
+  const pedidoCsl = pedidosCsl.join(" | ");
+  ok("CSL: the companion paper linked in the abstract is never asked about",
+     !/abc8511/i.test(pedidoCsl), pedidoCsl.slice(0, 300));
+  ok("CSL: the record's own DOI is asked about",
+     /10\.1126%2Fscience\.abc6261|10\.1126\/science\.abc6261/i.test(pedidoCsl),
+     pedidoCsl.slice(0, 300));
+  ok("CSL: a record known only by its PMID field goes to PubMed",
+     /17112328/.test(pedidoCsl), pedidoCsl.slice(0, 300));
+  ok("CSL: the file's own total is on screen",
+     /lists 3 references in all/.test(ct), ct.slice(0, 500));
+  ok("CSL: a web page with no identifier is named, not dropped",
+     /Valneva VLA2001/.test(ct), ct.slice(0, 900));
+  window.fetch = realFetch;
+  coldTab();
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()

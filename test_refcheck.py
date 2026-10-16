@@ -2088,6 +2088,13 @@ class CacheEnLaCLI(unittest.TestCase):
             codigo = refcheck.main()
         return codigo, salida.getvalue(), llamadas
 
+    def test_sin_watch_no_promete_vigilar(self):
+        """Until 2026-10-16 every plain run ended "Watching 2 reference(s) from
+        now on: None": a promise about a watch file nobody asked for."""
+        _, t, _ = self._corre(["refcheck.py", "--no-ra", self.refs])
+        self.assertNotIn("Watching", t)
+        self.assertNotIn("None", t)
+
     def test_la_segunda_vez_no_se_pregunta_nada(self):
         c1, t1, ll1 = self._corre(["refcheck.py", self.refs])
         self.assertEqual(len(ll1), 1)
@@ -3616,6 +3623,193 @@ class TestDocx(unittest.TestCase):
             with open(ruta, "rb") as fh:
                 self.assertEqual(t, refcheck.texto_de_docx(fh.read()),
                                  os.path.basename(ruta))
+
+
+# Real items from Manubot's CSL-JSON reference lists (greenelab/covid19-review,
+# greenelab/deep-review, output branch), cut down to the fields that matter. The
+# abstract keeps the JATS markup it really has.
+CSL = json.dumps([
+    {"id": "196k8asXZ", "type": "article-journal",
+     "title": "Systems biological assessment of immunity to mild versus severe "
+              "COVID-19 infection in humans",
+     "DOI": "10.1126/science.abc6261", "PMID": "32788292",
+     "URL": "https://doi.org/gg7vf3", "issued": {"date-parts": [[2020, 9, 4]]},
+     "abstract": '<jats:related-article ext-link-type="doi" '
+                 'xlink:href="10.1126/science.abc8511">eabc8511</jats:related-article>',
+     "note": "standard_id: doi:10.1126/science.abc6261"},
+    {"id": "pm1", "type": "article-journal", "title": "A paper PubMed knows",
+     "PMID": "17112328", "URL": "https://www.ncbi.nlm.nih.gov/pubmed/17112328",
+     "issued": {"date-parts": [[2006]]}},
+    {"id": "nber", "type": "report",
+     "title": "Racial Disparity in COVID-19 Deaths: Seeking Economic Roots with Census data.",
+     "URL": "https://www.nber.org/papers/w27407", "note": "DOI: 10.3386/w27407"},
+    {"id": "wN3MgkJc", "type": "webpage",
+     "title": "The Valneva VLA2001 COVID-19 vaccine: What you need to know",
+     "URL": "https://www.who.int/news-room/feature-stories/detail/the-valneva-vla2001",
+     "issued": {"date-parts": [["2022", 8, 18]]},
+     "note": "Loaded from an external bibliography file by Manubot."},
+])
+
+
+class LectorCsl(unittest.TestCase):
+    """CSL-JSON (Zotero's CSL JSON export, Pandoc, Manubot). Measured on
+    2026-10-16 over 3,008 real records: as loose text 663 of them (22%) were
+    invisible, 6 known only by PMID were lost and 5 DOIs were invented."""
+
+    def test_se_reconoce(self):
+        self.assertTrue(refcheck.es_csl_json(CSL))
+
+    def test_un_json_cualquiera_no_es_csl(self):
+        self.assertFalse(refcheck.es_csl_json('[{"name": "x", "version": 2}]'))
+        self.assertFalse(refcheck.es_csl_json('{"type": "article", "title": "x"}'))
+        self.assertFalse(refcheck.es_csl_json("[1, 2, 3]"))
+        self.assertFalse(refcheck.es_csl_json("[not json"))
+
+    def test_ris_y_texto_no_son_csl(self):
+        self.assertFalse(refcheck.es_csl_json(RIS))
+        self.assertFalse(refcheck.es_csl_json("[1] Smith J. doi:10.1/x"))
+
+    def test_cada_registro_sale(self):
+        self.assertEqual(len(refcheck.registros_csl(CSL)), 4)
+
+    def test_el_doi_del_abstract_no_entra(self):
+        """The abstract links the companion paper in the same issue. As loose
+        text it was checked as one of the reader's references."""
+        dois, _, _ = refcheck.referencias_de(CSL, usar_pubmed=False)
+        self.assertIn("10.1126/science.abc6261", dois)
+        self.assertNotIn("10.1126/science.abc8511", [d.lower() for d in dois])
+
+    def test_el_pmid_del_campo_PMID_se_lee(self):
+        """`"PMID": "17112328"` — PMID_RE needs the word right before the number
+        and the closing quote is in the way, so loose text lost it."""
+        regs = refcheck.registros_csl(CSL)
+        self.assertEqual(regs[1]["pmid"], "17112328")
+        self.assertEqual(regs[1]["doi"], "")
+        _, _, sueltos = refcheck.referencias_de(CSL, usar_pubmed=False)
+        self.assertIn("17112328", [s["pmid"] for s in sueltos])
+
+    def test_pmid_entero_y_nota(self):
+        t = json.dumps([{"type": "article", "title": "a", "PMID": 31978945},
+                        {"type": "article", "title": "b", "note": "PMID: 32788292"}])
+        self.assertEqual([r["pmid"] for r in refcheck.registros_csl(t)],
+                         ["31978945", "32788292"])
+
+    def test_la_linea_DOI_de_la_nota_es_el_doi_propio(self):
+        """Zotero's Extra convention for item types with no DOI field. Both such
+        lines in the corpus name the record's own DOI (title-checked)."""
+        self.assertEqual(refcheck.registros_csl(CSL)[2]["doi"], "10.3386/w27407")
+
+    def test_sin_identificador_no_desaparece(self):
+        _, _, sueltos = refcheck.referencias_de(CSL, usar_pubmed=False)
+        sin_id = [s for s in sueltos if s["estado"] == "sin_identificador"]
+        self.assertEqual(len(sin_id), 1)
+        self.assertIn("Valneva", sin_id[0]["titulo"])
+        self.assertEqual(sin_id[0]["fecha"], "2022")
+
+    def test_doi_solo_en_abstract_se_menciona_y_no_se_usa(self):
+        t = json.dumps([{"type": "article", "title": "x",
+                         "abstract": "Replicates 10.1016/j.jenvp.2018.02.001."}])
+        dois, _, sueltos = refcheck.referencias_de(t, usar_pubmed=False)
+        self.assertEqual(dois, [])
+        self.assertEqual(sueltos[0]["doi_mencionado"], "10.1016/j.jenvp.2018.02.001")
+
+    def test_fecha_raw_y_literal(self):
+        t = json.dumps([{"type": "a", "title": "x", "issued": {"raw": "March 2019"}},
+                        {"type": "a", "title": "y", "issued": {"literal": "n.d."}}])
+        self.assertEqual([r["fecha"] for r in refcheck.registros_csl(t)], ["2019", ""])
+
+    def test_bom_y_campos_raros_no_rompen(self):
+        t = "﻿" + json.dumps([{"type": "a", "title": None, "DOI": 5,
+                                    "note": ["x"], "issued": "2020"}])
+        self.assertEqual(refcheck.registros_csl(t)[0]["doi"], "")
+
+
+CSL_CORPUS = "/root/agent-world/mundo/csl_corpus"
+CSL_BORDES = json.dumps([
+    {"type": "a", "title": "  spaced\n title ", "PMID": 31978945,
+     "issued": {"date-parts": [[2020.0]]}},
+    {"type": "a", "title": "x", "PMID": True, "issued": {"date-parts": [[True]]}},
+    {"type": "a", "title": "y", "PMID": 12.5, "DOI": 7, "issued": {"raw": "1999-03"}},
+    {"type": "a", "title": "z", "note": "standard_id: x\nPMID: 0032788292\nDOI: https://doi.org/10.3386/w27407"},
+    {"type": "a", "URL": "https://pubmed.ncbi.nlm.nih.gov/362947", "abstract": "see doi:10.1234/zz9"},
+    {"type": "a", "title": None, "note": "cites 10.1016/j.x.2018.02.001", "issued": [2020]},
+])
+
+
+class ParidadDelLectorCsl(unittest.TestCase):
+    """Same CSL-JSON, same records, on the page and on the CLI."""
+
+    @staticmethod
+    def _bloque():
+        html = ParidadDelLectorRis._bloque()
+        ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "docs", "index.html")
+        with open(ruta, encoding="utf-8") as fh:
+            m = re.search(r"// <csl-reader>(.*?)// </csl-reader>", fh.read(), re.S)
+        if not html or not m:
+            return None
+        # RIS_PMID_VALUE lives in the RIS block, which _bloque already carries.
+        return html + "\n" + m.group(1)
+
+    def _node(self, guion):
+        return ParidadDelLectorRis._node(self, guion)
+
+    def _compara(self, texto):
+        js = self._node(
+            self._bloque() + "\nconst texto = require('fs').readFileSync(0, 'utf8');\n"
+            "console.log(JSON.stringify({es: isCslJson(texto), regs: cslRecords(texto)"
+            ".map(function (r) { return [r.doi, r.pmid, r.titulo, r.fecha, r.doi_mencionado]; })}));\n"
+            .replace("readFileSync(0, 'utf8')", "readFileSync(%s, 'utf8')" % json.dumps(self._tmp(texto))))
+        py = [[r["doi"], r["pmid"], r["titulo"], r["fecha"], r["doi_mencionado"]]
+              for r in refcheck.registros_csl(texto)]
+        self.assertEqual(js["es"], refcheck.es_csl_json(texto))
+        self.assertEqual(js["regs"], py)
+        return py
+
+    def _tmp(self, texto):
+        fh = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8")
+        fh.write(texto)
+        fh.close()
+        self.addCleanup(os.unlink, fh.name)
+        return fh.name
+
+    def test_el_bloque_sigue_delimitado(self):
+        self.assertIsNotNone(self._bloque(), "<csl-reader> markers are gone")
+
+    def test_los_casos_de_paridad_cubren_los_bordes(self):
+        regs = refcheck.registros_csl(CSL_BORDES)
+        self.assertEqual(regs[0]["pmid"], "31978945")
+        self.assertEqual(regs[0]["fecha"], "2020", "2020.0 is what JSON.parse sees as 2020")
+        self.assertEqual(regs[0]["titulo"], "spaced title")
+        self.assertEqual((regs[1]["pmid"], regs[1]["fecha"]), ("", ""), "true is no id")
+        self.assertEqual((regs[2]["pmid"], regs[2]["doi"], regs[2]["fecha"]), ("", "", "1999"))
+        self.assertEqual((regs[3]["pmid"], regs[3]["doi"]), ("32788292", "10.3386/w27407"))
+        self.assertEqual((regs[4]["pmid"], regs[4]["doi_mencionado"]), ("362947", "10.1234/zz9"))
+        self.assertEqual(regs[5]["doi_mencionado"], "10.1016/j.x.2018.02.001")
+
+    def test_los_mismos_registros(self):
+        self.assertTrue(self._compara(CSL + "\n"))
+        self._compara(CSL_BORDES)
+
+    def test_la_misma_deteccion(self):
+        for caso in [CSL, "﻿" + CSL, RIS, NBIB, "", "[]", "[1]", "[{}]",
+                     '[{"type": "x"}]', '[{"type": "x", "title": "t"}, 3]',
+                     '{"type": "a", "title": "x"}', "[broken"]:
+            js = self._node(self._bloque() + "\nconsole.log(JSON.stringify(isCslJson("
+                            + json.dumps(caso) + ")));\n")
+            self.assertEqual(js, refcheck.es_csl_json(caso), repr(caso[:40]))
+
+    def test_el_corpus_real_igual_en_los_dos(self):
+        """3,008 real records. Skipped if the frozen corpus is not on this disk."""
+        import glob
+        ficheros = sorted(glob.glob(os.path.join(CSL_CORPUS, "*.json")))
+        if not ficheros:
+            self.skipTest("no CSL corpus here")
+        total = 0
+        for f in ficheros:
+            with open(f, encoding="utf-8") as fh:
+                total += len(self._compara(fh.read()))
+        self.assertEqual(total, 3008)
 
 
 if __name__ == "__main__":

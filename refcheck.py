@@ -532,6 +532,107 @@ def registros_ris(texto):
     return registros
 
 
+# CSL-JSON is what Zotero's "CSL JSON" export, Better BibTeX, Pandoc and Manubot
+# write. Read as loose text it does what RIS did before 2026-09-23. Measured on
+# 2026-10-16 over four real Manubot reference lists (3,008 records, frozen in
+# mundo/csl_corpus/): every DOI field was found, but 663 records (22%) carry no
+# identifier at all and simply vanished from the report; 6 records known only
+# by their `PMID` field were lost, because the text there is `"PMID": "123"` and
+# PMID_RE wants the word before the number; and 3 DOIs were made up out of an
+# abstract citing somebody else's paper or the tail of a publisher URL.
+#
+# Field by field, like RIS: `DOI`, then a DOI-shaped `URL`, then a `DOI: …` line
+# in `note` — Zotero's Extra convention for item types with no DOI field, and in
+# the corpus both such lines name the record's own DOI. Same for the PMID: the
+# `PMID` field, a `PMID: …` note line, or a PubMed URL. The abstract is never
+# read as the record's identifier.
+CSL_NOTA_DOI = re.compile(r"^\s*DOI:\s*(\S+)", re.I | re.M)
+CSL_NOTA_PMID = re.compile(r"^\s*PMID:\s*0*(\d{1,8})\s*$", re.I | re.M)
+CSL_URL_PMID = re.compile(r"(?:pubmed\.ncbi\.nlm\.nih\.gov|ncbi\.nlm\.nih\.gov/pubmed)/(\d{1,8})\b")
+
+
+def _items_csl(texto):
+    """The list of CSL items, or None if this is not CSL-JSON."""
+    s = texto.lstrip("﻿ \t\r\n")
+    if not s.startswith("["):
+        return None
+    try:
+        datos = json.loads(s)
+    except ValueError:
+        return None
+    if not isinstance(datos, list) or not datos:
+        return None
+    if not all(isinstance(x, dict) for x in datos):
+        return None
+    # A JSON array of anything else (a CrossRef dump, a config file) must not be
+    # mistaken for a bibliography: CSL requires `type`, and every exporter
+    # measured writes a title or an identifier next to it.
+    if not any("type" in x and ({"title", "DOI", "PMID"} & x.keys()) for x in datos):
+        return None
+    return datos
+
+
+def es_csl_json(texto):
+    return _items_csl(texto) is not None
+
+
+def _csl_texto(v):
+    return v if isinstance(v, str) else ""
+
+
+def registros_csl(texto):
+    """The items of a CSL-JSON file, as {'pmid', 'doi', 'titulo', 'fecha',
+    'doi_mencionado'} — the same shape registros_ris returns."""
+    registros = []
+    for x in _items_csl(texto) or []:
+        doi = ""
+        nota = _csl_texto(x.get("note"))
+        candidatos = [_csl_texto(x.get("DOI")), _csl_texto(x.get("URL"))]
+        candidatos += CSL_NOTA_DOI.findall(nota)
+        for v in candidatos:
+            hallado = DOI_RE.search(v)
+            if hallado:
+                doi = _limpia_doi(hallado.group(0))
+                break
+        pmid = ""
+        crudo = x.get("PMID")
+        if isinstance(crudo, int) and not isinstance(crudo, bool):
+            crudo = str(crudo)
+        m = RIS_PMID_VALOR.match(_csl_texto(crudo).strip())
+        if m:
+            pmid = str(int(m.group(1)))
+        if not pmid:
+            m = CSL_NOTA_PMID.search(nota) or CSL_URL_PMID.search(_csl_texto(x.get("URL")))
+            if m:
+                pmid = str(int(m.group(1)))
+        fecha = ""
+        emitido = x.get("issued")
+        if isinstance(emitido, dict):
+            partes = emitido.get("date-parts")
+            if (isinstance(partes, list) and partes and isinstance(partes[0], list)
+                    and partes[0]):
+                ano = partes[0][0]
+                if isinstance(ano, float) and ano.is_integer():
+                    ano = int(ano)   # JSON.parse can't tell 2020.0 from 2020
+                if isinstance(ano, (str, int)) and not isinstance(ano, bool):
+                    fecha = str(ano)
+            if not re.fullmatch(r"1[5-9]\d\d|20\d\d", fecha):
+                m = re.search(r"\b(1[5-9]\d\d|20\d\d)\b",
+                              _csl_texto(emitido.get("raw")) or _csl_texto(emitido.get("literal")))
+                fecha = m.group(1) if m else ""
+        mencionado = ""
+        if not doi:
+            for v in (_csl_texto(x.get("abstract")), nota):
+                hallado = DOI_RE.search(v)
+                if hallado:
+                    mencionado = _limpia_doi(hallado.group(0))
+                    break
+        registros.append({"pmid": pmid, "doi": doi,
+                          "titulo": " ".join(_csl_texto(x.get("title")).split())[:300],
+                          "fecha": fecha, "doi_mencionado": mencionado})
+    return registros
+
+
 def _limpia_doi(bruto):
     """Trim what the surrounding document glued onto a DOI.
 
@@ -1561,7 +1662,9 @@ def referencias_de(texto, usar_pubmed=True):
     if es_medline(texto):
         return _referencias_medline(texto)
     if es_ris(texto):
-        return _referencias_ris(texto)
+        return _referencias_ris(texto, usar_pubmed)
+    if es_csl_json(texto):
+        return _referencias_registros(registros_csl(texto), usar_pubmed)
 
     dois = dois_de(texto)
     origen, sueltos = {}, []
@@ -1624,9 +1727,14 @@ def _referencias_ris(texto, usar_pubmed=True):
     not come out as "unchecked", they did not come out at all, and the header
     counted a 1,409-paper export as one reference.
     """
+    return _referencias_registros(registros_ris(texto), usar_pubmed)
+
+
+def _referencias_registros(registros, usar_pubmed=True):
+    """referencias_de's three lists from parsed records (RIS or CSL-JSON)."""
     dois, origen, sueltos, vistos = [], {}, [], set()
     pendientes = []
-    for r in registros_ris(texto):
+    for r in registros:
         doi, pmid = r["doi"], r["pmid"]
         if doi:
             if pmid:
@@ -2625,7 +2733,10 @@ def main():
         if bloque:
             print(bloque)
         print(informe(resultados))
-        if estado_previo is None:
+        # `a.watch` first: without it estado_previo is None too, and until
+        # 2026-10-16 every plain run ended "Watching 2 reference(s) from now
+        # on: None" — a promise about a file that was never written.
+        if a.watch and estado_previo is None:
             seguidas = _vigilables(resultados)
             print("  Watching %d reference(s) from now on: %s"
                   % (seguidas, a.watch))

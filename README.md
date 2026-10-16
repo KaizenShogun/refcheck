@@ -62,7 +62,7 @@ month" is not a mess, it is the only part you have not already read.
 
 Paste your reference list, or open the file you already have — a `.nbib`
 straight from PubMed's **Send to → Citation manager**, a `.ris` out of Scopus,
-Web of Science, Embase, Rayyan or Zotero, a `.bib`, a `.txt` — or the
+Web of Science, Embase, Rayyan or Zotero, Zotero's **CSL JSON**, a `.bib`, a `.txt` — or the
 manuscript itself as a Word `.docx`. Drag it onto the box or use the file button. Press one button. No
 account, no upload, no terminal.
 
@@ -90,7 +90,7 @@ no cookies and no analytics.
 It is built to be usable rather than just claimed to be: every colour pair is
 measured at WCAG **AAA** contrast in both light and dark, the focus ring is never
 removed, severity is stated in words and not by colour alone, and the whole thing
-is driven by a 201-check battery in a real headless browser against the real APIs.
+is driven by a 207-check battery in a real headless browser against the real APIs.
 
 ## Use it from the command line
 
@@ -101,6 +101,7 @@ python3 refcheck.py pubmed.txt        # PMIDs work too — see below
 python3 refcheck.py export.nbib       # PubMed's "Send to → Citation manager" file
 python3 refcheck.py scopus.ris        # Scopus, Web of Science, Embase, Rayyan, Zotero…
 python3 refcheck.py manuscript.docx   # a Word draft: body, footnotes and endnotes
+python3 refcheck.py references.json   # CSL JSON: Zotero, Pandoc, Manubot
 python3 refcheck.py refs.bib --json   # machine-readable, for pipelines
 echo 10.1371/journal.pone.0161231 | python3 refcheck.py -
 ```
@@ -481,6 +482,45 @@ make a test fail, not by real-world evidence.
 
 A PDF is still refused, with a sentence saying so. Getting reliable text out of
 a PDF is a different problem, and the R package `retraction` does read them.
+
+## CSL JSON, read as records (16 October 2026)
+
+CSL JSON is what Zotero's *Export → CSL JSON*, Pandoc and Manubot write. Until
+today it went down the loose-text path, which finds every DOI-shaped string in
+the file. Measured on **four real Manubot reference lists, 3,008 records**
+(`research/measure_csl.py`, results in `research/csl_20261016.json`, files
+frozen with their SHA-256):
+
+| | loose text | record reader |
+|---|---:|---:|
+| records with no identifier, missing from the report | **663** (22%) | 0 — listed by title |
+| records known only by `"PMID": "…"`, lost | 6 of 12 | 0 |
+| DOIs sent that are not the record's own | 5 | 0 |
+| record DOIs missed | 1 | 1 |
+
+The five invented ones are a companion paper linked from an abstract's JATS
+markup, a `v1` or a `/2562646/a-review-of…` swallowed from a publisher URL, and
+a figshare DOI without its version. The missed one is a `DOI` field holding a
+blog path, which is not a DOI.
+
+Each record is read from its own fields: `DOI`, then a DOI in `URL`, then a
+`DOI: …` line in `note` (Zotero's convention for item types with no DOI field);
+`PMID`, a `PMID: …` note line, or a PubMed URL. The abstract is never taken as
+the record's identifier; a DOI found only there is shown, marked as not checked.
+Three records had a DOI only in `URL` or `note`, and all three match the
+record's title at doi.org.
+
+Honest limits: the corpus is one family of exporter (Manubot). Zotero's own CSL
+JSON uses the same field names, but it is not in the measurement. **EndNote XML
+is not read yet**, for a reason worth saying: Zenodo gave me two real EndNote
+libraries, 700 records, and *none* of them carries a DOI field. That is not a
+corpus to build a reader on.
+
+Along the way, two old bugs: the page's "your file lists N references in all"
+left out the PMIDs PubMed holds no DOI for (the command line counted them), and
+every plain command-line run ended with *"Watching 2 reference(s) from now on:
+None"* although nothing was being watched. Both fixed, both with a test that
+fails on the old code.
 
 ## My own extractor was inventing DOIs that do not exist
 
@@ -1418,14 +1458,14 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 269 offline, 10 network cases skipped
-REFCHECK_RED=1 python3 test_refcheck.py   # all 279, adding the live-API cases
+python3 test_refcheck.py                  # 294 offline, 10 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 304, adding the live-API cases
 ```
 
 "Offline" is checked rather than promised:
 
 ```
-REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 269 must pass
+REFCHECK_SIN_RED=1 python3 test_refcheck.py   # urlopen raises; all 294 must pass
 ```
 
 That caught two tests on 2026-09-15. A mocked batch that finds nothing now sends

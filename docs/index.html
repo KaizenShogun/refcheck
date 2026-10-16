@@ -131,7 +131,7 @@
     <p class="hint">
       Or open the file you already have — a <code>.nbib</code> straight from
       PubMed’s “Send to → Citation manager”, a <code>.bib</code>, a <code>.ris</code>,
-      a <code>.txt</code>, or the manuscript itself as a Word <code>.docx</code>. You can also drag it onto the box below.
+      Zotero’s CSL&nbsp;JSON, a <code>.txt</code>, or the manuscript itself as a Word <code>.docx</code>. You can also drag it onto the box below.
       <strong>The file is read inside your browser and is never uploaded</strong>;
       only the identifiers found in it are sent, to Crossref and PubMed (and, for
       the ones neither can find, to doi.org).
@@ -139,7 +139,7 @@
     <p class="hint">
       <label for="file">Open a file</label>
       <input type="file" id="file"
-             accept=".nbib,.bib,.ris,.docx,.txt,.text,.med,.medline,.csv,.tsv,.md,text/plain">
+             accept=".nbib,.bib,.ris,.json,.docx,.txt,.text,.med,.medline,.csv,.tsv,.md,text/plain">
     </p>
     <p class="loaded" id="loaded" hidden>
       <span id="loadedText"></span>
@@ -1053,6 +1053,86 @@
   }
   // </ris-reader>
 
+  // <csl-reader>
+  // CSL-JSON: Zotero's "CSL JSON" export, Pandoc, Manubot. The same reader as
+  // registros_csl in refcheck.py, kept in step by a parity test. Measured on
+  // 2026-10-16 over 3,008 real records: read as loose text, 663 (22%) carried
+  // no identifier and vanished, 6 known only by their PMID field were lost, and
+  // 5 DOIs came out of abstracts or URL tails that name someone else's paper.
+  var CSL_NOTA_DOI = /^\s*DOI:\s*(\S+)/gim;
+  var CSL_NOTA_PMID = /^\s*PMID:\s*0*(\d{1,8})\s*$/im;
+  var CSL_URL_PMID = /(?:pubmed\.ncbi\.nlm\.nih\.gov|ncbi\.nlm\.nih\.gov\/pubmed)\/(\d{1,8})\b/;
+
+  function cslItems(text) {
+    var s = text.replace(/^[﻿ \t\r\n]+/, "");
+    if (s.charAt(0) !== "[") return null;
+    var datos;
+    try { datos = JSON.parse(s); } catch (e) { return null; }
+    if (!Array.isArray(datos) || !datos.length) return null;
+    var esObj = function (x) {
+      return x !== null && typeof x === "object" && !Array.isArray(x);
+    };
+    if (!datos.every(esObj)) return null;
+    // A JSON array of anything else must not pass for a bibliography: CSL
+    // requires `type`, and every exporter measured writes a title or an id.
+    var tiene = function (x, k) { return Object.prototype.hasOwnProperty.call(x, k); };
+    if (!datos.some(function (x) {
+      return tiene(x, "type") && (tiene(x, "title") || tiene(x, "DOI") || tiene(x, "PMID"));
+    })) return null;
+    return datos;
+  }
+
+  function isCslJson(text) { return cslItems(text) !== null; }
+
+  function cslRecords(text) {
+    var cad = function (v) { return typeof v === "string" ? v : ""; };
+    return (cslItems(text) || []).map(function (x) {
+      var nota = cad(x.note), doi = "", hit, m, i;
+      var cands = [cad(x.DOI), cad(x.URL)];
+      CSL_NOTA_DOI.lastIndex = 0;
+      while ((m = CSL_NOTA_DOI.exec(nota)) !== null) cands.push(m[1]);
+      for (i = 0; i < cands.length && !doi; i++) {
+        DOI_RE.lastIndex = 0;
+        hit = DOI_RE.exec(cands[i]);
+        if (hit) doi = limpiaDoi(hit[0]);
+      }
+      var pmid = "", crudo = x.PMID;
+      if (typeof crudo === "number" && Number.isInteger(crudo)) crudo = String(crudo);
+      m = RIS_PMID_VALUE.exec(cad(crudo).trim());
+      if (m) pmid = String(parseInt(m[1], 10));
+      if (!pmid) {
+        m = CSL_NOTA_PMID.exec(nota) || CSL_URL_PMID.exec(cad(x.URL));
+        if (m) pmid = String(parseInt(m[1], 10));
+      }
+      var fecha = "", em = x.issued;
+      if (em !== null && typeof em === "object" && !Array.isArray(em)) {
+        var p = em["date-parts"];
+        if (Array.isArray(p) && p.length && Array.isArray(p[0]) && p[0].length &&
+            (typeof p[0][0] === "string" ||
+             (typeof p[0][0] === "number" && Number.isInteger(p[0][0])))) {
+          fecha = String(p[0][0]);
+        }
+        if (!/^(?:1[5-9]\d\d|20\d\d)$/.test(fecha)) {
+          m = /\b(1[5-9]\d\d|20\d\d)\b/.exec(cad(em.raw) || cad(em.literal));
+          fecha = m ? m[1] : "";
+        }
+      }
+      var mencionado = "";
+      if (!doi) {
+        [cad(x.abstract), nota].some(function (v) {
+          DOI_RE.lastIndex = 0;
+          var h = DOI_RE.exec(v);
+          if (h) mencionado = limpiaDoi(h[0]);
+          return !!h;
+        });
+      }
+      return { pmid: pmid, doi: doi,
+               titulo: cad(x.title).split(/\s+/).filter(Boolean).join(" ").slice(0, 300),
+               fecha: fecha, doi_mencionado: mencionado };
+    });
+  }
+  // </csl-reader>
+
   function extractPmids(text) {
     var seen = Object.create(null), list = [], m, raw;
     PMID_RE.lastIndex = 0;
@@ -1904,7 +1984,11 @@
     // 1,409 checked is not a clean bibliography.
     var checked = total - unchecked.length - notFound.length - superseded.length -
                   nonexistent.length - elsewhere.length;
-    var totalFichero = total + noId.length;
+    // The PMID drawers were never asked of Crossref either, and until 2026-10-16
+    // they were left out of this sum: a file with a DOI, a PMID PubMed knows no
+    // DOI for and a web page said "lists 2 references in all". The CLI, which
+    // counts every result, said 3.
+    var totalFichero = total + noId.length + noDoi.length + noPmid.length;
 
     var box = el("div", "summary");
     var h = el("h2");
@@ -2392,11 +2476,12 @@
       return;
     }
 
-    if (isRis(text)) {
-      var recs = risRecords(text);
+    var esRis = isRis(text);
+    if (esRis || isCslJson(text)) {
+      var recs = esRis ? risRecords(text) : cslRecords(text);
       if (!recs.length) {
-        status.textContent = "That looks like a RIS export, but no records " +
-          "could be read out of it.";
+        status.textContent = "That looks like a " + (esRis ? "RIS" : "CSL-JSON") +
+          " export, but no records could be read out of it.";
         out.textContent = "";
         copyBtn.hidden = true;
         $("watchSaveBar").hidden = true;
@@ -3062,6 +3147,7 @@
         // what is in there before anything is sent anywhere.
         var n = isMedline(text) ? medlineRecords(text).length
               : isRis(text) ? risRecords(text).length
+              : isCslJson(text) ? cslRecords(text).length
                             : extractDois(text).length;
         held = { name: label, text: text, records: n };
         input.value = "";
