@@ -1,0 +1,2 @@
+{"fichero": "8034786_069.docx", "doi_mas": [], "doi_menos": [], "pmid_mas": ["14187891", "14265514", "16904038", "16968922", "4198483", "4538189", "5962842"], "pmid_menos": []}
+{"docs": 376, "ilegibles": 0, "dois_antes": 3560, "dois_ahora": 3560, "pmids_antes": 29, "pmids_ahora": 36}

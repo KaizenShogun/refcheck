@@ -1,0 +1,144 @@
+{
+ "total": {
+  "docs": 10,
+  "docs_con_campos": 10,
+  "registros": 461,
+  "con_doi": 296,
+  "doi_leido": 296,
+  "solo_pmid": 7,
+  "solo_pmid_leido": 7,
+  "sin_id": 158
+ },
+ "docs": [
+  {
+   "fichero": "14502172_135.docx",
+   "gestores": [
+    "endnote"
+   ],
+   "registros": 12,
+   "con_doi": 2,
+   "doi_leido": 2,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 10,
+   "perdidos": []
+  },
+  {
+   "fichero": "19089822_178.docx",
+   "gestores": [
+    "endnote"
+   ],
+   "registros": 76,
+   "con_doi": 71,
+   "doi_leido": 71,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 5,
+   "perdidos": []
+  },
+  {
+   "fichero": "22072518_090.docx",
+   "gestores": [
+    "endnote"
+   ],
+   "registros": 40,
+   "con_doi": 21,
+   "doi_leido": 21,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 19,
+   "perdidos": []
+  },
+  {
+   "fichero": "4944811_167.docx",
+   "gestores": [
+    "mendeley/csl"
+   ],
+   "registros": 132,
+   "con_doi": 90,
+   "doi_leido": 90,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 42,
+   "perdidos": []
+  },
+  {
+   "fichero": "7346802_025.docx",
+   "gestores": [
+    "zotero"
+   ],
+   "registros": 42,
+   "con_doi": 30,
+   "doi_leido": 30,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 12,
+   "perdidos": []
+  },
+  {
+   "fichero": "8034786_069.docx",
+   "gestores": [
+    "endnote"
+   ],
+   "registros": 141,
+   "con_doi": 78,
+   "doi_leido": 78,
+   "solo_pmid": 7,
+   "solo_pmid_leido": 7,
+   "sin_id": 56,
+   "perdidos": []
+  },
+  {
+   "fichero": "fs34433234_133.docx",
+   "gestores": [
+    "endnote"
+   ],
+   "registros": 10,
+   "con_doi": 0,
+   "doi_leido": 0,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 10,
+   "perdidos": []
+  },
+  {
+   "fichero": "fs34607574_106.docx",
+   "gestores": [
+    "zotero"
+   ],
+   "registros": 6,
+   "con_doi": 4,
+   "doi_leido": 4,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 2,
+   "perdidos": []
+  },
+  {
+   "fichero": "fs34610498_017.docx",
+   "gestores": [
+    "endnote"
+   ],
+   "registros": 1,
+   "con_doi": 0,
+   "doi_leido": 0,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 1,
+   "perdidos": []
+  },
+  {
+   "fichero": "fs34625358_002.docx",
+   "gestores": [
+    "endnote"
+   ],
+   "registros": 1,
+   "con_doi": 0,
+   "doi_leido": 0,
+   "solo_pmid": 0,
+   "solo_pmid_leido": 0,
+   "sin_id": 1,
+   "perdidos": []
+  }
+ ]
+}

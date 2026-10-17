@@ -2987,7 +2987,78 @@
       });
   }
 
+  // Identifiers the loose reading misses inside citation records, restated as
+  // plain lines (2026-10-17, same rules as _ids_de_campos in refcheck.py):
+  // EndNote's bare PubMed id in <accession-num>, EndNote records kept base64 in
+  // w:fldData, and a Zotero/Mendeley item's PMID when it has no DOI.
+  var DOCX_FLDDATA = /<w:fldData(?:\s[^>]*)?>([^<]*)<\/w:fldData>/g;
+
+  function b64Text(s) {
+    s = s.replace(/\s+/g, "");
+    try {
+      var bin = atob(s + "===".slice((s.length + 3) % 4));
+    } catch (e) { return ""; }
+    var b = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+    return new TextDecoder("utf-8").decode(b);
+  }
+
+  // The JSON object starting at text[i], or null: braces counted outside strings.
+  function jsonAt(text, i) {
+    var depth = 0, inStr = false;
+    for (var k = i; k < text.length; k++) {
+      var c = text[k];
+      if (inStr) {
+        if (c === "\\") k++;
+        else if (c === "\"") inStr = false;
+      } else if (c === "\"") inStr = true;
+      else if (c === "{") depth++;
+      else if (c === "}" && --depth === 0) {
+        try { return JSON.parse(text.slice(i, k + 1)); } catch (e) { return null; }
+      }
+    }
+    return null;
+  }
+
+  function fieldIds(text) {
+    var lines = [], m, untag = function (s) { return s.replace(/<[^>]+>/g, ""); };
+    var rec = /<record>([\s\S]*?)<\/record>/g;
+    while ((m = rec.exec(text)) !== null) {
+      var r = m[1];
+      var d = /<electronic-resource-num>([\s\S]*?)<\/electronic-resource-num>/.exec(r);
+      var doi = d ? extractDois(untag(d[1])) : [];
+      if (doi.length) { lines.push("doi: " + doi[0]); continue; }
+      var a = /<accession-num>([\s\S]*?)<\/accession-num>/.exec(r);
+      var acc = a ? untag(a[1]).trim() : "";
+      var base = /<remote-database-name>([\s\S]*?)<\/remote-database-name>/.exec(r);
+      base = base ? untag(base[1]) : "";
+      if (/^\d{1,8}$/.test(acc) && (!base.trim() || /pubmed|medline|nlm/i.test(base))) {
+        lines.push("PMID: " + acc);
+      }
+    }
+    text.split("CSL_CITATION").slice(1).forEach(function (chunk) {
+      var i = chunk.indexOf("{");
+      var obj = i >= 0 ? jsonAt(chunk, i) : null;
+      var items = obj && Array.isArray(obj.citationItems) ? obj.citationItems : [];
+      items.forEach(function (it) {
+        var data = it && typeof it === "object" ? it.itemData : null;
+        if (!data || typeof data !== "object" || Array.isArray(data)) return;
+        if (extractDois(String(data.DOI || "")).length) return;
+        var pmid = String(data.PMID || "").trim();
+        if (/^\d{1,8}$/.test(pmid)) lines.push("PMID: " + pmid);
+      });
+    });
+    return lines.map(function (x) { return "\n" + x; }).join("");
+  }
+
   function docxXmlToText(xml) {
+    var text = docxPlainText(xml), extra = "", m;
+    DOCX_FLDDATA.lastIndex = 0;
+    while ((m = DOCX_FLDDATA.exec(xml)) !== null) extra += b64Text(m[1]);
+    return text + fieldIds(text + extra);
+  }
+
+  function docxPlainText(xml) {
     var parts = [], m;
     DOCX_TOKEN.lastIndex = 0;
     while ((m = DOCX_TOKEN.exec(xml)) !== null) {

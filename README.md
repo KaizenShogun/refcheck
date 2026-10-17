@@ -483,6 +483,47 @@ make a test fail, not by real-world evidence.
 A PDF is still refused, with a sentence saying so. Getting reliable text out of
 a PDF is a different problem, and the R package `retraction` does read them.
 
+### What the citation fields hold (17 October 2026)
+
+The corpus above had no citation living only in a field code, so that path was
+untested on real files. Today I looked for manuscripts that still carry their
+reference manager's fields: **376 `.docx` files from Zenodo and Figshare** (333 distinct
+by content), frozen with a manifest. Only **10 distinct documents** kept their fields (most
+deposits are flattened before upload): 2 Zotero, 1 Mendeley, 7 EndNote, holding
+**461 cited records**. Of those, **296 carry a DOI, and refcheck already read all
+296**. 158 carry no identifier at all, and nothing can be done for them from here.
+
+The gap was the other 7: EndNote records whose only identifier is a **PubMed id
+in `<accession-num>`**, with no "PMID" word beside it, so the loose reading never
+saw them. All 7 are in one EndNote manuscript, and I checked each against PubMed
+by title: 7 of 7 are the paper the record names. Now the page and the command
+line restate, after the document's text, three things from inside the fields:
+
+- an EndNote record's DOI, and if it has none, its accession number when that is
+  a bare number of PubMed's length and the record names PubMed or no database
+  (CINAHL and Embase put numbers there too);
+- EndNote records stored in base64 in `w:fldData` (the `EN.CITE.DATA` form long
+  citations take), which were never read before;
+- a Zotero or Mendeley item's PMID, **only when the item has no DOI**. Mendeley
+  stores a PMID beside the DOI on most items; restating those would cost PubMed
+  lookups for nothing, and a wrong one would add a paper nobody cited.
+
+Nothing else from a record is added, so an abstract stored in a field cannot
+contribute a DOI. On all 376 files, before and after: **3,560 DOIs both
+times, not one added or lost; PMIDs 29 → 36, the 7 above and nothing else**
+(`research/compare_docx_extraction.py`). Page and command line give identical text
+for the 49 distinct real files the tests carry (`test_refcheck.py`), and nine
+mutations, one per rule and on both sides, each turn a test red.
+
+To be plain about how much this changes: **in this corpus, no verdict.** All 7
+papers are from 1964 to 2006 and PubMed holds no DOI for any of them, so they
+now appear in the report by name as "no DOI in PubMed — NOT checked" instead of
+not appearing at all. That is the honest improvement: a reference the tool
+cannot check is listed, not silently dropped. The base64 path found nothing new
+either: every DOI stored in `fldData` in these files was also printed in the
+bibliography. Both paths are covered by a synthetic file for the case where it
+would matter, a style that prints no DOI.
+
 ## CSL JSON, read as records (16 October 2026)
 
 CSL JSON is what Zotero's *Export → CSL JSON*, Pandoc and Manubot write. Until

@@ -3483,6 +3483,81 @@ DOCX_NOTES = ('<?xml version="1.0"?><w:endnotes ' + W + '><w:endnote w:id="1"><w
               '</w:endnote></w:endnotes>')
 
 
+DOCX_CAMPOS_CORPUS = "/root/agent-world/mundo/docx_campos"
+
+
+def _en_record(cuerpo):
+    return "<record>" + cuerpo + "</record>"
+
+
+def _en_inline(*records):
+    """An EndNote citation field as Word stores it: XML escaped into instrText."""
+    import html as _h
+    xml = "<EndNote><Cite>" + "".join(records) + "</Cite></EndNote>"
+    return ('<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText '
+            'xml:space="preserve"> ADDIN EN.CITE ' + _h.escape(xml, quote=False) +
+            '</w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r>'
+            '<w:r><w:t>[1]</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>')
+
+
+def _en_data(*records):
+    """A long EndNote citation: the record in base64 in w:fldData (EN.CITE.DATA)."""
+    import base64
+    xml = "<EndNote><Cite>" + "".join(records) + "</Cite></EndNote>"
+    b64 = base64.b64encode(xml.encode()).decode()
+    return ('<w:p><w:r><w:fldChar w:fldCharType="begin"><w:fldData xml:space="preserve">'
+            + b64[:40] + "\n" + b64[40:] +
+            '</w:fldData></w:fldChar></w:r><w:r><w:instrText> ADDIN EN.CITE '
+            '</w:instrText></w:r><w:r><w:fldChar w:fldCharType="begin"/></w:r>'
+            '<w:r><w:instrText> ADDIN EN.CITE.DATA </w:instrText></w:r>'
+            '<w:r><w:fldChar w:fldCharType="end"/></w:r>'
+            '<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>[2]</w:t></w:r>'
+            '<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>')
+
+
+def _csl_field(items, prefijo="ADDIN ZOTERO_ITEM CSL_CITATION "):
+    import html as _h
+    js = json.dumps({"citationID": "x", "citationItems": [{"id": i, "itemData": d}
+                                                         for i, d in enumerate(items)]})
+    return ('<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText '
+            'xml:space="preserve"> ' + prefijo + _h.escape(js) +
+            '</w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r>'
+            '<w:r><w:t>(A 2020)</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>')
+
+
+# Every rule of _ids_de_campos, each with the case it must refuse beside it.
+DOCX_CAMPOS = (
+    '<?xml version="1.0"?><w:document ' + W + '><w:body>'
+    + _en_inline(
+        # PubMed id only, no database named: the case found in a real manuscript.
+        _en_record("<rec-number>1</rec-number><accession-num>4538189</accession-num>"),
+        # Named as PubMed, with EndNote's style markup inside the field.
+        _en_record("<accession-num><style>14187891</style></accession-num>"
+                   "<remote-database-name>PubMed</remote-database-name>"),
+        # Has a DOI: the accession number is not restated.
+        _en_record("<electronic-resource-num>10.1016/S0140-6736(20)30183-5"
+                   "</electronic-resource-num><accession-num>31986264</accession-num>"),
+        # Other databases put numbers here too.
+        _en_record("<accession-num>1234567</accession-num>"
+                   "<remote-database-name>CINAHL</remote-database-name>"),
+        _en_record("<accession-num>104567890</accession-num>"),
+        _en_record("<accession-num>WOS:000261644600316</accession-num>"))
+    + _en_data(
+        _en_record("<electronic-resource-num>10.1093/cid/ciaa344"
+                   "</electronic-resource-num>"),
+        _en_record("<accession-num>32511465</accession-num>"))
+    + _csl_field([
+        {"title": "no DOI", "PMID": "32109013"},
+        {"title": "DOI and PMID", "DOI": "10.1056/NEJMoa2002032", "PMID": "99999991"},
+        {"title": "numeric PMID", "PMID": 32296168.0},
+        {"title": "too long", "PMID": "123456789"},
+        {"title": "boolean", "PMID": True}])
+    + _csl_field([{"title": "Mendeley", "PMID": "32333836"}], "ADDIN CSL_CITATION ")
+    # Broken JSON must not stop the rest of the document from being read.
+    + '<w:p><w:r><w:instrText> ADDIN CSL_CITATION {&quot;citationItems&quot;: [</w:instrText></w:r></w:p>'
+    + '</w:body></w:document>')
+
+
 def _docx(partes, metodo):
     import io
     import zipfile
@@ -3512,6 +3587,32 @@ class TestDocx(unittest.TestCase):
         self.assertNotIn("10.9999/deleted.ref", dois, "deletions are not cited")
         self.assertIn("a\tb\ncé–", texto)
         self.assertIn('"} (Zhu 2020)', texto, "a field's code and result are apart")
+
+    def test_ids_de_campos(self):
+        """2026-10-17: what a reference manager keeps in the field and the
+        loose reading lost — EndNote's bare PubMed id, EN.CITE.DATA in base64,
+        and a CSL item's PMID when it has no DOI. Nothing else."""
+        texto = refcheck.texto_de_docx(_docx({"word/document.xml": DOCX_CAMPOS}, 8))
+        self.assertEqual(sorted(refcheck.pmids_de(texto)),
+                         sorted(["4538189", "14187891", "32511465", "32109013",
+                                 "32296168", "32333836"]))
+        dois = [d.lower() for d in refcheck.dois_de(texto)]
+        self.assertIn("10.1093/cid/ciaa344", dois, "EN.CITE.DATA is read")
+        self.assertEqual(texto.count("PMID: 31986264"), 0, "a DOI wins")
+        self.assertNotIn("99999991", refcheck.pmids_de(texto),
+                         "a CSL item with a DOI adds no PMID")
+
+    def test_ids_de_campos_en_el_corpus_real(self):
+        """The EndNote manuscript where the gap was found: its seven PubMed-only
+        references, checked title by title against PubMed on 2026-10-17."""
+        ruta = os.path.join(DOCX_CAMPOS_CORPUS, "8034786_069.docx")
+        if not os.path.exists(ruta):
+            self.skipTest("corpus de campos no disponible")
+        with open(ruta, "rb") as fh:
+            texto = refcheck.texto_de_docx(fh.read())
+        for p in ("4538189", "14187891", "14265514", "5962842", "16904038",
+                  "16968922", "4198483"):
+            self.assertIn(p, refcheck.pmids_de(texto))
 
     def test_no_es_word(self):
         with self.assertRaises(ValueError):
@@ -3563,7 +3664,22 @@ class TestDocx(unittest.TestCase):
         html = open(os.path.join(os.path.dirname(refcheck.__file__), "docs",
                                  "index.html"), encoding="utf-8").read()
         m = re.search(r"// <docx-reader>\n(.*?)// </docx-reader>", html, re.S)
-        return m.group(1) if m else None
+        if not m:
+            return None
+        # Since 2026-10-17 the block calls extractDois. Taken from the page, as
+        # TestRisPagina does, so a private copy cannot hide a drifted cleaner.
+        trozos = []
+        for nombre_var in ("DOI_RE", "MARCADO", "COLA_RUTA", "PARES"):
+            d = re.search(r"^  var %s = .*$" % nombre_var, html, re.M)
+            if not d:
+                return None
+            trozos.append(d.group(0))
+        for funcion in ("limpiaDoi", "extractDois"):
+            f = re.search(r"^  function %s\(\w+\) \{.*?^  \}$" % funcion, html, re.M | re.S)
+            if not f:
+                return None
+            trozos.append(f.group(0))
+        return "\n".join(trozos) + "\n" + m.group(1)
 
     def test_el_bloque_sigue_delimitado(self):
         self.assertIsNotNone(self._bloque(), "<docx-reader> markers are gone")
@@ -3596,6 +3712,7 @@ class TestDocx(unittest.TestCase):
         casos = [_docx({"word/document.xml": DOCX_DOC,
                         "word/endnotes.xml": DOCX_NOTES}, m) for m in (0, 8)]
         casos.append(_docx({"content.xml": "<x/>"}, 8))
+        casos.append(_docx({"word/document.xml": DOCX_CAMPOS}, 8))
         rutas = []
         try:
             for datos in casos:
@@ -3610,13 +3727,16 @@ class TestDocx(unittest.TestCase):
         self.assertEqual(js[0], py)
         self.assertEqual(js[1], py)
         self.assertTrue(js[2].startswith("ERROR"), js[2])
+        self.assertEqual(js[3], refcheck.texto_de_docx(casos[3]))
 
     def test_paridad_con_el_corpus_real(self):
         """40 manuscripts from Zenodo, written by real Word and LibreOffice
-        versions — the zip quirks a synthetic file never has."""
+        versions — the zip quirks a synthetic file never has — plus the
+        manuscripts that kept their Zotero, Mendeley and EndNote fields."""
         if not os.path.isdir(DOCX_CORPUS):
             self.skipTest("corpus .docx no disponible")
-        rutas = sorted(os.path.join(DOCX_CORPUS, f) for f in os.listdir(DOCX_CORPUS)
+        rutas = sorted(os.path.join(d, f) for d in (DOCX_CORPUS, DOCX_CAMPOS_CORPUS)
+                       if os.path.isdir(d) for f in os.listdir(d)
                        if f.endswith(".docx"))
         js = self._textos_js(rutas)
         for ruta, t in zip(rutas, js):

@@ -731,8 +731,86 @@ def _desentidad(t):
     return _DOCX_ENTIDAD.sub(uno, t)
 
 
+# What the loose reading above leaves behind inside citation fields, measured
+# 2026-10-17 on real manuscripts from Zenodo and Figshare
+# (research/measure_docx_fields.py): EndNote keeps a record's PubMed id in
+# <accession-num>, bare, and the PMID regex wants the word "PMID" beside the
+# number — so a reference cited only by PMID vanished. And a long EndNote
+# citation is not in w:instrText at all but base64 in w:fldData
+# (ADDIN EN.CITE.DATA), which was never read. Zotero/Mendeley write
+# "PMID":"…" in CSL JSON, where the quote between the word and the colon
+# defeats the same regex. These identifiers are restated as plain lines after
+# the part's text; nothing else from the records is added, so an abstract
+# stored in a record cannot contribute a DOI.
+_DOCX_FLDDATA = re.compile(r"<w:fldData(?:\s[^>]*)?>([^<]*)</w:fldData>")
+_EN_RECORD = re.compile(r"<record>(.*?)</record>", re.S)
+_EN_DOI = re.compile(r"<electronic-resource-num>(.*?)</electronic-resource-num>", re.S)
+_EN_ACC = re.compile(r"<accession-num>(.*?)</accession-num>", re.S)
+_EN_BASE = re.compile(r"<remote-database-name>(.*?)</remote-database-name>", re.S)
+_ETIQUETA = re.compile(r"<[^>]+>")
+
+
+def _b64_texto(s):
+    import base64
+    s = re.sub(r"\s+", "", s)
+    try:
+        crudo = base64.b64decode(s + "=" * (-len(s) % 4))
+    except ValueError:
+        return ""
+    return crudo.decode("utf-8", "replace")
+
+
+def _ids_de_campos(texto):
+    """Plain `doi:` / `PMID:` lines for the identifiers inside citation records."""
+    lineas = []
+    for rec in _EN_RECORD.findall(texto):
+        m = _EN_DOI.search(rec)
+        doi = dois_de(_ETIQUETA.sub("", m.group(1))) if m else []
+        if doi:
+            lineas.append("doi: " + doi[0])
+            continue
+        a = _EN_ACC.search(rec)
+        acc = _ETIQUETA.sub("", a.group(1)).strip() if a else ""
+        base = _EN_BASE.search(rec)
+        base = _ETIQUETA.sub("", base.group(1)) if base else ""
+        # Only a bare number of PubMed's length, and only when the record does
+        # not name another database: CINAHL and Embase also put numbers here.
+        if re.fullmatch(r"\d{1,8}", acc) and (
+                not base.strip() or re.search(r"pubmed|medline|nlm", base, re.I)):
+            lineas.append("PMID: " + acc)
+    # Zotero and Mendeley: only an item with no DOI of its own. Mendeley stores
+    # a PMID next to the DOI on most items; restating those would cost PubMed
+    # lookups for nothing, and a wrong one would add a paper nobody cited.
+    for trozo in texto.split("CSL_CITATION")[1:]:
+        i = trozo.find("{")
+        try:
+            obj = json.JSONDecoder().raw_decode(trozo[i:])[0] if i >= 0 else {}
+        except ValueError:
+            continue
+        items = obj.get("citationItems") if isinstance(obj, dict) else None
+        for it in items if isinstance(items, list) else []:
+            datos = it.get("itemData") if isinstance(it, dict) else None
+            if not isinstance(datos, dict) or dois_de(str(datos.get("DOI") or "")):
+                continue
+            pmid = datos.get("PMID")
+            # 32109013.0 is what a JSON number looks like to some writers; the
+            # page cannot tell it from 32109013, so neither does this.
+            if isinstance(pmid, float) and pmid.is_integer():
+                pmid = int(pmid)
+            pmid = "" if isinstance(pmid, bool) else str(pmid or "").strip()
+            if re.fullmatch(r"\d{1,8}", pmid):
+                lineas.append("PMID: " + pmid)
+    return "".join("\n" + x for x in lineas)
+
+
 def texto_de_docx_xml(xml):
     """The readable text of one WordprocessingML part, one paragraph a line."""
+    texto = _texto_docx_plano(xml)
+    datos = "".join(_b64_texto(d) for d in _DOCX_FLDDATA.findall(xml))
+    return texto + _ids_de_campos(texto + datos)
+
+
+def _texto_docx_plano(xml):
     trozos = []
     for m in _DOCX_TOKEN.finditer(xml):
         texto, instr, vacio = m.group(1), m.group(2), m.group(3)
