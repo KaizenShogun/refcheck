@@ -239,9 +239,11 @@
     <strong>PMIDs have a hole in them, and it is measured.</strong> A PubMed id is translated
     to a DOI before anything can be checked, and not every record has one. Sampling 1,558
     random PubMed records on 9 September 2026: 72.5% listed a DOI — 95.7% of the recent ones,
-    but only 48.6% of those from before 1990. If you cite older biomedical literature, expect
-    some references to come back <em>not checked</em>. They are listed by name rather than
-    quietly dropped, because a reference nobody checked reads exactly like a clean one.
+    but only 48.6% of those from before 1990. Since 18 October 2026 a PMID with no DOI is
+    still checked, against PubMed's own record, which lists retractions and errata without
+    needing a DOI: on the Retraction Watch list that found 636 notices this page used to call
+    <em>not checked</em>. The report says <em>checked against PubMed only</em> for those,
+    because a silence from one register is weaker than a silence from two.
   </p>
 
   <h2>Your bibliography is not uploaded anywhere</h2>
@@ -1317,6 +1319,18 @@
         }
       }
       if (!doi) continue;
+      var t = cita.getElementsByTagName("ArticleTitle")[0];
+      out[doi] = {
+        pmid: (cita.getElementsByTagName("PMID")[0] || {}).textContent || "",
+        titulo: t ? cleanTitle(t.textContent) : "",
+        notices: noticesOfCita(cita)
+      };
+    }
+    return out;
+  }
+
+  // The verdict notices one <MedlineCitation> lists about itself.
+  function noticesOfCita(cita) {
       var notices = [];
       var lista = cita.getElementsByTagName("CommentsCorrectionsList")[0];
       var ccs = lista ? lista.getElementsByTagName("CommentsCorrections") : [];
@@ -1342,14 +1356,93 @@
           contradice: []
         });
       }
-      var t = cita.getElementsByTagName("ArticleTitle")[0];
-      out[doi] = {
-        pmid: (cita.getElementsByTagName("PMID")[0] || {}).textContent || "",
+      return notices;
+  }
+
+  // {pmid: {titulo, notices}} for records asked about by id. Used for the
+  // references PubMed knows no DOI for: until 2026-10-18 this page called them
+  // "not checked", and PubMed's own CommentsCorrectionsList — filled in by NLM
+  // indexers, no DOI needed — flags 606 of the 650 such retractions in the
+  // Retraction Watch CSV. The worst notice goes first, as everywhere else.
+  function parseNcbiXmlByPmid(text) {
+    var doc = new DOMParser().parseFromString(text, "application/xml");
+    if (doc.getElementsByTagName("parsererror").length) {
+      throw new Error("PubMed sent something that is not XML");
+    }
+    var out = Object.create(null);
+    // A book chapter (Endotext, StatPearls, GeneReviews) comes back as a
+    // PubmedBookArticle — exactly the references that never have a DOI.
+    var citas = [];
+    var arts = doc.getElementsByTagName("PubmedArticle");
+    for (var i = 0; i < arts.length; i++) {
+      citas.push(arts[i].getElementsByTagName("MedlineCitation")[0]);
+    }
+    var libros = doc.getElementsByTagName("PubmedBookArticle");
+    for (var j = 0; j < libros.length; j++) {
+      citas.push(libros[j].getElementsByTagName("BookDocument")[0]);
+    }
+    for (var n = 0; n < citas.length; n++) {
+      var cita = citas[n];
+      var idEl = cita ? cita.getElementsByTagName("PMID")[0] : null;
+      if (!idEl) continue;
+      var t = cita.getElementsByTagName("ArticleTitle")[0] ||
+              cita.getElementsByTagName("BookTitle")[0];
+      out[idEl.textContent.trim()] = {
         titulo: t ? cleanTitle(t.textContent) : "",
-        notices: notices
+        notices: noticesOfCita(cita).sort(function (x, y) {
+          return y.gravedad - x.gravedad;
+        })
       };
     }
     return out;
+  }
+
+  // Asks PubMed about the PMID-only references, in place. A record PubMed
+  // answers for becomes "pubmed_only": checked, against the one register that
+  // can be asked, and the report says so. A failed or missing answer becomes
+  // "pmid_unchecked" — never a silence that reads as clean.
+  function askPubmedForNoDoi(sueltos) {
+    var cuales = sueltos.filter(function (s) {
+      return s.estado === "pmid_no_doi" && s.pmid;
+    });
+    if (!cuales.length) return Promise.resolve(sueltos);
+    var ids = [], vistos = Object.create(null);
+    cuales.forEach(function (s) {
+      if (!vistos[s.pmid]) { vistos[s.pmid] = 1; ids.push(String(s.pmid)); }
+    });
+    var got = Object.create(null), missed = Object.create(null), first = true;
+    return chunk(ids, PMID_BATCH).reduce(function (chain, b) {
+      return chain.then(function () {
+        var wait = first ? 0 : PUBMED_GAP_MS;
+        first = false;
+        return sleep(wait);
+      }).then(function () {
+        return postNcbi(EFETCH, { db: "pubmed", retmode: "xml", id: b.join(",") });
+      }).then(function (xml) {
+        var r = parseNcbiXmlByPmid(xml);
+        b.forEach(function (p) {
+          if (r[p]) got[p] = r[p];
+          else missed[p] = "PubMed returned no record for this id";
+        });
+      }).catch(function (e) {
+        b.forEach(function (p) { missed[p] = e.message || "PubMed failed"; });
+      });
+    }, Promise.resolve()).then(function () {
+      cuales.forEach(function (s) {
+        var r = got[String(s.pmid)];
+        if (r) {
+          s.estado = "pubmed_only";
+          s.notices = r.notices.map(function (n) {
+            var c = {}; for (var k in n) c[k] = n[k]; c.contradice = []; return c;
+          });
+          if (!s.titulo) s.titulo = r.titulo;
+        } else {
+          s.estado = "pmid_unchecked";
+          s.error = missed[String(s.pmid)] || "PubMed did not answer";
+        }
+      });
+      return sueltos;
+    });
   }
 
   // Returns {notices: {doi: rec}, missed: {doi: why}}. `missed` is the half that
@@ -1791,8 +1884,15 @@
     // it goes in under "pmid:…", which is the key the CLI uses for it too.
     c.sueltos.forEach(function (s) {
       if (!s.pmid) return;
-      lista.push({ doi: "", pmid: s.pmid, titulo: s.titulo || "", avisos: [],
-                   estado: s.estado === "pmid_no_doi" ? "pmid_sin_doi"
+      lista.push({ doi: "", pmid: s.pmid, titulo: s.titulo || "",
+                   avisos: s.estado === "pubmed_only" ? s.notices.map(function (n) {
+                     return { tipo: n.tipo || "", gravedad: n.gravedad == null ? 1 : n.gravedad,
+                              fecha: n.fecha || "", etiqueta: n.etiqueta || "",
+                              doi_aviso: n.doi || "", pmid_aviso: n.pmid_aviso || "",
+                              fuente: n.fuente || "" };
+                   }) : [],
+                   estado: s.estado === "pubmed_only" ? "ok"
+                         : s.estado === "pmid_no_doi" ? "pmid_sin_doi"
                          : s.estado === "pmid_not_found" ? "pmid_desconocido"
                          : "sin_comprobar" });
     });
@@ -1967,6 +2067,16 @@
     elsewhere = elsewhere || [];
     var noDoi = sueltos.filter(function (s) { return s.estado === "pmid_no_doi"; });
     var noPmid = sueltos.filter(function (s) { return s.estado === "pmid_not_found"; });
+    // PMID-only references PubMed answered for: checked, against PubMed only.
+    // The ones with a notice join the list of findings like any other.
+    var pmOnly = sueltos.filter(function (s) { return s.estado === "pubmed_only"; });
+    var pmFail = sueltos.filter(function (s) { return s.estado === "pmid_unchecked"; });
+    found = found.concat(pmOnly.filter(function (s) {
+      return s.notices && s.notices.length;
+    }).map(function (s) {
+      return { doi: "", pmid: s.pmid, titulo: s.titulo || "", notices: s.notices,
+               soloPubmed: true };
+    }));
     // References the file lists that carry no identifier at all. Their own
     // drawer: nothing is wrong with the citation, what is missing is a DOI in
     // the export, and folding them in with broken DOIs would send the reader
@@ -1983,12 +2093,13 @@
     // to the denominator below, which is the number the reader needs: 1 of
     // 1,409 checked is not a clean bibliography.
     var checked = total - unchecked.length - notFound.length - superseded.length -
-                  nonexistent.length - elsewhere.length;
+                  nonexistent.length - elsewhere.length + pmOnly.length;
     // The PMID drawers were never asked of Crossref either, and until 2026-10-16
     // they were left out of this sum: a file with a DOI, a PMID PubMed knows no
     // DOI for and a web page said "lists 2 references in all". The CLI, which
     // counts every result, said 3.
-    var totalFichero = total + noId.length + noDoi.length + noPmid.length;
+    var totalFichero = total + noId.length + noDoi.length + noPmid.length +
+                       pmOnly.length + pmFail.length;
 
     var box = el("div", "summary");
     var h = el("h2");
@@ -1999,6 +2110,23 @@
     box.appendChild(el("p", null,
       checked + " reference" + (checked === 1 ? "" : "s") + " checked · " +
       found.length + " carr" + (found.length === 1 ? "ies" : "y") + " a change notice"));
+    if (pmOnly.length) {
+      // Checked, and counted above — but against one register, and the reader
+      // should know which one before trusting a silence.
+      box.appendChild(el("p", null,
+        pmOnly.length + " of those " + (pmOnly.length === 1 ? "has" : "have") +
+        " no DOI anywhere, so " + (pmOnly.length === 1 ? "it was" : "they were") +
+        " checked against PubMed only."));
+    }
+    if (pmFail.length) {
+      var pf = el("p", null,
+        pmFail.length + " PMID" + (pmFail.length === 1 ? "" : "s") + " with no DOI " +
+        "could NOT be checked — PubMed did not answer. Not clean: unknown. " +
+        "Run " + (pmFail.length === 1 ? "it" : "them") + " again: " +
+        pmFail.map(function (x) { return "PMID " + x.pmid; }).join(", "));
+      pf.style.fontWeight = "600";
+      box.appendChild(pf);
+    }
     // An answer read back from this tab is an answer about the moment it was
     // fetched. A notice published since then is invisible to it, so the age is
     // on screen: in a tool whose silence reads as "clean", that is not a detail.
@@ -2145,6 +2273,13 @@
       lines.push(unchecked.length + " could NOT be checked (connection failed): " +
                  unchecked.join(", "));
     }
+    if (pmOnly.length) {
+      lines.push(pmOnly.length + " of those have no DOI anywhere: checked against PubMed only");
+    }
+    if (pmFail.length) {
+      lines.push(pmFail.length + " PMID(s) with no DOI could NOT be checked (PubMed did " +
+                 "not answer): " + pmFail.map(function (x) { return x.pmid; }).join(", "));
+    }
     // In the copyable report too: this is the version that gets pasted into a
     // record of what was screened, and the caveat has to travel with it.
     if (half.length) {
@@ -2180,12 +2315,18 @@
         if (r.titulo) li.appendChild(el("p", "title", r.titulo));
         var meta = el("p", "meta");
         meta.appendChild(document.createTextNode(r.revista ? r.revista + " · " : ""));
-        var a = el("a", null, r.doi);
-        a.href = "https://doi.org/" + r.doi;
+        // A PMID-only finding has no DOI to link; its PubMed page is the record.
+        var aqui = r.doi ? "https://doi.org/" + r.doi
+                         : "https://pubmed.ncbi.nlm.nih.gov/" + r.pmid + "/";
+        var a = el("a", null, r.doi || ("PMID " + r.pmid));
+        a.href = aqui;
         meta.appendChild(a);
         // Name it back the way it was cited, or the reader has to hunt for the
         // line this refers to.
-        if (r.pmid) meta.appendChild(document.createTextNode(" · PMID " + r.pmid));
+        if (r.pmid && r.doi) meta.appendChild(document.createTextNode(" · PMID " + r.pmid));
+        if (r.soloPubmed) {
+          meta.appendChild(document.createTextNode(" · no DOI, checked against PubMed only"));
+        }
         // A repaired DOI is shown both ways round: the line in their document
         // spells it the broken way, and that is the string they have to search
         // for to find it.
@@ -2200,7 +2341,8 @@
         lines.push("");
         lines.push(titular);
         if (r.titulo) lines.push("  " + r.titulo);
-        lines.push("  https://doi.org/" + r.doi + (r.pmid ? "  (PMID " + r.pmid + ")" : "") +
+        lines.push("  " + aqui + (r.pmid && r.doi ? "  (PMID " + r.pmid + ")" : "") +
+                   (r.soloPubmed ? "  (no DOI, checked against PubMed only)" : "") +
                    (comoLoEscribio ? "  (your file says " + comoLoEscribio + ")" : ""));
         r.notices.forEach(function (n) {
           var item = el("li");
@@ -2466,12 +2608,6 @@
       $("watchSaveBar").hidden = true;
       out.textContent = "";
       lastError = "";
-      if (!refs.dois.length) {
-        status.textContent = "Done. Nothing could be checked against Crossref.";
-        render([], [], [], 0, refs.sueltos);
-        go.disabled = false;
-        return;
-      }
       check(refs.dois, refs.origen, refs.sueltos);
       return;
     }
@@ -2512,12 +2648,6 @@
       out.textContent = "";
       lastError = "";
       var seguir = function (dois2, origen2, sueltos2) {
-        if (!dois2.length) {
-          status.textContent = "Done. Nothing could be checked against Crossref.";
-          render([], [], [], 0, sueltos2);
-          go.disabled = false;
-          return;
-        }
         check(dois2, origen2, sueltos2);
       };
       if (!rPend.length) { seguir(rDois, rOrigen, rSueltos); return; }
@@ -2565,19 +2695,30 @@
     status.textContent = "Looking up " + pmids.length + " PubMed id" +
       (pmids.length === 1 ? "" : "s") + "…";
     resolvePmids(pmids, dois).then(function (res) {
-      if (!res.dois.length) {
-        // Every reference was a PMID with no DOI behind it. Nothing to ask
-        // Crossref, and that is a result to report, not an empty screen.
-        status.textContent = "Done. Nothing could be checked against Crossref.";
-        render([], [], [], 0, res.sueltos);
-        go.disabled = false;
-        return;
-      }
+      // Every reference may be a PMID with no DOI behind it; check() still
+      // asks PubMed about those and reports, rather than leave an empty screen.
       check(res.dois, res.origen, res.sueltos);
     });
   }
 
+  // Every path into a report goes through here, so the PMID-only references
+  // are asked about whichever reader produced them.
   function check(dois, origen, sueltos) {
+    sueltos = sueltos || [];
+    var hay = sueltos.some(function (s) { return s.estado === "pmid_no_doi"; });
+    if (hay) status.textContent = "Asking PubMed about the references with no DOI…";
+    askPubmedForNoDoi(sueltos).then(function () {
+      if (!dois.length) {
+        status.textContent = "Done. Nothing could be checked against Crossref.";
+        render([], [], [], 0, sueltos);
+        go.disabled = false;
+        return;
+      }
+      checkCrossref(dois, origen, sueltos);
+    });
+  }
+
+  function checkCrossref(dois, origen, sueltos) {
     var found = [], seen = Object.create(null), unchecked = [], done = 0;
     // DOIs Crossref has merged into another record without saying why, and the
     // count of the ones the cap left unasked. Both go on screen.

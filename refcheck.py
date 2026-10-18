@@ -972,36 +972,41 @@ def _avisos_de_xml(xml):
                     break
         if not doi:
             continue
-        avisos = []
-        for cc in cita.findall("./CommentsCorrectionsList/CommentsCorrections"):
-            tipo = REFTYPE.get(cc.get("RefType", ""))
-            if not tipo:
-                continue
-            ref = cc.find("RefSource")
-            ref = (ref.text or "").strip() if ref is not None else ""
-            pm = cc.find("PMID")
-            m = RS_DOI.search(ref)
-            anno = RS_ANNO.search(ref)
-            avisos.append({
-                "tipo": tipo,
-                "gravedad": GRAVEDAD.get(tipo, 1),
-                "fecha": anno.group(0) if anno else "",
-                "doi_aviso": m.group(1).rstrip(".").lower() if m else "",
-                # Not every notice in PubMed has a DOI. Without this the report
-                # would print a bare "https://doi.org/" and send the reader nowhere.
-                "pmid_aviso": (pm.text or "").strip() if pm is not None else "",
-                "etiqueta": tipo.replace("_", " ").title(),
-                "fuente": "pubmed",
-                "registro": None,
-                "contradice": [],
-            })
         titulo = cita.find("./Article/ArticleTitle")
         salida[doi] = {
             "pmid": (cita.find("PMID").text or "").strip(),
             "titulo": limpia_titulo("".join(titulo.itertext())) if titulo is not None else "",
-            "avisos": avisos,
+            "avisos": _avisos_de_cita(cita),
         }
     return salida
+
+
+def _avisos_de_cita(cita):
+    """The verdict notices one <MedlineCitation> lists about itself."""
+    avisos = []
+    for cc in cita.findall("./CommentsCorrectionsList/CommentsCorrections"):
+        tipo = REFTYPE.get(cc.get("RefType", ""))
+        if not tipo:
+            continue
+        ref = cc.find("RefSource")
+        ref = (ref.text or "").strip() if ref is not None else ""
+        pm = cc.find("PMID")
+        m = RS_DOI.search(ref)
+        anno = RS_ANNO.search(ref)
+        avisos.append({
+            "tipo": tipo,
+            "gravedad": GRAVEDAD.get(tipo, 1),
+            "fecha": anno.group(0) if anno else "",
+            "doi_aviso": m.group(1).rstrip(".").lower() if m else "",
+            # Not every notice in PubMed has a DOI. Without this the report
+            # would print a bare "https://doi.org/" and send the reader nowhere.
+            "pmid_aviso": (pm.text or "").strip() if pm is not None else "",
+            "etiqueta": tipo.replace("_", " ").title(),
+            "fuente": "pubmed",
+            "registro": None,
+            "contradice": [],
+        })
+    return avisos
 
 
 def avisos_pubmed(dois, fallos=None):
@@ -1046,6 +1051,95 @@ def avisos_pubmed(dois, fallos=None):
             if doi in {d.lower() for d in trozo}:
                 salida[doi] = rec
     return salida
+
+
+def avisos_por_pmid(pmids, fallos=None):
+    """{pmid: {"titulo", "avisos"}} for records PubMed holds WITHOUT a DOI.
+
+    Until 2026-10-18 a reference cited by a PMID that PubMed knows no DOI for
+    came out as "no DOI, not checked", on the reasoning that Crossref is indexed
+    by DOI. True, and beside the point: PubMed's own CommentsCorrectionsList is
+    filled in by NLM indexers and needs no DOI at all. Measured on the Retraction
+    Watch CSV of that day: 650 retracted papers there are known only by PMID and
+    PubMed lists no DOI for them, and PubMed's record flags 606 of those as
+    retracted. Old papers, mostly from before 2010 — the kind a clinical review
+    cites and nobody re-reads. See research/measure_pmid_only.py.
+
+    One efetch per batch, by id, so there is no matching back to do. A batch
+    that fails lands in `fallos` as {pmid: why}; with no dict, it raises.
+    """
+    salida = {}
+    for i in range(0, len(pmids), LOTE_PMID):
+        trozo = pmids[i:i + LOTE_PMID]
+        try:
+            xml = _pide_ncbi(EFETCH, {"db": "pubmed", "retmode": "xml",
+                                      "id": ",".join(trozo)})
+            arbol = ET.fromstring(xml)
+        except Exception as e:
+            if fallos is None:
+                raise
+            porque = str(e) or e.__class__.__name__
+            for p in trozo:
+                fallos[p] = porque
+            continue
+        pedidos = set(trozo)
+        # A book chapter (Endotext, StatPearls, GeneReviews) comes back as a
+        # PubmedBookArticle, not a PubmedArticle. Those are the very references
+        # that never have a DOI, and missing the tag reported every one of them
+        # as "PubMed did not answer".
+        citas = ([a.find("MedlineCitation") for a in arbol.iter("PubmedArticle")]
+                 + [a.find("BookDocument") for a in arbol.iter("PubmedBookArticle")])
+        for cita in citas:
+            if cita is None or cita.find("PMID") is None:
+                continue
+            pmid = (cita.find("PMID").text or "").strip()
+            if pmid not in pedidos:
+                continue
+            titulo = cita.find("./Article/ArticleTitle")
+            if titulo is None:
+                titulo = cita.find("./ArticleTitle")
+            if titulo is None:
+                titulo = cita.find("./Book/BookTitle")
+            salida[pmid] = {
+                "titulo": limpia_titulo("".join(titulo.itertext())) if titulo is not None else "",
+                "avisos": sorted(_avisos_de_cita(cita), key=lambda a: -a["gravedad"]),
+            }
+        # Asked and not returned is not "no notices". NCBI answered for the
+        # batch but not for this record, so nothing may be said about it.
+        for p in trozo:
+            if p not in salida and fallos is not None:
+                fallos[p] = "PubMed returned no record for this id"
+    return salida
+
+
+def comprueba_sin_doi(sueltos, consulta=None):
+    """Ask PubMed about the PMID-only references, in place.
+
+    A record PubMed answers for becomes estado "ok" with `solo_pubmed` set: it
+    WAS checked, against the one register that can be asked about it, and the
+    report says so in those words. A failed lookup becomes "sin_comprobar" —
+    never "ok" with no notices, which would read as a clean bill.
+    """
+    consulta = consulta or avisos_por_pmid
+    cuales = [r for r in sueltos if r.get("estado") == "pmid_sin_doi" and r.get("pmid")]
+    if not cuales:
+        return sueltos
+    fallos = {}
+    try:
+        sabido = consulta(sorted({str(r["pmid"]) for r in cuales}), fallos)
+    except Exception as e:  # noqa: BLE001 — every one of them stays unchecked
+        sabido, fallos = {}, {str(r["pmid"]): str(e) or e.__class__.__name__ for r in cuales}
+    for r in cuales:
+        p = str(r["pmid"])
+        if p in sabido:
+            r["estado"] = "ok"
+            r["solo_pubmed"] = True
+            r["avisos"] = copy.deepcopy(sabido[p]["avisos"])
+            r["titulo"] = r.get("titulo") or sabido[p]["titulo"]
+        else:
+            r["estado"] = "sin_comprobar"
+            r["error"] = fallos.get(p, "PubMed did not answer")
+    return sueltos
 
 
 def _doi_de_registro(rec):
@@ -2005,6 +2099,13 @@ def informe(resultados, ancho=78):
     # a notice published since then is invisible. Say it, do not let it pass as
     # today's silence.
     guardadas = [r["de_cache"] for r in resultados if r.get("de_cache") is not None]
+    solo_pm = [r for r in resultados if r.get("solo_pubmed")]
+    if solo_pm:
+        # Checked, and the count above includes them — but against one register,
+        # and the reader should know which one before trusting a silence.
+        uno = len(solo_pm) == 1
+        cab.append(f"  {len(solo_pm)} of those {'has' if uno else 'have'} no DOI anywhere, "
+                   f"so {'it was' if uno else 'they were'} checked against PubMed only")
     if guardadas:
         cab.append(f"  {len(guardadas)} of those came from the local cache, the oldest "
                    f"{edad_legible(max(guardadas))} old — --no-cache to ask again")
@@ -2710,6 +2811,10 @@ def main():
             texto = crudo.decode("utf-8", errors="replace")
             texto = texto.replace("\r\n", "\n").replace("\r", "\n")
     dois, origen, sueltos = referencias_de(texto, usar_pubmed=not a.no_pubmed)
+    if sueltos and not a.no_pubmed:
+        # Never from the cache: these are few, and a cached "no notices" for a
+        # paper with no DOI could not be told apart from a fresh one.
+        comprueba_sin_doi(sueltos)
     if not dois and not sueltos:
         pistas = "No DOIs found in that file."
         if a.no_pubmed and pmids_de(texto):

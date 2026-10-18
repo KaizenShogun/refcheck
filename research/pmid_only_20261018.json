@@ -1,0 +1,4518 @@
+{
+ "csv": "rw.csv",
+ "filas": [
+  {
+   "nat": "Retraction",
+   "pmid": "23852909",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "18765050",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18765050",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "21608442",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18401974",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "15206484",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2972597",
+   "anno": "1988",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3878822",
+   "anno": "1985",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3328680",
+   "anno": "1987",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7686706",
+   "anno": "1993",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26221215",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26221232",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28829507",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28239804",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "38601014",
+   "anno": "2024",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31966519",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30949407",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28537657",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28338173",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28682429",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28239815",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28429353",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "14522909",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12517770",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14522909",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14559802",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12097303",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "37416843",
+   "anno": "2023",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12029227",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "37817736",
+   "anno": "2023",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23638214",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18074942",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "36628286",
+   "anno": "2022",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20032394",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31966410",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7988126",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27061538",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31646794",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31128046",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30941973",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30941961",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32277648",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33099911",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "32521867",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32521867",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "32277672",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32277672",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27569081",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "32277651",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32277651",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "32277652",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32277652",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32521859",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31983100",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26854446",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31737208",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27713769",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28560060",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "34094664",
+   "anno": "2021",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "16617846",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "35603647",
+   "anno": "2022",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "34373676",
+   "anno": "2022",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "17257501",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27158341",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31933941",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25070829",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15849282",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16632562",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28123856",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26617742",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27648134",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "20492755",
+   "anno": "2009",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "22843869",
+   "anno": "2012",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22843869",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31938117",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31396335",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29887952",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33437366",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33594316",
+   "anno": "2021",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28042505",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "3743194",
+   "anno": "1986",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27347323",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27648141",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27398144",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27212161",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25487946",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29028095",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29636999",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31786876",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33277863",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33277865",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33277856",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33277851",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33277850",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33277868",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1688980",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2480486",
+   "anno": "1989",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28337275",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28042507",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33042456",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31966697",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26617713",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "12231537",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33594319",
+   "anno": "2021",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27127137",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28042506",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28337380",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33520364",
+   "anno": "2021",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31949856",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28829487",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26178500",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33633521",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30899372",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32269719",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "33468803",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32521892",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32521901",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31128024",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31424667",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "30003721",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "27569081",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "27061547",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31786877",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26854444",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32277673",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28534368",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29552769",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28628009",
+   "anno": "2016",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28742207",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28678320",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28338177",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27383310",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27383308",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25632651",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19339238",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17235373",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15912198",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12954032",
+   "anno": "2003",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6385175",
+   "anno": "1984",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "27186413",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28770967",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28770966",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28742208",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29164577",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28742197",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28617558",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "27837623",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "29745074",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22568355",
+   "anno": "2012",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28469961",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31966807",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29119055",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30323965",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31966840",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32922604",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17872605",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31933942",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29632461",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32051740",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32581016",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16370316",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27904770",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32064170",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28337372",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26191290",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27429847",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27186413",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29131257",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28121356",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28537677",
+   "anno": "2017",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28429355",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27049250",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28272703",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27775785",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29164556",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28975975",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "32419975",
+   "anno": "2020",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "26045985",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28744400",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26045985",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27904765",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31938309",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23865135",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1689558",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1699443",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2672871",
+   "anno": "1989",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23720867",
+   "anno": "2012",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16883439",
+   "anno": "2006",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20524505",
+   "anno": "2009",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31497380",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31131156",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16943966",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30755815",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27649661",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12243356",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "17874518",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "11245439",
+   "anno": "2001",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31563928",
+   "anno": "2019",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31167694",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29685006",
+   "anno": "2018",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21488394",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31105866",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "22666668",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31105830",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24761379",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28936007",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29940689",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9426374",
+   "anno": "1997",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "11234890",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25327746",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "12429650",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26309524",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30814082",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18935906",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19280876",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11106247",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29218239",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30083501",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23734089",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31933725",
+   "anno": "2019",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "18077743",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "11889884",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26629041",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26064307",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26221410",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26617948",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30416653",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28839336",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28839335",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "30555659",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17646707",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11389094",
+   "anno": "2001",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14612541",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "15365969",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12036909",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28442513",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28617535",
+   "anno": "2017",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29218093",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25855853",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29718810",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24784522",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26770399",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22203941",
+   "anno": "2011",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19942950",
+   "anno": "2009",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19434306",
+   "anno": "2009",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18758632",
+   "anno": "2008",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18273499",
+   "anno": "2008",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17502946",
+   "anno": "2007",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21892518",
+   "anno": "2011",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21655647",
+   "anno": "2011",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22119835",
+   "anno": "2011",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "10523510",
+   "anno": "1999",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "10704364",
+   "anno": "2000",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25177119",
+   "anno": "2013",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29560639",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20397570",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "12118067",
+   "anno": "2002",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22947545",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23989247",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22199300",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "10853206",
+   "anno": "2000",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "10853207",
+   "anno": "2000",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "15535488",
+   "anno": "2004",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29531646",
+   "anno": "2018",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26261684",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "15322593",
+   "anno": "2004",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "11584476",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11584476",
+   "anno": "2001",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24427329",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26550235",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26823768",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "29090069",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24653606",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24453452",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16668888",
+   "anno": "1992",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "4261570",
+   "anno": "1971",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18923228",
+   "anno": "2008",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25588562",
+   "anno": "2014",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26032369",
+   "anno": "2015",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25341466",
+   "anno": "2014",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19554077",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28964001",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24294399",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24292349",
+   "anno": "2013",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19784523",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "31038298",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24300611",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25042190",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25589181",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2740348",
+   "anno": "1989",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17352063",
+   "anno": "2006",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17633759",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26770353",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26221301",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17072268",
+   "anno": "2006",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19043378",
+   "anno": "2008",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28925478",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28646838",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26417275",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28794294",
+   "anno": "2017",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27578898",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25755707",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20067162",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19366079",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21428182",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12873984",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "28667027",
+   "anno": "2017",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "22347519",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25726622",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "12118067",
+   "anno": "2002",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24620624",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26522636",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26261660",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "10388110",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23989256",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2091938",
+   "anno": "1990",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17918285",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17918804",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27358149",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23102463",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25550923",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19008172",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26165528",
+   "anno": "2015",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "9894924",
+   "anno": "1998",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17899670",
+   "anno": "2007",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16739343",
+   "anno": "2006",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19043384",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26339438",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25120809",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25674234",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25550787",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25755727",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25337223",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26064224",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25932170",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26550123",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26628976",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26131125",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26379850",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26629252",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26550248",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25932216",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12796562",
+   "anno": "2003",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15270371",
+   "anno": "2004",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17575809",
+   "anno": "2006",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "27044456",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19743533",
+   "anno": "2000",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21566783",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24143348",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Correction",
+   "pmid": "28357821",
+   "anno": "2017",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17078553",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26851023",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19090072",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24624312",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12297011",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15951848",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7986312",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26435620",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16649305",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22259793",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21603016",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24404354",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25104996",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24130939",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24498488",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21603011",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24876696",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3246358",
+   "anno": "1988",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8529935",
+   "anno": "1995",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8647493",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "4092997",
+   "anno": "1985",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8655018",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8522241",
+   "anno": "1995",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21804710",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14750616",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16411566",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16617846",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1490124",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25270010",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21525538",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22899418",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22247827",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1551544",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19381036",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14712780",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11708015",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15571483",
+   "anno": "2004",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24338261",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24659127",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17237576",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17301435",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6392156",
+   "anno": "1984",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6345451",
+   "anno": "1983",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1468483",
+   "anno": "1992",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15510931",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26125260",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26439036",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23377801",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26125252",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26214776",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25807435",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23884831",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24443062",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25317804",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22795227",
+   "anno": "2012",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1909737",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18051295",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10607850",
+   "anno": "1999",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21776295",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22514562",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22567051",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20302193",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19374044",
+   "anno": "2008",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7679698",
+   "anno": "1993",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11710530",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17190127",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23878657",
+   "anno": "2007",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23820169",
+   "anno": "2013",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27515259",
+   "anno": "2016",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26201130",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16623054",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9071079",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20593050",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17722322",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16802016",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18392249",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25311321",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23258457",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19248652",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18592845",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7595293",
+   "anno": "1995",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9454848",
+   "anno": "1998",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19253806",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1779199",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11266114",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17202861",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11978815",
+   "anno": "2002",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16874686",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11518764",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11714847",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10985251",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21355427",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6270222",
+   "anno": "1981",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1824564",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15879701",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15750345",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14744033",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12018858",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17483799",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23113397",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9736380",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12018841",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15750337",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17041727",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12417916",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24672571",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26807387",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19781383",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20527608",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12174481",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19757704",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17629231",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19288944",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18846795",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15750339",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15179047",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18364112",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10340474",
+   "anno": "1999",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19951606",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14642133",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8207722",
+   "anno": "1994",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11558215",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17091754",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21623320",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11160625",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20200778",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1588795",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1967819",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1996082",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1967127",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8863847",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2005877",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1701215",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2101137",
+   "anno": "1990",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "396398",
+   "anno": "1979",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16508680",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16157375",
+   "anno": "2006",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23087725",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24019796",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24379856",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23809971",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10453151",
+   "anno": "1999",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9429186",
+   "anno": "1997",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19110737",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17416190",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12426956",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18622062",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15849379",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17373355",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10705099",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24171996",
+   "anno": "2013",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23552540",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19032896",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11206594",
+   "anno": "2000",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12833645",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22697417",
+   "anno": "2012",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7510271",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19403381",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18181436",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16342351",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9475806",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10962043",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15055483",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23481049",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15232160",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15232166",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2258211",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21452601",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18445936",
+   "anno": "2007",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10317408",
+   "anno": "1983",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25082240",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20492755",
+   "anno": "2009",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17184598",
+   "anno": "2006",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17706021",
+   "anno": "2007",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8692921",
+   "anno": "1996",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16146159",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8515545",
+   "anno": "1993",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14733086",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8254877",
+   "anno": "1993",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19175016",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15852626",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16174581",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21725405",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17147054",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17051976",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25052012",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "13678114",
+   "anno": "2003",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12757644",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15583985",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1876370",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3068477",
+   "anno": "1988",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3320672",
+   "anno": "1987",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8007827",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16270447",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Expression of concern",
+   "pmid": "1341533",
+   "anno": "1992",
+   "cajon": "flagged, other notice"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2040823",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2040822",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21968564",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24294851",
+   "anno": "2013",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9601702",
+   "anno": "1998",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20565370",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22180685",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20306608",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2683385",
+   "anno": "1989",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3247743",
+   "anno": "1988",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3043903",
+   "anno": "1988",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8249380",
+   "anno": "1993",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16053786",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7975636",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16383300",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7941560",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8249398",
+   "anno": "1993",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17700910",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1341533",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8249383",
+   "anno": "1993",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1669382",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17702391",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17520820",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15025034",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6444674",
+   "anno": "1984",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6231383",
+   "anno": "1984",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6182304",
+   "anno": "1982",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20353369",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22574313",
+   "anno": "2011",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9807069",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26130980",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16459994",
+   "anno": "2006",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17687392",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12822012",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11757442",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15742012",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9780201",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3554260",
+   "anno": "1987",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3887416",
+   "anno": "1985",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2242108",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3526270",
+   "anno": "1986",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21364503",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19468278",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1302352",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21991737",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2287751",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11433760",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16339543",
+   "anno": "2005",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8568273",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9300696",
+   "anno": "1997",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8335904",
+   "anno": "1993",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "307018",
+   "anno": "1978",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2124237",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18035689",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2145649",
+   "anno": "1990",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19908618",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16465358",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18686939",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20001166",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25932102",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15869364",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9510328",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3160783",
+   "anno": "1985",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26261542",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6152872",
+   "anno": "1982",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12658805",
+   "anno": "2002",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7706332",
+   "anno": "1995",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18693175",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15908339",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18476299",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12974429",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25428747",
+   "anno": "2014",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3481042",
+   "anno": "1987",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20225703",
+   "anno": "2010",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14735849",
+   "anno": "1923",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3340220",
+   "anno": "1988",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "3822131",
+   "anno": "1987",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26617705",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9810412",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26045804",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26309691",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26221223",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25664140",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26379959",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19395854",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11802188",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15322593",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25558189",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18203544",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21309141",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26159007",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21404194",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26324187",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20676002",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9612105",
+   "anno": "1997",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23905079",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23905053",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7880620",
+   "anno": "1994",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9649986",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "14664422",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12960143",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11489795",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10815922",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16555436",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21815296",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25090263",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17393877",
+   "anno": "2006",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18094456",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25161682",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22557158",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9288788",
+   "anno": "1997",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9371493",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1655255",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6171369",
+   "anno": "1981",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8219868",
+   "anno": "1993",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17882767",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22557306",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7947511",
+   "anno": "1994",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7947503",
+   "anno": "1994",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7517181",
+   "anno": "1994",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7517180",
+   "anno": "1994",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22556664",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26958267",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17238568",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23089415",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17238449",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15285468",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8435649",
+   "anno": "1993",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9066475",
+   "anno": "1997",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "2105793",
+   "anno": "1990",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8607588",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17827594",
+   "anno": "2003",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17848760",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16912408",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1324627",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27073740",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "6351603",
+   "anno": "1983",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27295864",
+   "anno": "2016",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26269763",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26269752",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26045978",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "25973299",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26609492",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11682002",
+   "anno": "2001",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22855981",
+   "anno": "2009",
+   "cajon": "silent"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22059288",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23799181",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18472592",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8759671",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19566363",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19400612",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19400611",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18426330",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "23749897",
+   "anno": "2013",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26026113",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16619490",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22593442",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "21187457",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22593490",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15759553",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12520731",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19181022",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "19052649",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20806080",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "11134581",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22065926",
+   "anno": "2011",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "18698377",
+   "anno": "2008",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12215937",
+   "anno": "2002",
+   "cajon": "PubMed has a DOI (already checked by DOI)"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20066585",
+   "anno": "2009",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10375727",
+   "anno": "1998",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15493733",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15925922",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "24843232",
+   "anno": "2014",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "22870789",
+   "anno": "2012",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16200333",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1648830",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17992450",
+   "anno": "2007",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1939140",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10845910",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9160663",
+   "anno": "1997",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10590051",
+   "anno": "1999",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8630409",
+   "anno": "1996",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1912585",
+   "anno": "1991",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1310062",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1536949",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1381241",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "1421375",
+   "anno": "1992",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "8142647",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7521696",
+   "anno": "1994",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "9057630",
+   "anno": "1997",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "7545471",
+   "anno": "1995",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15569762",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "12006295",
+   "anno": "2002",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "27069556",
+   "anno": "2016",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26885270",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26550456",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16686385",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16549047",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "17257501",
+   "anno": "2006",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "26522065",
+   "anno": "2015",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "20857854",
+   "anno": "2010",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "16235460",
+   "anno": "2005",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10853207",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "15535488",
+   "anno": "2004",
+   "cajon": "flagged, same nature"
+  },
+  {
+   "nat": "Retraction",
+   "pmid": "10853206",
+   "anno": "2000",
+   "cajon": "flagged, same nature"
+  }
+ ],
+ "tabla": {
+  "Retraction|flagged, same nature": 606,
+  "Correction|flagged, same nature": 12,
+  "Expression of concern|flagged, same nature": 18,
+  "Retraction|silent": 45,
+  "Correction|PubMed has a DOI (already checked by DOI)": 4,
+  "Correction|flagged, other notice": 2,
+  "Retraction|PubMed has a DOI (already checked by DOI)": 51,
+  "Retraction|flagged, other notice": 4,
+  "Expression of concern|flagged, other notice": 5,
+  "Expression of concern|PubMed has a DOI (already checked by DOI)": 2,
+  "Correction|silent": 1
+ }
+}

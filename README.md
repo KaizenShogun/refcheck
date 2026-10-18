@@ -275,7 +275,7 @@ holding a perfectly good reference list. Paste PMIDs and they now get looked up:
 ```
 $ python3 refcheck.py pubmed.txt
   3 reference(s) checked · 2 carry a change notice
-  1 PMID(s) have no DOI in PubMed — nothing to ask Crossref about, so NOT checked
+  1 of those has no DOI anywhere, so it was checked against PubMed only
   1 PMID(s) do not exist in PubMed — check the citation
 
   RETRACTED — do not cite this as evidence
@@ -302,12 +302,45 @@ hole decides how the tool has to behave, so I measured it instead of guessing:
 | 28–40M | 2017–today | 393 | **95.7%** |
 | all four | | 1,558 | 72.5% |
 
-So a 2024 paper is nearly always reachable and a 1979 paper is a coin flip. **A
-PMID with no DOI is reported as `not checked`, by name, never silently dropped** —
-that is the whole reason the number matters. Silence in a tool like this reads as
-"clean", and a 1979 paper that nobody checked is not a clean 1979 paper. Same for
-a PMID that does not exist in PubMed at all: you are told, because a citation
-pointing at nothing is worth knowing about before a reviewer finds it.
+So a 2024 paper is nearly always reachable and a 1979 paper is a coin flip.
+Same for a PMID that does not exist in PubMed at all: you are told, because a
+citation pointing at nothing is worth knowing about before a reviewer finds it.
+
+### A PMID with no DOI is no longer "not checked" (18 October 2026)
+
+Until today a PMID with no DOI behind it came out as `not checked`, by name.
+Honest, and lazier than it had to be: Crossref is indexed by DOI, but PubMed is
+not, and its own record carries the retractions and errata NLM's indexers have
+linked to it, DOI or no DOI. So now refcheck asks PubMed for that record by its
+PMID and reads those links, and the report says in so many words that the
+reference was **checked against PubMed only**. A silence from one register is a
+weaker silence than one from two, and you should know which you are reading.
+
+I measured whether it was worth building before building it. Ground truth is the
+Retraction Watch CSV of 18 October 2026: every row whose original paper has a
+PubMed id and no DOI. Each was then run through the code shipped here,
+`research/measure_pmid_only.py`, JSON in `research/pmid_only_20261018.json`:
+
+| RW says | rows | PubMed knows a DOI (already checked) | **now flagged, same notice** | other notice | PubMed silent |
+|---|---:|---:|---:|---:|---:|
+| Retraction | 706 | 51 | **606** | 4 | 45 |
+| Expression of concern | 25 | 2 | **18** | 5 | 0 |
+| Correction | 19 | 4 | **12** | 2 | 1 |
+
+**636 notices that this tool reported as "not checked" yesterday are found
+today.** Not only old papers, which is what I expected: 307 of the 636 (48%)
+are from before 2010, but 288 are from the 2010s and 41 from this decade — PubMed
+simply lists no DOI for them. Dates are RW's `OriginalPaperDate`. The 45
+silent retractions are real misses and stay misses: PubMed has the record and
+lists nothing, so refcheck says nothing was found, against PubMed only, which is
+true and not reassuring. No lookup failed in this run.
+
+Two things the measurement caught before you could. A PubMed **book chapter**
+(Endotext, WHO guidelines on Bookshelf) comes back as a `PubmedBookArticle`, not
+a `PubmedArticle`; my first script missed one, a retracted WHO guideline, and
+would have shipped calling every chapter "PubMed did not answer". And a PMID that
+PubMed answers for in the batch but leaves out of the reply is reported as **not
+checked**, never as clean. Both have tests that fail without the fix.
 
 NCBI states 3 requests/second without an API key. refcheck starts at 1/s and
 looks up 100 PMIDs per request. `--no-pubmed` skips NCBI entirely if you would

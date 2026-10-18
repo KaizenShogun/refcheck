@@ -1079,6 +1079,170 @@ class Medline(unittest.TestCase):
                          ["31978945", "22668778", "5432876", "25905182"])
 
 
+# Trimmed from a real efetch of 2026-10-18. Neither record lists a DOI of its
+# own; both are in the Retraction Watch CSV under a PMID and nothing else.
+XML_SIN_DOI = b"""<?xml version="1.0" ?>
+<PubmedArticleSet>
+<PubmedArticle><MedlineCitation><PMID Version="1">10317408</PMID>
+<Article><ArticleTitle>Advantages of ambulatory surgery.</ArticleTitle></Article>
+<CommentsCorrectionsList>
+<CommentsCorrections RefType="RetractionIn"><RefSource>Med Group Manage. 1984 Jul-Aug;31(4):28.</RefSource><PMID Version="1">10299629</PMID></CommentsCorrections>
+</CommentsCorrectionsList></MedlineCitation>
+<PubmedData><ArticleIdList><ArticleId IdType="pubmed">10317408</ArticleId></ArticleIdList></PubmedData></PubmedArticle>
+<PubmedArticle><MedlineCitation><PMID Version="1">11245439</PMID>
+<Article><ArticleTitle>Suppression of tumor cell growth both in nude mice and in culture by n-3 polyunsaturated fatty acids.</ArticleTitle></Article>
+<CommentsCorrectionsList>
+<CommentsCorrections RefType="CommentIn"><RefSource>Somewhere. 2002;1:1.</RefSource><PMID Version="1">1</PMID></CommentsCorrections>
+<CommentsCorrections RefType="ErratumIn"><RefSource>Cancer Res. 2019 Oct 1;79(19):5125. doi: 10.1158/0008-5472.CAN-19-2362.</RefSource><PMID Version="1">31575633</PMID></CommentsCorrections>
+</CommentsCorrectionsList></MedlineCitation>
+<PubmedData><ArticleIdList><ArticleId IdType="pubmed">11245439</ArticleId></ArticleIdList></PubmedData></PubmedArticle>
+</PubmedArticleSet>"""
+
+
+class PmidSinDoiSePreguntaAPubmed(unittest.TestCase):
+    """Until 2026-10-18 a PMID with no DOI was "not checked", and PubMed flags
+    606 of the 650 such retractions in the Retraction Watch CSV."""
+
+    def _suelto(self, pmid, titulo=""):
+        return {"doi": "", "pmid": pmid, "estado": "pmid_sin_doi",
+                "titulo": titulo, "fecha": "", "avisos": []}
+
+    def test_lee_los_avisos_por_pmid(self):
+        fallos = {}
+        with mock.patch.object(refcheck, "_pide_ncbi", return_value=XML_SIN_DOI) as p:
+            r = refcheck.avisos_por_pmid(["10317408", "11245439", "99999999"], fallos)
+        self.assertEqual(p.call_count, 1)
+        # Asked, answered for the batch, missing from it: a failure, not silence.
+        self.assertEqual(list(fallos), ["99999999"])
+        self.assertNotIn("99999999", r)
+        self.assertEqual([a["tipo"] for a in r["10317408"]["avisos"]], ["retraction"])
+        self.assertEqual(r["10317408"]["avisos"][0]["pmid_aviso"], "10299629")
+        self.assertEqual(r["10317408"]["avisos"][0]["fecha"], "1984")
+        # CommentIn is a letter, not a verdict, and stays out.
+        self.assertEqual([a["tipo"] for a in r["11245439"]["avisos"]], ["erratum"])
+        self.assertEqual(r["11245439"]["avisos"][0]["doi_aviso"],
+                         "10.1158/0008-5472.can-19-2362")
+
+    def test_un_capitulo_de_libro_tambien_contesta(self):
+        """Book chapters come back as PubmedBookArticle; missing that tag
+        reported every Endotext chapter as "PubMed did not answer"."""
+        xml = (b"<PubmedArticleSet><PubmedBookArticle><BookDocument>"
+               b"<PMID Version=\"1\">25905182</PMID><Book><BookTitle>Endotext</BookTitle>"
+               b"</Book><ArticleTitle>Role of Glucose and Lipids</ArticleTitle>"
+               b"</BookDocument></PubmedBookArticle></PubmedArticleSet>")
+        fallos = {}
+        with mock.patch.object(refcheck, "_pide_ncbi", return_value=xml):
+            r = refcheck.avisos_por_pmid(["25905182"], fallos)
+        self.assertEqual(fallos, {})
+        self.assertEqual(r["25905182"], {"titulo": "Role of Glucose and Lipids", "avisos": []})
+
+    def test_lo_peor_va_primero(self):
+        # The retraction is listed AFTER the erratum, so file order would lose.
+        xml = XML_SIN_DOI.replace(
+            b"</CommentsCorrections>\n</CommentsCorrectionsList></MedlineCitation>\n"
+            b"<PubmedData><ArticleIdList><ArticleId IdType=\"pubmed\">11245439",
+            b"</CommentsCorrections>\n<CommentsCorrections RefType=\"RetractionIn\">"
+            b"<RefSource>Cancer Res. 2020;1:1.</RefSource></CommentsCorrections>\n"
+            b"</CommentsCorrectionsList></MedlineCitation>\n"
+            b"<PubmedData><ArticleIdList><ArticleId IdType=\"pubmed\">11245439")
+        self.assertNotEqual(xml, XML_SIN_DOI)
+        with mock.patch.object(refcheck, "_pide_ncbi", return_value=xml):
+            r = refcheck.avisos_por_pmid(["11245439"])
+        self.assertEqual(r["11245439"]["avisos"][0]["tipo"], "retraction")
+
+    def test_un_registro_respondido_queda_comprobado_contra_pubmed(self):
+        sueltos = [self._suelto("10317408", "From the file")]
+        with mock.patch.object(refcheck, "_pide_ncbi", return_value=XML_SIN_DOI):
+            refcheck.comprueba_sin_doi(sueltos)
+        r = sueltos[0]
+        self.assertEqual(r["estado"], "ok")
+        self.assertTrue(r["solo_pubmed"])
+        self.assertEqual(r["titulo"], "From the file")
+        texto = refcheck.informe(sueltos)
+        self.assertIn("1 reference(s) checked · 1 carry a change notice", texto)
+        self.assertIn("RETRACTED", texto.upper())
+        self.assertIn("https://pubmed.ncbi.nlm.nih.gov/10299629/", texto)
+        self.assertIn("checked against PubMed only", texto)
+        self.assertNotIn("not checked", texto)
+
+    def test_respondido_y_limpio_dice_contra_que(self):
+        xml = XML_SIN_DOI.replace(b'RefType="RetractionIn"', b'RefType="CommentIn"')
+        sueltos = [self._suelto("10317408")]
+        with mock.patch.object(refcheck, "_pide_ncbi", return_value=xml):
+            refcheck.comprueba_sin_doi(sueltos)
+        texto = refcheck.informe(sueltos)
+        self.assertIn("Nothing found", texto)
+        self.assertIn("checked against PubMed only", texto)
+
+    def test_un_fallo_nunca_pasa_por_limpio(self):
+        sueltos = [self._suelto("10317408")]
+        with mock.patch.object(refcheck, "_pide_ncbi",
+                               side_effect=ConnectionError("PubMed lookup failed: reset")):
+            refcheck.comprueba_sin_doi(sueltos)
+        self.assertEqual(sueltos[0]["estado"], "sin_comprobar")
+        self.assertIn("reset", sueltos[0]["error"])
+        texto = refcheck.informe(sueltos)
+        self.assertIn("could NOT be checked", texto)
+        self.assertNotIn("Nothing found", texto)
+        self.assertIn("0 reference(s) checked", texto)
+
+    def test_pedido_y_no_devuelto_no_es_limpio(self):
+        sueltos = [self._suelto("10317408"), self._suelto("99999999")]
+        with mock.patch.object(refcheck, "_pide_ncbi", return_value=XML_SIN_DOI):
+            refcheck.comprueba_sin_doi(sueltos)
+        self.assertEqual(sueltos[0]["estado"], "ok")
+        self.assertEqual(sueltos[1]["estado"], "sin_comprobar")
+
+    def test_solo_toca_los_pmid_sin_doi(self):
+        otros = [{"doi": "", "pmid": "5", "estado": "pmid_desconocido", "avisos": []},
+                 {"doi": "", "pmid": "", "estado": "sin_identificador", "avisos": []}]
+        antes = copy.deepcopy(otros)
+        with mock.patch.object(refcheck, "_pide_ncbi") as p:
+            refcheck.comprueba_sin_doi(otros)
+        p.assert_not_called()
+        self.assertEqual(otros, antes)
+
+    def test_la_vigilancia_no_levanta_una_retractacion_por_un_fallo(self):
+        sueltos = [self._suelto("10317408")]
+        with mock.patch.object(refcheck, "_pide_ncbi", return_value=XML_SIN_DOI):
+            refcheck.comprueba_sin_doi(sueltos)
+        estado = refcheck.actualiza_vigilancia(None, sueltos, ahora=1)
+        self.assertEqual(len(estado["vistas"]["pmid:10317408"]["avisos"]), 1)
+        hoy = [self._suelto("10317408")]
+        with mock.patch.object(refcheck, "_pide_ncbi", side_effect=ConnectionError("x")):
+            refcheck.comprueba_sin_doi(hoy)
+        c = refcheck.compara_vigilancia(estado, hoy)
+        self.assertEqual(c["ausentes"], [])
+        self.assertEqual(len(c["no_comprobados"]), 1)
+        estado = refcheck.actualiza_vigilancia(estado, hoy, ahora=2)
+        self.assertEqual(len(estado["vistas"]["pmid:10317408"]["avisos"]), 1)
+
+    def test_la_cli_pregunta_y_no_pregunta_con_no_pubmed(self):
+        d = _tmpdir(self)
+        # A MEDLINE export, because it yields PMID-only records even under
+        # --no-pubmed, which loose text does not: the test has to have something
+        # for --no-pubmed to refuse to ask about.
+        refs = os.path.join(d, "refs.nbib")
+        with open(refs, "w", encoding="utf-8") as f:
+            f.write("PMID- 10317408\nOWN - NLM\nSTAT- MEDLINE\nDP  - 1983 Jul\n"
+                    "TI  - Advantages of ambulatory surgery.\nJT  - Medical group management\n"
+                    "SO  - Med Group Manage. 1983;30(4):1.\n")
+        sin_doi = {}
+        for argv, espera in ((["refcheck.py", "--no-ra", "--no-cache", refs], "RETRACT"),
+                             (["refcheck.py", "--no-ra", "--no-cache", "--no-pubmed", refs], None)):
+            salida = io.StringIO()
+            with mock.patch.object(refcheck, "resuelve_pmids", return_value=sin_doi), \
+                 mock.patch.object(refcheck, "_pide_ncbi", return_value=XML_SIN_DOI) as p, \
+                 mock.patch.object(sys, "argv", argv), \
+                 mock.patch.object(sys, "stdout", salida), \
+                 mock.patch.object(sys, "stderr", io.StringIO()):
+                refcheck.main()
+            if espera:
+                self.assertEqual(p.call_count, 1)
+                self.assertIn(espera, salida.getvalue().upper())
+            else:
+                p.assert_not_called()
+
 class Referencias(unittest.TestCase):
     def test_doi_y_pmid_del_mismo_articulo_son_una_referencia(self):
         texto = "Zhu N, et al. doi:10.1056/NEJMoa2001017. PMID: 31978945."

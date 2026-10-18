@@ -197,15 +197,32 @@
      /RETRACTED — do not cite this as evidence/.test(pmidBody), pmidBody);
   ok("the reference is named back the way it was cited",
      /PMID 9500320/.test(pmidBody), pmidBody);
-  ok("a PMID with no DOI is reported, not dropped",
-     /PMIDs with no DOI — not checked \(1\)/.test(pmidBody), pmidBody);
-  ok("a PMID with no DOI is not sold as clean",
-     /not the same as clean/.test(pmidBody) && /nothing to ask about it/.test(pmidBody),
+  // Until 2026-10-18 the 1971 paper, which has no DOI, was "not checked".
+  // PubMed's own record can be asked by its PMID, so now it is — and the page
+  // has to say against which register.
+  ok("a PMID with no DOI is checked against PubMed, and says so",
+     /1 of those has no DOI anywhere, so it was checked against PubMed only/.test(pmidBody),
      pmidBody);
+  ok("and is no longer filed as not checked",
+     !/PMIDs with no DOI — not checked/.test(pmidBody), pmidBody);
   ok("a PMID that does not exist is named",
      /PMIDs not found in PubMed \(1\)/.test(pmidBody), pmidBody);
   ok("only what really got checked is counted",
-     /\b1 reference checked\b/.test(pmidBody), pmidBody.split("\n").slice(0, 3).join(" | "));
+     /\b2 references checked\b/.test(pmidBody), pmidBody.split("\n").slice(0, 3).join(" | "));
+
+  // 4b'. a retraction that only PubMed can see: no DOI in PubMed, in Crossref,
+  // or in the Retraction Watch CSV — one of the 606 measured on 2026-10-18.
+  s = await check("Advantages of ambulatory surgery. Med Group Manage. 1983. PMID: 10317408.");
+  const soloPm = txt();
+  ok("a retraction with no DOI anywhere is found through PubMed",
+     /RETRACTED — do not cite this as evidence/.test(soloPm), soloPm);
+  ok("it links to its PubMed record, not to a bare doi.org",
+     Array.from(document.querySelectorAll("#out a")).some((a) =>
+       a.href === "https://pubmed.ncbi.nlm.nih.gov/10317408/") &&
+     !Array.from(document.querySelectorAll("#out a")).some((a) =>
+       a.href === "https://doi.org/"), soloPm);
+  ok("and says which register spoke",
+     /checked against PubMed only/.test(soloPm) && /per PubMed/.test(soloPm), soloPm);
 
   // 4c. the same paper cited twice, once each way, is one reference
   s = await check("Zhu N, et al. N Engl J Med. 2020. doi:10.1056/NEJMoa2001017. PMID: 31978945.");
@@ -216,7 +233,10 @@
   s = await check("Kovalevskii AA. 1971. PMID: 4948411.");
   ok("a bibliography that could not be checked at all says so",
      /Nothing could be checked/.test(s), s);
-  ok("and does not claim a clean result", !/Nothing found/.test(txt()), txt());
+  // It can claim one now, because PubMed was asked — but only next to the
+  // sentence saying PubMed was the only register that could be.
+  ok("and a clean result names the one register that was asked",
+     !/Nothing found/.test(txt()) || /checked against PubMed only/.test(txt()), txt());
 
   // ---- 5. the example button has to actually work ----
   $("#demo").click();
@@ -493,6 +513,14 @@
       { DOI: "10.1016/j.nbd.2012.05.020", title: ["LRRK2"], "updated-by": [] }] } });
     if (/esummary\.fcgi/.test(url)) return reply({ result: {} });
     if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    // The book chapter is asked by its id and answered as the book it is —
+    // trimmed from the real reply of 2026-10-18.
+    if (/efetch\.fcgi/.test(url) && /id=25905182/.test(String(o && o.body))) {
+      return reply("<PubmedArticleSet><PubmedBookArticle><BookDocument>" +
+        "<PMID Version=\"1\">25905182</PMID><Book><BookTitle>Endotext</BookTitle></Book>" +
+        "<ArticleTitle>Role of Glucose and Lipids</ArticleTitle></BookDocument>" +
+        "</PubmedBookArticle></PubmedArticleSet>");
+    }
     if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
     return reply({});
   };
@@ -516,11 +544,29 @@
   // textContent, not innerText: the named list sits inside a collapsed
   // <details>, which is exactly where it should be — present, not shouting.
   var deep = document.getElementById("out").textContent;
-  ok("the book chapter with no DOI is named, not dropped",
-     /25905182/.test(deep) && /Atherosclerotic/.test(deep) && /2000/.test(deep),
-     deep.slice(0, 600));
-  ok("the summary counts the two it could check, not the three records",
-     /2 references checked/.test(txt()), txt().slice(0, 300));
+  ok("the book chapter with no DOI is asked about by its PMID",
+     /id=25905182/.test(asked.join(" ")), asked.join(" ").slice(0, 300));
+  ok("and counted as checked, against PubMed only",
+     /3 references checked/.test(txt()) &&
+     /1 of those has no DOI anywhere, so it was checked against PubMed only/.test(txt()),
+     txt().slice(0, 400));
+
+  // The same file with PubMed down: the chapter must come out as unknown,
+  // named, and nothing may read as a clean bill for it.
+  var fetchMudo = window.fetch;
+  window.fetch = function (u, o) {
+    if (/efetch\.fcgi/.test(String(u)) && /id=25905182/.test(String(o && o.body))) {
+      return Promise.reject(new TypeError("Failed to fetch"));
+    }
+    return fetchMudo(u, o);
+  };
+  coldTab();
+  s = await check(NBIB);
+  ok("PubMed down: the PMID-only chapter is NOT checked, and named",
+     /1 PMID with no DOI could NOT be checked/.test(txt()) && /PMID 25905182/.test(txt()) &&
+     /2 references checked/.test(txt()), txt().slice(0, 500));
+  ok("PubMed down: no line claims it was checked",
+     !/checked against PubMed only/.test(txt()), txt().slice(0, 500));
   window.fetch = realFetch;
 
   // ---- 9. a systematic review's export: thousands of records, not twelve ----
