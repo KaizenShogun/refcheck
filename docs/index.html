@@ -372,7 +372,10 @@
   //
   // Never stored: a lookup that failed, and an answer only one register gave.
   // Both would come back later wearing the clothes of a complete answer.
-  var CACHE_KEY = "refcheck.checked.v2";
+  var CACHE_KEY = "refcheck.checked.v3";
+  // v3 (2026-10-19): entries carry `a`, what the record says in `update-to`.
+  // A v2 entry was fetched without that field, and reading its silence as
+  // "not a notice" would bring back "Nothing found" on a retraction notice.
   var CACHE_MS = 7 * 86400 * 1000;
   var bypassCache = false;      // set by the "ask again" button, for one run
 
@@ -416,10 +419,11 @@
     var store = cacheRead(), out = Object.create(null);
     dois.forEach(function (d) {
       var e = store[d];
-      if (!e || e.v !== 2 || typeof e.t !== "number") return;
+      if (!e || e.v !== 3 || typeof e.t !== "number") return;
       var age = now - e.t;
       if (age < 0 || age > CACHE_MS) return;        // stale, or a clock moved
-      out[d] = { age: age, nf: !!e.nf, e: e.e ? JSON.parse(JSON.stringify(e.e)) : null };
+      out[d] = { age: age, nf: !!e.nf, e: e.e ? JSON.parse(JSON.stringify(e.e)) : null,
+                 a: e.a ? JSON.parse(JSON.stringify(e.a)) : null };
     });
     return out;
   }
@@ -432,7 +436,7 @@
       if (!e || typeof e.t !== "number" || now - e.t > CACHE_MS) delete store[d];
     });
     items.forEach(function (it) {
-      store[it.doi] = { t: now, v: 2, nf: !!it.nf, e: it.e || null };
+      store[it.doi] = { t: now, v: 3, nf: !!it.nf, e: it.e || null, a: it.a || null };
     });
     return cacheWrite(store);
   }
@@ -1643,12 +1647,68 @@
   // Retry, because a browser on hotel wifi is not a server in a datacentre.
   // Measured 2026-09-08: roughly one run in three lost a batch to a transient
   // "Failed to fetch"; without this the whole bibliography came back as an error.
+  // <cited-notice>
+  // A reference can BE a notice. Until 2026-10-19 citing the NEJM's retraction
+  // of the Surgisphere paper (10.1056/nejmc2021225) printed "Nothing found":
+  // the page read the notice's `updated-by`, which is empty, and never its
+  // `update-to`, which names the paper it retracts. Same rule as the CLI's
+  // es_aviso_de: only the publisher's machine-readable claim counts, never a
+  // title starting "Retraction:" (PubMed has "[Retraction, hyperextensibility
+  // and weakness in cerebral palsy]", which is about muscles), and an entry
+  // naming the record's own DOI is the "in place" deposit, already reported
+  // by the article's own `updated-by`.
+  function esAvisoDe(work) {
+    var suyo = String(work.DOI || "").toLowerCase();
+    var out = [], vistos = Object.create(null);
+    (work["update-to"] || []).forEach(function (u) {
+      var destino = String(u.DOI || "").toLowerCase();
+      var t = String(u.type || "unknown").toLowerCase();
+      // A newer version is a work, not a notice: Cochrane's .pub2 updates and
+      // F1000's versions carry `new_version`. Same skip as the CLI's VERSIONES.
+      if (t === "new_version" || t === "new_edition") return;
+      if (!destino || destino === suyo || vistos[t + "|" + destino]) return;
+      vistos[t + "|" + destino] = 1;
+      out.push({
+        tipo: t,
+        gravedad: Object.prototype.hasOwnProperty.call(GRAVEDAD, t) ? GRAVEDAD[t] : 1,
+        etiqueta: u.label || t.replace(/_/g, " ").replace(/\b\w/g, function (c) {
+          return c.toUpperCase();
+        }),
+        doi: destino
+      });
+    });
+    out.sort(function (a, b) {
+      return (b.gravedad - a.gravedad) || (a.doi < b.doi ? -1 : a.doi > b.doi ? 1 : 0);
+    });
+    return out;
+  }
+
+  // A cited correction whose paper has since been retracted: news. A cited
+  // erratum of a clean paper: not.
+  // Measured against the most serious thing the reference itself says, and
+  // never against the reference: The Lancet's retraction of the Surgisphere
+  // paper is deposited as both `retraction` and `erratum` of it, and comparing
+  // entry by entry had the erratum half find the reference's own retraction.
+  function gravedadPropia(lista) {
+    return lista.reduce(function (m, e) { return Math.max(m, e.gravedad); }, -1);
+  }
+  function peorQueElAviso(lista, suyo) {
+    var propio = gravedadPropia(lista);
+    suyo = String(suyo || "").toLowerCase();
+    return lista.some(function (e) {
+      return (e.avisosObjetivo || []).some(function (a) {
+        return a.gravedad > propio && String(a.doi || "").toLowerCase() !== suyo;
+      });
+    });
+  }
+  // </cited-notice>
+
   function fetchBatch(dois, attempt) {
     attempt = attempt || 0;
     var filter = dois.map(function (d) {
       return "doi:" + encodeURIComponent(d);
     }).join(",");
-    var url = API + "?rows=" + BATCH + "&select=DOI,title,container-title,updated-by" +
+    var url = API + "?rows=" + BATCH + "&select=DOI,title,container-title,updated-by,update-to" +
               "&filter=" + filter;
     return fetch(url, { headers: { Accept: "application/json" } })
       .then(function (r) {
@@ -2047,8 +2107,9 @@
 
   function render(found, notFound, unchecked, total, sueltos, half, fromCache,
                   superseded, notRetried, nonexistent, elsewhere, repaired,
-                  citedAs, watch) {
+                  citedAs, watch, notas) {
     out.textContent = "";
+    notas = notas || [];
     lastReport = "";
     // What changed goes ABOVE the report, and above everything: someone who
     // runs this every month is here for this block, not to re-read a hundred
@@ -2252,7 +2313,13 @@
         noPmid.length + " PMID" + (noPmid.length === 1 ? " does" : "s do") +
         " not exist in PubMed — check the citation."));
     }
-    if (!found.length && checked > 0) {
+    if (notas.length) {
+      box.appendChild(el("p", null,
+        notas.length + " of those " + (notas.length === 1 ? "is" : "are") + " not " +
+        (notas.length === 1 ? "an article" : "articles") +
+        " but a notice about another one — see below."));
+    }
+    if (!found.length && !notas.length && checked > 0) {
       box.appendChild(el("p", null,
         "Nothing found. That is the expected result most of the time; it is the " +
         "one-in-a-hundred that this exists for." +
@@ -2282,6 +2349,9 @@
     }
     // In the copyable report too: this is the version that gets pasted into a
     // record of what was screened, and the caveat has to travel with it.
+    if (notas.length) {
+      lines.push(notas.length + " of those are not articles but a notice about another one");
+    }
     if (half.length) {
       lines.push(half.length + " asked of Crossref only, PubMed did not answer " +
                  "(half-checked, not clean): " + half.join(", "));
@@ -2410,6 +2480,73 @@
         ol.appendChild(li);
       });
       out.appendChild(ol);
+    }
+
+    if (notas.length) {
+      // Not counted among the flagged — nothing has happened to the notice —
+      // but named, with what its article carries today, because that is the
+      // half the reference does not show.
+      var olN = el("ol", "results");
+      notas.forEach(function (r) {
+        var li = el("li");
+        var peor = peorQueElAviso(r.lista, r.doi);
+        li.appendChild(el("span", peor ? "sev s3" : "sev s0",
+                          "This reference is a notice, not an article"));
+        if (r.titulo) li.appendChild(el("p", "title", r.titulo));
+        var meta = el("p", "meta");
+        var a = el("a", null, r.doi);
+        a.href = "https://doi.org/" + r.doi;
+        meta.appendChild(a);
+        if (r.pmid) meta.appendChild(document.createTextNode(" · PMID " + r.pmid));
+        li.appendChild(meta);
+        lines.push("");
+        lines.push("THIS REFERENCE IS A NOTICE, NOT AN ARTICLE");
+        if (r.titulo) lines.push("  " + r.titulo);
+        lines.push("  https://doi.org/" + r.doi + (r.pmid ? "  (PMID " + r.pmid + ")" : ""));
+        var ul = el("ul", "notices");
+        r.lista.forEach(function (e) {
+          var item = el("li");
+          item.appendChild(document.createTextNode(e.etiqueta + " of "));
+          var ta = el("a", null, e.doi);
+          ta.href = "https://doi.org/" + e.doi;
+          item.appendChild(ta);
+          lines.push("    " + e.etiqueta + " of https://doi.org/" + e.doi);
+          var sub = el("ul");
+          var dice = [];
+          if (e.error) {
+            dice.push(["that article could NOT be looked up — not clean: unknown", ""]);
+          } else if (e.desconocido) {
+            dice.push(["Crossref has no record of that article — not checked", ""]);
+          } else {
+            var otros = (e.avisosObjetivo || []).filter(function (n) {
+              return String(n.doi || "").toLowerCase() !== r.doi;
+            });
+            if (!otros.length) dice.push(["that article carries no other notice (per Crossref)", ""]);
+            otros.forEach(function (n) {
+              var mas = n.gravedad > gravedadPropia(r.lista) ? " — more serious than this notice" : "";
+              var href = n.doi ? "https://doi.org/" + n.doi : "";
+              dice.push(["that article also carries: " + n.etiqueta +
+                         (n.fecha ? " (" + n.fecha + ")" : "") + mas, href]);
+            });
+          }
+          dice.forEach(function (x) {
+            var si = el("li", null, x[0]);
+            if (x[1]) {
+              si.appendChild(document.createTextNode(" "));
+              var na = el("a", null, "read the notice");
+              na.href = x[1];
+              si.appendChild(na);
+            }
+            sub.appendChild(si);
+            lines.push("      " + x[0] + (x[1] ? ": " + x[1] : ""));
+          });
+          item.appendChild(sub);
+          ul.appendChild(item);
+        });
+        li.appendChild(ul);
+        olN.appendChild(li);
+      });
+      out.appendChild(olN);
     }
 
     if (unchecked.length) {
@@ -2743,6 +2880,12 @@
     var halfChecked = Object.create(null);
     // What the merged answer for each DOI ended up being, so it can be stored.
     var merged = Object.create(null);
+    // {doi: {titulo, lista}} for references that are themselves notices.
+    var notas = Object.create(null);
+    function anotaAviso(d, w) {
+      var ea = esAvisoDe(w);
+      if (ea.length) notas[d] = { titulo: cleanTitle((w.title || [""])[0]), lista: ea };
+    }
 
     // Whatever this tab already asked about is not asked again. The reply is
     // rebuilt into the same three buckets a fresh answer goes into, so a warm
@@ -2764,6 +2907,7 @@
       if (c.age > cacheOldest) cacheOldest = c.age;
       if (c.nf) return;                 // no Crossref record: falls into notFound
       seen[d] = 1;
+      if (c.a) notas[d] = c.a;
       if (c.e) {
         c.e.doi = d;
         if (origen[d]) c.e.pmid = origen[d];
@@ -2808,6 +2952,7 @@
           items.forEach(function (w) {
             var d = String(w.DOI || "").toLowerCase();
             seen[d] = 1;
+            anotaAviso(d, w);
             var n = noticesOf(w);
             if (n.length) {
               found.push({
@@ -2922,6 +3067,7 @@
             if (!suyo) return;
             if (suyo === d) {                     // filter blind spot, nothing moved
               seen[d] = 1;
+              anotaAviso(d, w);
               var n = noticesOf(w);
               if (n.length) {
                 found.push({ doi: d, pmid: origen[d] || "",
@@ -2993,6 +3139,47 @@
         });
       })
       .then(function () {
+        // What the article each cited notice is about carries TODAY. Asked of
+        // Crossref after everything else, never stored with the notice, and a
+        // target already in this bibliography is not asked twice. A failed
+        // lookup is marked failed, never read as "no other notice".
+        var enLista = Object.create(null);
+        found.forEach(function (f) { if (f.doi) enLista[f.doi] = f.notices; });
+        var pedir = [];
+        Object.keys(notas).forEach(function (d) {
+          notas[d].lista.forEach(function (e) {
+            if (enLista[e.doi] || (seen[e.doi] && dois.indexOf(e.doi) >= 0)) return;
+            if (pedir.indexOf(e.doi) < 0) pedir.push(e.doi);
+          });
+        });
+        var obras = Object.create(null), fallidos = Object.create(null);
+        var paso = pedir.length
+          ? (status.textContent = "Asking about the article" +
+               (pedir.length === 1 ? "" : "s") + " cited notices refer to…",
+             chunk(pedir, BATCH).reduce(function (chain, b) {
+               return chain.then(function () { return sleep(GAP_MS); }).then(function () {
+                 return fetchBatch(b).then(function (items) {
+                   items.forEach(function (w) { obras[String(w.DOI || "").toLowerCase()] = w; });
+                 }).catch(function (e) {
+                   b.forEach(function (d) { fallidos[d] = e.message || "Crossref failed"; });
+                 });
+               });
+             }, Promise.resolve()))
+          : Promise.resolve();
+        return paso.then(function () {
+          Object.keys(notas).forEach(function (d) {
+            notas[d].lista.forEach(function (e) {
+              delete e.avisosObjetivo; delete e.error; delete e.desconocido;
+              if (enLista[e.doi]) e.avisosObjetivo = enLista[e.doi];
+              else if (seen[e.doi] && dois.indexOf(e.doi) >= 0) e.avisosObjetivo = [];
+              else if (fallidos[e.doi]) e.error = fallidos[e.doi];
+              else if (obras[e.doi]) e.avisosObjetivo = noticesOf(obras[e.doi]);
+              else e.desconocido = true;
+            });
+          });
+        });
+      })
+      .then(function () {
         var pending = Object.create(null);
         unchecked.forEach(function (d) { pending[d] = 1; });
         // The two classified drawers come out of notFound: they are answers,
@@ -3033,6 +3220,11 @@
           guardar.push({
             doi: d,
             nf: !seen[d],
+            // The notice's own claim, without what its article carries today:
+            // that half is asked again on every run.
+            a: notas[d] ? { titulo: notas[d].titulo, lista: notas[d].lista.map(function (e) {
+              return { tipo: e.tipo, gravedad: e.gravedad, etiqueta: e.etiqueta, doi: e.doi };
+            }) } : null,
             // Stored without the DOI spelling of this file: the reader's
             // spelling is put back when it is read out again.
             e: e ? { pmid: e.pmid || "", titulo: e.titulo || "",
@@ -3089,7 +3281,11 @@
         render(found, notFound, unchecked, dois.length + fallados.length, sueltos,
                halfList, { n: cacheCount, oldest: cacheOldest },
                superseded, notRetried, nonexistent, elsewhere, repaired, citedAs,
-               cambios ? { cambios: cambios, desde: desdeSeg, solapa: solapa } : null);
+               cambios ? { cambios: cambios, desde: desdeSeg, solapa: solapa } : null,
+               Object.keys(notas).map(function (d) {
+                 return { doi: d, pmid: origen[d] || "", titulo: notas[d].titulo,
+                          lista: notas[d].lista };
+               }));
         if (cambios && !hubo) {
           status.textContent += " Nothing has changed since " +
             watchDate(desdeSeg) + ".";

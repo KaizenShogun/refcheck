@@ -1,0 +1,327 @@
+{
+ "tabla": {
+  "pedidos": 45,
+  "devueltos": 45,
+  "con_tipo_retracted": 0,
+  "es_el_aviso_por_RetractionOf": 5,
+  "es_el_aviso_solo_por_titulo": 7,
+  "nada": 33
+ },
+ "filas": [
+  {
+   "pmid": "3878822",
+   "titulo": "[Colloid osmotic pressure and extravascular lung water following extracorporeal circulation].",
+   "tipo_retracted": false,
+   "retraction_of": true,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "7686706",
+   "titulo": "[Colloidal hypertonic solutions in cardiac surgery].",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "26221215",
+   "titulo": "The up-regulation of miR-300 in gastric cancer and its effects on cells malignancy.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "26221232",
+   "titulo": "MiR-300 regulate the malignancy of breast cancer by targeting p53.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "28628009",
+   "titulo": "[IMMUNOREHABILITOLOGY: A LOOK FROM THE SOURCES TO THE FUTURE. FROM IMMUNOTHERAPY TO PERSONALIZED TARGETED IMMUNOREHABLIT",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "22568355",
+   "titulo": "Increasing the stimulation dose of rFHS in unexpected poor responders is not associated with better IVF outcome.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "28537677",
+   "titulo": "Targeting of miR-20a against CFLAR to potentiate TRAIL-induced apoptotic sensitivity in HepG2 cells.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "23720867",
+   "titulo": "WHO Guidelines on the Pharmacological Treatment of Persisting Pain in Children with Medical Illnesses",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "20524505",
+   "titulo": "A study of stress affecting police officers in Lithuania.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "31563928",
+   "titulo": "RETRACTED Are over-the-counter fish oil supplements safe, effective and accurate with labelling? Analysis of 10 New Zeal",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "29685006",
+   "titulo": "Retraction: Spoligotyping analysis of Mycobacterium tuberculosis with TB-sprint technology.",
+   "tipo_retracted": false,
+   "retraction_of": true,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "26309524",
+   "titulo": "Efficacy study of edaravone and acetylcysteine towards bleomycin-induced rat pulmonary fibrosis.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "26629041",
+   "titulo": "Apigenin attenuates diabetes-associated cognitive decline in rats via suppressing oxidative stress and nitric oxide synt",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "26064307",
+   "titulo": "Risk stratification and prognostic value of grace and timi risk scores for female patients with non-st segment elevation",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "26221410",
+   "titulo": "The effectiveness of the Invisalign appliance in extraction cases using the the ABO model grading system: a multicenter ",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "26617948",
+   "titulo": "Significance of Fas and FasL protein expression in cardiac carcinoma and local lymph node tissues.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "11389094",
+   "titulo": "Overexpression of proteins HMGA1 induces cell cycle deregulation and apoptosis in normal rat thyroid cells.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "28617535",
+   "titulo": "Research on the protective effects of antioxidants on metabolic syndrome induced by thyroid dysfunction.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "26770399",
+   "titulo": "Vitamin D3 alters Toll-like receptor 4 signaling in monocytes of pregnant women at risk for preeclampsia.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "22203941",
+   "titulo": "Morphological aspects of the kidney: can normality be predicted?",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "19942950",
+   "titulo": "Strategies to improve post-stroke behavioral recovery in aged subjects.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "19434306",
+   "titulo": "Central nervous system aging and regeneration after injuries. A systematic approach.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "18758632",
+   "titulo": "Cellular and molecular mechanisms underlying neurorehabilitation after stroke in aged subjects.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "18273499",
+   "titulo": "Annexin A3 expression after stroke in the aged rat brain.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "17502946",
+   "titulo": "Modified variant of the Rieske iron-sulfur protein in the hippocampus of kindled rats and human epileptic patients.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "21892518",
+   "titulo": "Clinical relevance of vascular endothelial growth factor-A in colorectal cancer.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "21655647",
+   "titulo": "Alterations in expression of cartilage-specific genes for aggrecan and collagen type II in osteoarthritis.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "22119835",
+   "titulo": "Duodenal gastrointestinal stromal tumor.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "4261570",
+   "titulo": "[Retraction, hyperextensibility and weakness in cerebral palsy apparently opposed expression of the same muscular disord",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "18923228",
+   "titulo": "Retraction: Homology Modeling and Site-directed Mutagenesis of Uridine Diphosphate Dependent Glycosyltrasferase 706D1 Re",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "25588562",
+   "titulo": "RETRACTION: The response differences of rubisco and cpcE-F genes to H2O2 in four Spirulina platensis strains.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "26032369",
+   "titulo": "Retraction: Topological analysis and functional study of the inner membrane protein YciB in Escherichia coli.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "25341466",
+   "titulo": "Retraction: Cloning of the est6S Gene, which Encodes Esterase and Tn10 DDE Transposase Activities, from a Cow Rumen Meta",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "17072268",
+   "titulo": "Total intravenous anesthesia with propofol and remifentanil is associated with a nearly twofold higher incidence in post",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "19043378",
+   "titulo": "Postoperative analgosedation with S(+)-ketamine decreases the incidences of postanesthetic shivering and nausea and vomi",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "28667027",
+   "titulo": "Synergy between Paclitaxel and Anti-Cancer Peptide PNC-27 in the Treatment of Ovarian Cancer.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "17899670",
+   "titulo": "Abstracts from the XVI International HIV Drug Resistance Workshop: Basic Principles and Clinical Implications. June 12-1",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "16739343",
+   "titulo": "Prospect for anti-her2 receptor therapy in breast cancer.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "17575809",
+   "titulo": "A multi-country health-economic evaluation of highly concentrated n-3 polyunsaturated fatty acids in the secondary preve",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "19743533",
+   "titulo": "RETRACTION: Modulation of the specific interaction of cardiolipin with cytochrome c by zwitterionic phospholipids in bin",
+   "tipo_retracted": false,
+   "retraction_of": true,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "23820169",
+   "titulo": "Retraction: Exercise-induced alterations in serum myeloperoxidase in Standardbreds.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "27515259",
+   "titulo": "Retraction: Expression of peroxisome proliferator-activated receptor gamma (PPARγ) in porcine endometrium and placenta.",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "22574313",
+   "titulo": "Retraction. Sinonasal sarcoidosis.",
+   "tipo_retracted": false,
+   "retraction_of": true,
+   "titulo_anuncia": true
+  },
+  {
+   "pmid": "27295864",
+   "titulo": "Clinical and spectrophotometric evaluation after chlorhexidine use in periodontal flap surgery: A prospective randomized",
+   "tipo_retracted": false,
+   "retraction_of": false,
+   "titulo_anuncia": false
+  },
+  {
+   "pmid": "22855981",
+   "titulo": "Article retraction. Parsian H et al. Relationship between serum hyaluronic acid level and stage of liver fibrosis in pat",
+   "tipo_retracted": false,
+   "retraction_of": true,
+   "titulo_anuncia": true
+  }
+ ]
+}

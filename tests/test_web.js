@@ -1606,5 +1606,62 @@
   window.fetch = realFetch;
   coldTab();
 
+  // ---- 16. a reference that IS a notice ----
+  // Until 2026-10-19 citing the NEJM's retraction of the Surgisphere paper
+  // printed "Nothing found". Live first: the two real cases from the Manubot
+  // corpus, one of them an EoC whose meta-analysis was retracted afterwards.
+  coldTab();
+  s = await check("10.1056/nejmc2021225\n10.1093/ofid/ofab394");
+  let nt = txtAbierto();
+  ok("notice: a cited retraction notice no longer says Nothing found",
+     !/Nothing found/.test(nt), nt.slice(0, 400));
+  ok("notice: both references are named as notices",
+     (nt.match(/notice, not an article/gi) || []).length === 2, nt.slice(0, 900));
+  ok("notice: the retracted paper is named", /10\.1056\/nejmoa2007621/i.test(nt), nt.slice(0, 900));
+  ok("notice: the EoC's article is now retracted, and it says so",
+     /Retraction \(2022-02-05\) — more serious than this notice/.test(nt), nt.slice(0, 1400));
+
+  // Stubbed: the article's own lookup fails. That is unknown, never clean.
+  coldTab();
+  let pedidosN = [];
+  const NOTA = { DOI: "10.5555/eoc", title: ["Expression of Concern: Uno"], "updated-by": [],
+                 "update-to": [{ type: "expression_of_concern", DOI: "10.5555/art" }] };
+  let artCae = true;
+  window.fetch = function (u, o) {
+    const url = String(u);
+    pedidosN.push(url);
+    if (/api\.crossref\.org/.test(url)) {
+      const ds = (decodeURIComponent(url).match(/doi:([^,&]+)/g) || []).map((t) => t.slice(4));
+      if (ds.indexOf("10.5555/art") >= 0) {
+        if (artCae) return Promise.resolve(new Response("", { status: 500 }));
+        return reply({ message: { items: [{ DOI: "10.5555/art", title: ["Uno"], "updated-by": [
+          { type: "retraction", label: "Retraction", DOI: "10.5555/ret",
+            updated: { "date-parts": [[2022, 2, 5]] } }] }] } });
+      }
+      return reply({ message: { items: ds.indexOf("10.5555/eoc") >= 0 ? [NOTA] : [] } });
+    }
+    if (/esummary\.fcgi/.test(url)) return reply({ result: {} });
+    if (/esearch\.fcgi/.test(url)) return reply({ esearchresult: { idlist: [] } });
+    if (/efetch\.fcgi/.test(url)) return reply("<PubmedArticleSet></PubmedArticleSet>");
+    return reply([]);
+  };
+  s = await check("10.5555/eoc");
+  nt = txtAbierto();
+  ok("notice: a failed lookup of the article is unknown, not clean",
+     /could NOT be looked up/.test(nt) && !/no other notice/.test(nt), nt.slice(0, 700));
+  // Same tab, article back up: the notice comes from the tab's memory, the
+  // article's state does not — it is asked again.
+  artCae = false;
+  pedidosN = [];
+  s = await check("10.5555/eoc");
+  nt = txtAbierto();
+  ok("notice: from the tab's memory the notice is still a notice",
+     /already checked in this tab/.test(nt) && /notice, not an article/i.test(nt), nt.slice(0, 700));
+  ok("notice: and the article is asked about again, today",
+     pedidosN.some((u) => /10\.5555%2Fart|10\.5555\/art/.test(u)) &&
+     /more serious than this notice/.test(nt), pedidosN.join(" | ").slice(0, 300));
+  window.fetch = realFetch;
+  coldTab();
+
   return { pass: out.pass.length, fail: out.fail.length, failed: out.fail, passed: out.pass };
 })()

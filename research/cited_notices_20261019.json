@@ -1,0 +1,348 @@
+{
+ "dois": 11955,
+ "en_crossref": 11778,
+ "fallos_consulta": 0,
+ "referencias_aviso": 20,
+ "filas": [
+  {
+   "doi": "10.1111/tops.12215",
+   "fichero": "13957522_005.ris",
+   "tipo": "correction",
+   "objetivo": "10.1111/tops.12179",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1371/journal.pone.0191166",
+   "fichero": "1409952_001.ris",
+   "tipo": "correction",
+   "objetivo": "10.1371/journal.pone.0180012",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1371/journal.pone.0194377",
+   "fichero": "1409952_001.ris",
+   "tipo": "correction",
+   "objetivo": "10.1371/journal.pone.0132054",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1007/s13593-017-0451-9",
+   "fichero": "1409952_001.ris",
+   "tipo": "erratum",
+   "objetivo": "10.1007/s13593-016-0359-9",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1007/s13593-017-0451-9",
+   "fichero": "1409952_001.ris",
+   "tipo": "erratum",
+   "objetivo": "10.1007/s13593-016-0362-1",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1007/s13593-017-0451-9",
+   "fichero": "1409952_001.ris",
+   "tipo": "erratum",
+   "objetivo": "10.1007/s13593-016-0393-7",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1007/s13593-017-0451-9",
+   "fichero": "1409952_001.ris",
+   "tipo": "erratum",
+   "objetivo": "10.1007/s13593-017-0429-7",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1177/0165551512450829",
+   "fichero": "1409952_001.ris",
+   "tipo": "correction",
+   "objetivo": "10.1177/0165551511428919",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1038/ncomms11346",
+   "fichero": "1409952_001.ris",
+   "tipo": "correction",
+   "objetivo": "10.1038/ncomms10532",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1371/journal.pone.0165166",
+   "fichero": "1409952_001.ris",
+   "tipo": "correction",
+   "objetivo": "10.1371/journal.pone.0159614",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1007/s11192-015-1589-3",
+   "fichero": "1409952_001.ris",
+   "tipo": "correction",
+   "objetivo": "10.1007/s11192-015-1547-0",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/j.dadr.2022.100079",
+   "fichero": "14726160_036.ris",
+   "tipo": "erratum",
+   "objetivo": "10.1016/j.dadr.2021.100007",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/j.dadr.2022.100079",
+   "fichero": "14726160_036.ris",
+   "tipo": "erratum",
+   "objetivo": "10.1016/j.dadr.2021.100008",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/j.dadr.2022.100079",
+   "fichero": "14726160_036.ris",
+   "tipo": "erratum",
+   "objetivo": "10.1016/j.dadr.2021.100011",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/j.dadr.2022.100079",
+   "fichero": "14726160_036.ris",
+   "tipo": "erratum",
+   "objetivo": "10.1016/j.dadr.2021.100021",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1038/s41598-024-60554-0",
+   "fichero": "17755970_020.ris",
+   "tipo": "correction",
+   "objetivo": "10.1038/s41598-024-56478-4",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1088/1748-9326/8/4/049501",
+   "fichero": "21094900_017.ris",
+   "tipo": "correction",
+   "objetivo": "10.1088/1748-9326/8/1/015023",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1038/s41523-024-00650-6",
+   "fichero": "22692163_035.ris",
+   "tipo": "correction",
+   "objetivo": "10.1038/s41523-022-00467-1",
+   "peor_del_objetivo": "correction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)31180-6",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1016/s0140-6736(20)31174-0",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)31180-6",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1016/s0140-6736(20)31290-3",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)31180-6",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1016/s0140-6736(20)31324-6",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)31180-6",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1016/s0140-6736(20)31528-2",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)31324-6",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1016/s0140-6736(20)31180-6",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)31324-6",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "erratum",
+   "objetivo": "10.1016/s0140-6736(20)31180-6",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)31324-6",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "erratum",
+   "objetivo": "10.1016/s0140-6736(20)31290-3",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)32656-8",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1016/s0140-6736(21)00039-8",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1016/s0140-6736(20)32656-8",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1016/s0140-6736(23)01175-3",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1056/nejmc2021225",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1056/nejmoa2007621",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1093/jn/nxaa332",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "erratum",
+   "objetivo": "10.1093/jn/nxaa460",
+   "peor_del_objetivo": "erratum",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1093/ofid/ofab394",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "expression_of_concern",
+   "objetivo": "10.1093/ofid/ofab358",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": true,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.21203/rs.3.rs-100956/v4",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.21203/rs.3.rs-100956/v1",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.21203/rs.3.rs-100956/v4",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.21203/rs.3.rs-100956/v2",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.21203/rs.3.rs-100956/v4",
+   "fichero": "greenelab_covid19-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.21203/rs.3.rs-100956/v3",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  },
+  {
+   "doi": "10.1126/science.333.6041.404-a",
+   "fichero": "greenelab_deep-review.json",
+   "tipo": "retraction",
+   "objetivo": "10.1126/science.1190532",
+   "peor_del_objetivo": "retraction",
+   "referencia_peor": false,
+   "error": null,
+   "desconocido": false
+  }
+ ]
+}

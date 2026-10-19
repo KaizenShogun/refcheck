@@ -342,6 +342,30 @@ would have shipped calling every chapter "PubMed did not answer". And a PMID tha
 PubMed answers for in the batch but leaves out of the reply is reported as **not
 checked**, never as clean. Both have tests that fail without the fix.
 
+**The 45 silent ones, looked at one by one (19 October 2026).** I wanted to know
+whether any of them could be caught some other way before calling them a limit.
+`research/measure_silent45.py` fetched all 45 full records
+(`research/silent45_20261019.json`):
+
+- **0 of 45** carry `Retracted Publication` in their publication types. So
+  there is no second field to read; the type and the link are missing together.
+- **12 of 45 are not the paper at all but the retraction notice.** The PMID that
+  Retraction Watch gives as the *original paper* is, in PubMed, the notice: 5 say
+  so in their own record (`RetractionOf`), and 7 more only in a title like
+  "Retraction: Cloning of the est6S Gene…". Someone citing that PMID is citing
+  the notice, and there is nothing to warn them about that the title does not
+  already shout.
+- **33 are genuine silences.** PubMed has the record, and the record says
+  nothing. No DOI, so Crossref cannot be asked, and Retraction Watch reaches
+  refcheck only through Crossref. **refcheck cannot see these, and says
+  "nothing found, against PubMed only" about them.** If retractions of old papers
+  without a DOI are what you are chasing, the R package `retraction` reads the
+  Retraction Watch database directly and will see them.
+
+I did not read the title to catch the seven. The same 45 contain PubMed's
+"[Retraction, hyperextensibility and weakness in cerebral palsy apparently due to
+…]", which is about muscles.
+
 NCBI states 3 requests/second without an API key. refcheck starts at 1/s and
 looks up 100 PMIDs per request. `--no-pubmed` skips NCBI entirely if you would
 rather not talk to them.
@@ -812,6 +836,68 @@ not a gap in it — 27.5% of PubMed records carry no DOI, and it is worst before
 
 Cost: one batched request to PubMed per run, and only ever about DOIs that
 already failed everywhere else.
+
+## A reference that is itself a notice (19 October 2026)
+
+Until today, if your bibliography cited **"Retraction: Cardiovascular Disease,
+Drug Therapy, and Mortality in Covid-19"** (`10.1056/nejmc2021225`, the NEJM
+notice that retracted the Surgisphere paper), refcheck said *Nothing found*. It
+asked what notices that DOI carries, and a notice carries none. What it does
+carry is `update-to`, the publisher's machine-readable statement of which article
+it is about, and refcheck was not reading it.
+
+Now it does, in the CLI and the page:
+
+```
+  THIS REFERENCE IS A NOTICE, NOT AN ARTICLE
+    RETRACTED: Expression of Concern: "Meta-analysis of Randomized Trials of I
+    10.1093/ofid/ofab394 (PMID 34410284)
+      ↳ Expression of concern of https://doi.org/10.1093/ofid/ofab358
+        that article also carries: Retraction (2022-02-05): https://doi.org/10.1093/ofid/ofac056  ← more serious than this notice
+```
+
+The second line is the reason this is worth doing. Citing an expression of concern
+is not citing a retraction, and the paper may have been retracted since. You
+cannot tell that from the reference you wrote. So refcheck looks up the article
+the notice is about, **today and never from the cache**, and lists what else it
+carries. If that is more serious than the notice you cited, the exit code is 1.
+A cited erratum of a clean paper exits 0. If the article cannot be looked up,
+the exit code is 2, because nobody knows whether it has been retracted since.
+The notice is not counted among the "carry a change notice" references, because
+nothing has happened to the notice itself.
+
+**How often this comes up, measured** on the frozen corpora every other
+measurement here uses: 45 real bibliographies (the RIS exports and the Manubot
+CSL files), 11,955 distinct DOIs, 11,778 of them in Crossref, no failed lookups.
+`research/measure_cited_notices.py`, JSON in `research/cited_notices_20261019.json`:
+
+- **20 references are notices**, in 8 of the 45 bibliographies: 10 corrections,
+  5 retractions, 3 errata, 1 expression of concern, and one Lancet notice filed
+  as both erratum and retraction.
+- **1 of them points at an article that now carries something worse**: the
+  ivermectin EoC above, in the COVID-19 review. My first count said 2. The
+  second was The Lancet's retraction of the Surgisphere hydroxychloroquine
+  paper, which Crossref files as both `retraction` and `erratum` of it, and
+  comparing entry by entry had the erratum half "find" a retraction that was the
+  reference itself. The rule now compares against the most serious thing the
+  reference says, and ignores the reference's own DOI. Test included.
+
+Two rules, each with a test that fails without it:
+
+- **Only `update-to` counts, never the title.** Of the 6 references in these
+  corpora whose title *announces* a notice, Crossref marks 5. And PubMed has a
+  record titled "[Retraction, hyperextensibility and weakness in cerebral
+  palsy…]", which is about muscles.
+- **A newer version is not a notice.** My first run over the corpus said "this
+  reference is a notice" about ten Cochrane updates (`.pub2`, `.pub3`) and F1000
+  versions, because their `update-to` says `new_version`. They are articles that
+  replace an earlier version. `new_version` and `new_edition` are now skipped,
+  and the 20 above are from the corrected run, not from that one.
+
+**What it does not do yet.** It reads Crossref only. A PubMed record that says
+`RetractionOf` (12 of the 45 silent retractions above are notices of that kind)
+is not yet reported this way. And `--watch` does not follow the article behind a
+cited notice: you are told about it on every run, but not told when it *changes*.
 
 ## Watch mode: the notice that arrives after you filed the paper away
 
@@ -1532,8 +1618,8 @@ plain `Retraction`), so that string is not coming from upstream.
 ## Tests
 
 ```
-python3 test_refcheck.py                  # 294 offline, 10 network cases skipped
-REFCHECK_RED=1 python3 test_refcheck.py   # all 304, adding the live-API cases
+python3 test_refcheck.py                  # 325 offline, 10 network cases skipped
+REFCHECK_RED=1 python3 test_refcheck.py   # all 335, adding the live-API cases
 ```
 
 "Offline" is checked rather than promised:
@@ -1557,7 +1643,7 @@ their answer surfaces as a failure rather than as a wrong report to a reader. A
 third asserts that `10.1093/jnci/djr419` still reaches PubMed with two notices
 and Crossref with none — if Crossref ever deposits them, that goes red too.
 
-The browser version has its own battery — 193 checks driving the real page in
+The browser version has its own battery — 219 checks driving the real page in
 headless chromium against the real APIs, including forced network failures and a
 PubMed outage that must not take Crossref down with it, because the interesting
 bugs live there:

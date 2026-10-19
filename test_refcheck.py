@@ -4096,6 +4096,311 @@ class ParidadDelLectorCsl(unittest.TestCase):
         self.assertEqual(total, 3008)
 
 
+class AvisoCitado(unittest.TestCase):
+    """A reference that IS a notice. Until 2026-10-19 citing the NEJM's
+    retraction of the Surgisphere paper printed "Nothing found"."""
+
+    AVISO = {"DOI": "10.5555/eoc", "title": ["Expression of Concern: Uno"],
+             "update-to": [{"type": "expression_of_concern", "label": "Expression of concern",
+                            "DOI": "10.5555/art", "updated": {"date-parts": [[2021, 8, 1]]}}]}
+    ART = {"DOI": "10.5555/art", "title": ["Uno"], "updated-by": [
+               {"type": "expression_of_concern", "label": "Expression of concern",
+                "DOI": "10.5555/eoc", "updated": {"date-parts": [[2021, 8, 1]]}},
+               {"type": "retraction", "label": "Retraction",
+                "DOI": "10.5555/ret", "updated": {"date-parts": [[2022, 2, 5]]}}]}
+    ERRATA = {"DOI": "10.5555/err", "title": ["Erratum"],
+              "update-to": [{"type": "erratum", "DOI": "10.5555/limpio"}]}
+    LIMPIO = {"DOI": "10.5555/limpio", "title": ["Limpio"]}
+
+    def test_lee_update_to_y_deja_fuera_el_propio(self):
+        obra = {"DOI": "10.5555/x", "update-to": [
+            {"type": "retraction", "DOI": "10.5555/X"},           # in place
+            {"type": "correction", "DOI": "10.5555/a"},
+            {"type": "correction", "DOI": "10.5555/A"},           # same, twice
+            {"type": "retraction", "DOI": "10.5555/b"}]}
+        e = refcheck.es_aviso_de(obra)
+        self.assertEqual([(x["tipo"], x["doi"]) for x in e],
+                         [("retraction", "10.5555/b"), ("correction", "10.5555/a")])
+
+    def test_la_consulta_por_lotes_pide_update_to(self):
+        """Every other test stubs consulta_lote; without this one, dropping the
+        field from `select` would leave the whole feature dead and green."""
+        urls = []
+
+        class Resp(io.BytesIO):
+            headers = {}
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+
+        def falso(req, timeout=None):
+            urls.append(req.full_url)
+            return Resp(json.dumps({"message": {"items": [self.AVISO]}}).encode())
+        with mock.patch.object(refcheck.urllib.request, "urlopen", falso), \
+             mock.patch.object(refcheck.RITMO, "espera", lambda: None):
+            obras = refcheck.consulta_lote(["10.5555/eoc"])
+        self.assertRegex(urls[0], r"select=[^&]*update-to")
+        self.assertIn("es_aviso", refcheck.ficha("10.5555/eoc", obras["10.5555/eoc"]))
+
+    def test_una_version_nueva_no_es_un_aviso(self):
+        """Cochrane's .pub3 replaces .pub2 with `new_version`: an article."""
+        obra = {"DOI": "10.1002/14651858.cd007720.pub3", "update-to": [
+            {"type": "new_version", "DOI": "10.1002/14651858.cd007720.pub2"},
+            {"type": "new_edition", "DOI": "10.1002/14651858.cd007720.pub1"}]}
+        self.assertEqual(refcheck.es_aviso_de(obra), [])
+        self.assertNotIn("es_aviso", refcheck.ficha(obra["DOI"], obra))
+
+    def test_un_articulo_normal_no_gana_campo(self):
+        self.assertNotIn("es_aviso", refcheck.ficha("10.5555/limpio", self.LIMPIO))
+        self.assertIn("es_aviso", refcheck.ficha("10.5555/eoc", self.AVISO))
+
+    def test_se_pregunta_por_el_articulo_y_trae_lo_que_lleva_hoy(self):
+        r = [refcheck.ficha("10.5555/eoc", self.AVISO)]
+        pedidos = []
+
+        def lote(dois):
+            pedidos.append(list(dois))
+            return {"10.5555/art": self.ART}
+        refcheck.estado_de_objetivos(r, consulta=lote)
+        self.assertEqual(pedidos, [["10.5555/art"]])
+        e = r[0]["es_aviso"][0]
+        self.assertEqual(e["avisos_objetivo"][0]["tipo"], "retraction")
+        self.assertTrue(refcheck.peor_que_el_aviso(r[0]))
+
+    def test_un_fallo_no_es_un_articulo_limpio(self):
+        r = [refcheck.ficha("10.5555/eoc", self.AVISO)]
+
+        def lote(dois):
+            raise ConnectionError("down")
+        refcheck.estado_de_objetivos(r, consulta=lote)
+        e = r[0]["es_aviso"][0]
+        self.assertIn("objetivo_error", e)
+        self.assertNotIn("avisos_objetivo", e)
+        self.assertIn("could NOT be looked up", refcheck.informe(r))
+
+    def test_sin_registro_del_articulo_se_dice(self):
+        r = [refcheck.ficha("10.5555/eoc", self.AVISO)]
+        refcheck.estado_de_objetivos(r, consulta=lambda d: {})
+        self.assertTrue(r[0]["es_aviso"][0].get("objetivo_desconocido"))
+        self.assertIn("no record of that article", refcheck.informe(r))
+
+    def test_si_el_articulo_ya_esta_en_la_bibliografia_no_se_pregunta(self):
+        r = [refcheck.ficha("10.5555/eoc", self.AVISO), refcheck.ficha("10.5555/art", self.ART)]
+
+        def lote(dois):
+            raise AssertionError("asked again for %r" % dois)
+        refcheck.estado_de_objetivos(r, consulta=lote)
+        self.assertEqual(r[0]["es_aviso"][0]["avisos_objetivo"][0]["tipo"], "retraction")
+
+    def test_el_informe_no_dice_nada_encontrado(self):
+        r = [refcheck.ficha("10.5555/eoc", self.AVISO)]
+        refcheck.estado_de_objetivos(r, consulta=lambda d: {"10.5555/art": self.ART})
+        t = refcheck.informe(r)
+        self.assertNotIn("Nothing found", t)
+        self.assertIn("THIS REFERENCE IS A NOTICE", t)
+        self.assertIn("https://doi.org/10.5555/art", t)
+        self.assertIn("Retraction (2022-02-05): https://doi.org/10.5555/ret", t)
+        self.assertIn("more serious than this notice", t)
+        # The notice the reader cited is not repeated back as "also carries".
+        self.assertNotIn("also carries: Expression of concern", t)
+        self.assertIn("0 carry a change notice", t)
+
+    def test_la_retractacion_de_the_lancet_no_es_peor_que_si_misma(self):
+        """Real structure of 10.1016/s0140-6736(20)31324-6 (19-oct): retraction
+        AND erratum of the same paper, whose only retraction is this notice."""
+        aviso = {"DOI": "10.1016/s0140-6736(20)31324-6", "title": ["Retraction—HCQ"],
+                 "update-to": [
+                     {"type": "retraction", "DOI": "10.1016/s0140-6736(20)31180-6"},
+                     {"type": "erratum", "DOI": "10.1016/s0140-6736(20)31180-6"}]}
+        art = {"DOI": "10.1016/s0140-6736(20)31180-6", "title": ["RETRACTED: HCQ"],
+               "updated-by": [
+                   {"type": "retraction", "DOI": "10.1016/s0140-6736(20)31324-6"},
+                   {"type": "erratum", "DOI": "10.1016/s0140-6736(20)31324-6"},
+                   {"type": "expression_of_concern", "DOI": "10.1016/s0140-6736(20)31290-3"}]}
+        r = [refcheck.ficha(aviso["DOI"], aviso)]
+        refcheck.estado_de_objetivos(r, consulta=lambda d: {art["DOI"]: art})
+        self.assertFalse(refcheck.peor_que_el_aviso(r[0]))
+        self.assertNotIn("more serious", refcheck.informe(r))
+        # The article filing THIS notice at a higher severity than the notice
+        # claims is a disagreement about the reference, not a later retraction.
+        solo_errata = {"doi": "10.5555/n", "es_aviso": [
+            {"tipo": "erratum", "gravedad": 1, "doi": "10.5555/a", "etiqueta": "Erratum",
+             "avisos_objetivo": [{"tipo": "retraction", "gravedad": 3, "doi_aviso": "10.5555/N",
+                                  "etiqueta": "Retraction", "fecha": ""}]}]}
+        self.assertFalse(refcheck.peor_que_el_aviso(solo_errata))
+        # A genuinely worse notice by another DOI still counts.
+        r[0]["es_aviso"] = [e for e in r[0]["es_aviso"] if e["tipo"] == "erratum"]
+        r[0]["es_aviso"][0]["avisos_objetivo"].append(
+            {"tipo": "retraction", "gravedad": 3, "doi_aviso": "10.5555/otra",
+             "etiqueta": "Retraction", "fecha": ""})
+        self.assertTrue(refcheck.peor_que_el_aviso(r[0]))
+
+    def test_errata_de_articulo_limpio(self):
+        r = [refcheck.ficha("10.5555/err", self.ERRATA)]
+        refcheck.estado_de_objetivos(r, consulta=lambda d: {"10.5555/limpio": self.LIMPIO})
+        self.assertFalse(refcheck.peor_que_el_aviso(r[0]))
+        self.assertIn("carries no other notice", refcheck.informe(r))
+
+    def test_una_entrada_v2_de_la_cache_no_se_reutiliza(self):
+        """v2 was fetched without `update-to`: its silence means "not asked"."""
+        ruta = os.path.join(_tmpdir(self), "c.json")
+        with open(ruta, "w") as f:
+            json.dump({"10.5555/eoc": {"t": time.time(), "v": 2,
+                                       "reg": ["crossref", "pubmed"],
+                                       "r": {"doi": "10.5555/eoc", "estado": "ok",
+                                             "avisos": []}}}, f)
+        self.assertEqual(refcheck.lee_cache(ruta), {})
+
+
+class AvisoCitadoDeExtremoAExtremo(unittest.TestCase):
+    def setUp(self):
+        self.dir = _tmpdir(self)
+        self.ruta = os.path.join(self.dir, "checked.json")
+        self.refs = os.path.join(self.dir, "refs.txt")
+        self.obras = {"10.5555/eoc": AvisoCitado.AVISO, "10.5555/art": AvisoCitado.ART,
+                      "10.5555/err": AvisoCitado.ERRATA, "10.5555/limpio": AvisoCitado.LIMPIO}
+        self.caido = set()
+
+    def _corre(self, lineas, extra=()):
+        with open(self.refs, "w", encoding="utf-8") as f:
+            f.write("\n".join(lineas) + "\n")
+        llamadas = []
+
+        def falso_lote(dois, reintentos=3):
+            llamadas.append(list(dois))
+            if set(dois) & self.caido:
+                raise ConnectionError("down")
+            return {d.lower(): self.obras[d.lower()] for d in dois if d.lower() in self.obras}
+        salida = io.StringIO()
+        with mock.patch.object(refcheck, "consulta_lote", falso_lote), \
+             mock.patch.object(refcheck, "fusiona_pubmed", lambda r, avisa=None: None), \
+             mock.patch.object(refcheck, "ruta_cache", lambda: self.ruta), \
+             mock.patch.object(sys, "argv", ["refcheck.py", "--no-ra", *extra, self.refs]), \
+             mock.patch.object(sys, "stdout", salida):
+            codigo = refcheck.main()
+        return codigo, salida.getvalue(), llamadas
+
+    def test_eoc_de_un_articulo_retractado_falla_el_ci(self):
+        codigo, t, _ = self._corre(["10.5555/eoc"])
+        self.assertEqual(codigo, 1)
+        self.assertIn("more serious than this notice", t)
+
+    def test_errata_de_articulo_limpio_no_falla_el_ci(self):
+        codigo, t, _ = self._corre(["10.5555/err"])
+        self.assertEqual(codigo, 0)
+        self.assertIn("1 of those is not an article but a notice", t)
+
+    def test_articulo_que_no_se_pudo_preguntar_es_2(self):
+        self.caido = {"10.5555/art"}
+        codigo, t, _ = self._corre(["10.5555/eoc"])
+        self.assertEqual(codigo, 2)
+
+    def test_desde_la_cache_se_vuelve_a_preguntar_por_el_articulo(self):
+        """What the article carries today is not stored with the notice."""
+        self._corre(["10.5555/eoc"])
+        codigo, t, llamadas = self._corre(["10.5555/eoc"])
+        self.assertEqual(llamadas, [["10.5555/art"]])
+        self.assertEqual(codigo, 1)
+        with open(self.ruta) as f:
+            guardado = json.load(f)["10.5555/eoc"]["r"]
+        self.assertNotIn("avisos_objetivo", guardado["es_aviso"][0])
+
+
+CASOS_AVISO = [
+    {"DOI": "10.1056/nejmc2021225", "update-to": [
+        {"type": "retraction", "label": "Retraction", "DOI": "10.1056/NEJMoa2007621"}]},
+    {"DOI": "10.5555/x", "update-to": [
+        {"type": "retraction", "DOI": "10.5555/X"},
+        {"type": "correction", "DOI": "10.5555/a"},
+        {"type": "Correction", "DOI": "10.5555/A"},
+        {"type": "retraction", "DOI": "10.5555/b"},
+        {"type": "erratum", "DOI": "10.5555/c"},
+        {"type": "erratum", "DOI": "10.5555/b"}]},
+    {"DOI": "10.5555/y", "update-to": [{"type": "expression_of_concern", "DOI": "10.5555/z"},
+                                       {"type": "new_thing", "DOI": "10.5555/z2"},
+                                       {"DOI": "10.5555/z3"}, {"type": "correction"}]},
+    {"DOI": "10.5555/limpio"},
+    {"DOI": "10.5555/nulo", "update-to": None},
+    {"DOI": "10.1002/14651858.cd007720.pub3", "update-to": [
+        {"type": "new_version", "DOI": "10.1002/14651858.CD007720.pub2"}]},
+    {"DOI": "10.5555/mixto", "update-to": [{"type": "new_edition", "DOI": "10.5555/v1"},
+                                           {"type": "erratum", "DOI": "10.5555/v1"}]},
+]
+
+
+class ParidadAvisoCitado(unittest.TestCase):
+    @staticmethod
+    def _bloque_js():
+        ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "index.html")
+        with open(ruta, encoding="utf-8") as fh:
+            html = fh.read()
+        m = re.search(r"// <cited-notice>(.*?)// </cited-notice>", html, re.S)
+        g = re.search(r"(var GRAVEDAD = \{.*?\};)", html, re.S)
+        return (g.group(1) + m.group(1)) if (m and g) else None
+
+    def test_el_bloque_sigue_delimitado(self):
+        self.assertIsNotNone(self._bloque_js())
+
+    def test_misma_lectura_que_la_pagina(self):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node no está instalado")
+        guion = (self._bloque_js() + "\nconst casos = " + json.dumps(CASOS_AVISO) + ";\n"
+                 "console.log(JSON.stringify(casos.map(esAvisoDe)));\n")
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as fh:
+            fh.write(guion)
+            tmp = fh.name
+        try:
+            salida = subprocess.run([node, tmp], capture_output=True, text=True, timeout=30)
+            self.assertEqual(salida.returncode, 0, salida.stderr)
+            js = json.loads(salida.stdout)
+        finally:
+            os.unlink(tmp)
+        py = [refcheck.es_aviso_de(c) for c in CASOS_AVISO]
+        self.assertTrue(any(py), "los casos no ejercitan nada")
+        for caso, a, b in zip(CASOS_AVISO, py, js):
+            with self.subTest(caso=caso["DOI"]):
+                self.assertEqual(a, b)
+
+    def test_misma_regla_de_mas_grave(self):
+        """The Lancet's retraction filed as retraction+erratum of its paper must
+        not be "more serious than itself" on either side."""
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node no está instalado")
+        def ref(doi, propios, del_objetivo):
+            return {"doi": doi, "es_aviso": [
+                {"tipo": t, "gravedad": g, "doi": "10.5555/art", "etiqueta": t,
+                 "avisos_objetivo": [{"tipo": tt, "gravedad": gg, "doi_aviso": dd,
+                                      "etiqueta": tt, "fecha": ""} for tt, gg, dd in del_objetivo]}
+                for t, g in propios]}
+        casos = [
+            ref("10.5555/lancet", [("retraction", 3), ("erratum", 1)],
+                [("retraction", 3, "10.5555/LANCET"), ("erratum", 1, "10.5555/lancet"),
+                 ("expression_of_concern", 2, "10.5555/eoc-de-otro")]),
+            ref("10.5555/n", [("erratum", 1)], [("retraction", 3, "10.5555/N")]),
+            ref("10.5555/eoc", [("expression_of_concern", 2)],
+                [("expression_of_concern", 2, "10.5555/eoc"), ("retraction", 3, "10.5555/ret")]),
+            ref("10.5555/err", [("erratum", 1)], []),
+        ]
+        js_casos = [{"doi": c["doi"], "lista": [dict(e, avisosObjetivo=[
+            {"gravedad": a["gravedad"], "doi": a["doi_aviso"]} for a in e["avisos_objetivo"]])
+            for e in c["es_aviso"]]} for c in casos]
+        guion = (self._bloque_js() + "\nconst casos = " + json.dumps(js_casos) + ";\n"
+                 "console.log(JSON.stringify(casos.map(c => peorQueElAviso(c.lista, c.doi))));\n")
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as fh:
+            fh.write(guion)
+            tmp = fh.name
+        try:
+            salida = subprocess.run([node, tmp], capture_output=True, text=True, timeout=30)
+            self.assertEqual(salida.returncode, 0, salida.stderr)
+            js = json.loads(salida.stdout)
+        finally:
+            os.unlink(tmp)
+        py = [refcheck.peor_que_el_aviso(c) for c in casos]
+        self.assertEqual(py, [False, False, True, False])
+        self.assertEqual(js, py)
+
+
 if __name__ == "__main__":
     if os.environ.get("REFCHECK_SIN_RED") == "1":
         # Enforces the promise in the module docstring instead of trusting it.

@@ -1375,13 +1375,126 @@ def avisos_de(obra):
     return avisos
 
 
+# A newer version of a work is a work, not a notice about one. The first corpus
+# run said "this reference is a notice" about ten Cochrane updates (.pub2,
+# .pub3) and F1000 versions, whose `update-to` says `new_version` because they
+# replace the earlier version. Calling a current Cochrane review "a notice, not
+# an article" would be false, so these two types are skipped here.
+VERSIONES = {"new_version", "new_edition"}
+
+
+def es_aviso_de(obra):
+    """The other articles this record says, in `update-to`, it is a notice about.
+
+    A reference can BE a notice: a bibliography cites "Retraction: Cardiovascular
+    Disease, Drug Therapy, and Mortality in Covid-19" (10.1056/nejmc2021225), and
+    until 2026-10-19 this tool looked up its `updated-by`, found nothing, and
+    printed "Nothing found" — about the notice that retracted the Surgisphere
+    paper. Measured on the frozen corpora (20,160 records): five references in
+    one real Manubot bibliography were notices, and Crossref marks four of them
+    with `update-to`. The fifth carries none, so a title that starts with
+    "Retraction:" is not read as a notice here; PubMed's own record has
+    "[Retraction, hyperextensibility and weakness in cerebral palsy]", which is
+    about muscles.
+
+    An entry naming the record's own DOI is left out: that is the "in place"
+    deposit, where the article and its notice share one DOI, and the article's
+    own `updated-by` already reports it.
+    """
+    suyo = str(obra.get("DOI", "")).lower()
+    salida, vistos = [], set()
+    for u in (obra.get("update-to") or []):
+        destino = str(u.get("DOI", "")).lower()
+        tipo = (u.get("type") or "unknown").lower()
+        if tipo in VERSIONES:
+            continue
+        if not destino or destino == suyo or (tipo, destino) in vistos:
+            continue
+        vistos.add((tipo, destino))
+        salida.append({"tipo": tipo, "gravedad": GRAVEDAD.get(tipo, 1),
+                       "etiqueta": u.get("label") or tipo.replace("_", " ").title(),
+                       "doi": destino})
+    salida.sort(key=lambda e: (-e["gravedad"], e["doi"]))
+    return salida
+
+
 def ficha(doi, obra):
     avisos = avisos_de(obra)
-    return {"doi": doi, "estado": "ok",
-            "titulo": limpia_titulo((obra.get("title") or [""])[0]),
-            "revista": limpia_titulo((obra.get("container-title") or [""])[0]),
-            "contradictorio": any(a["contradice"] for a in avisos),
-            "avisos": avisos}
+    r = {"doi": doi, "estado": "ok",
+         "titulo": limpia_titulo((obra.get("title") or [""])[0]),
+         "revista": limpia_titulo((obra.get("container-title") or [""])[0]),
+         "contradictorio": any(a["contradice"] for a in avisos),
+         "avisos": avisos}
+    # Only when there is something: every other result keeps the shape it had,
+    # and a `--json` consumer that never heard of this key sees nothing new.
+    sobre = es_aviso_de(obra)
+    if sobre:
+        r["es_aviso"] = sobre
+    return r
+
+
+def peor_que_el_aviso(r):
+    """True when the article a cited notice is about now carries something
+    more serious than that notice — a cited correction whose paper was later
+    retracted. That is news for the exit code; a plain cited erratum is not.
+
+    Measured against the most serious thing the reference itself says, and
+    never against the reference: The Lancet's retraction of the Surgisphere
+    paper, 10.1016/s0140-6736(20)31324-6, is deposited as both `retraction` and
+    `erratum` of it, and comparing entry by entry had the erratum half find
+    "a retraction, more serious" — the reference's own.
+    """
+    lista = r.get("es_aviso") or []
+    if not lista:
+        return False
+    propio = max(e["gravedad"] for e in lista)
+    suyo = (r.get("doi") or "").lower()
+    return any(a["gravedad"] > propio
+               for e in lista for a in (e.get("avisos_objetivo") or [])
+               if (a.get("doi_aviso") or "").lower() != suyo)
+
+
+def estado_de_objetivos(resultados, consulta=None):
+    """Fill in what Crossref says TODAY about the article each notice is about.
+
+    Citing an expression of concern is not citing a retraction, and the paper
+    may have been retracted since: 10.1093/ofid/ofab394 is the 2021 EoC on an
+    ivermectin meta-analysis, and the meta-analysis it is about,
+    10.1093/ofid/ofab358, now carries its retraction. The reader holding the
+    EoC has no way to see that from the reference they wrote.
+
+    Asked of Crossref only, in batches, after the cache has been written — so
+    the answer is always today's and never stored under the notice's DOI. A
+    target already in this bibliography is not asked twice. A lookup that fails
+    is marked as failed, never as "no notices".
+    """
+    consulta = consulta or consulta_lote
+    conocidos = {r["doi"].lower(): r for r in resultados
+                 if r.get("doi") and r.get("estado") == "ok"}
+    pedir = sorted({e["doi"] for r in resultados for e in (r.get("es_aviso") or [])
+                    if e["doi"] not in conocidos})
+    obras, fallidos = {}, {}
+    for i in range(0, len(pedir), LOTE):
+        trozo = pedir[i:i + LOTE]
+        try:
+            obras.update(consulta(trozo))
+        except ConnectionError as e:
+            for d in trozo:
+                fallidos[d] = str(e)
+    for r in resultados:
+        for e in (r.get("es_aviso") or []):
+            d = e["doi"]
+            if d in conocidos:
+                e["avisos_objetivo"] = conocidos[d]["avisos"]
+                e["titulo_objetivo"] = conocidos[d].get("titulo", "")
+            elif d in fallidos:
+                e["objetivo_error"] = fallidos[d]
+            elif d in obras:
+                e["avisos_objetivo"] = avisos_de(obras[d])
+                e["titulo_objetivo"] = limpia_titulo((obras[d].get("title") or [""])[0])
+            else:
+                e["objetivo_desconocido"] = True
+    return resultados
 
 
 def revisa(doi):
@@ -1400,7 +1513,7 @@ def consulta_lote(dois, reintentos=3):
     and those two must never be shown to the reader as the same thing.
     """
     filtro = ",".join("doi:" + urllib.parse.quote(d, safe="") for d in dois)
-    url = f"{API.rstrip('/')}?rows={len(dois)}&select=DOI,title,container-title,updated-by&filter={filtro}"
+    url = f"{API.rstrip('/')}?rows={len(dois)}&select=DOI,title,container-title,updated-by,update-to&filter={filtro}"
     ultimo = None
     for intento in range(reintentos):
         try:
@@ -1991,6 +2104,7 @@ def nombre(r):
 
 def informe(resultados, ancho=78):
     con = [r for r in resultados if r["avisos"]]
+    notas = [r for r in resultados if r.get("es_aviso")]
     desc = [r for r in resultados if r["estado"] == "desconocido"]
     # Two drawers that used to sit inside `desc` and print its sentence. They
     # are separated because they are different news: one is a broken citation
@@ -2069,6 +2183,32 @@ def informe(resultados, ancho=78):
             for d in r["discrepancia"]:
                 lineas.append(f"      Two of the lines above are the same notice ({d}),")
                 lineas.append("      filed at different severities. Read it and judge for yourself.")
+    # A reference that IS a notice. Not counted among the flagged — nothing has
+    # happened to the notice — but named, with what its article carries today,
+    # because that is the half the reference does not show.
+    for r in notas:
+        lineas.append("")
+        lineas.append("  THIS REFERENCE IS A NOTICE, NOT AN ARTICLE")
+        t = r.get("titulo", "")
+        lineas.append(f"    {t[:ancho - 4]}" if t else "")
+        lineas.append(f"    {nombre(r)}")
+        for e in r["es_aviso"]:
+            lineas.append(f"      ↳ {e['etiqueta']} of https://doi.org/{e['doi']}")
+            if e.get("objetivo_error"):
+                lineas.append("        that article could NOT be looked up — not clean: unknown")
+            elif e.get("objetivo_desconocido"):
+                lineas.append("        Crossref has no record of that article — not checked")
+            else:
+                otros = [a for a in e.get("avisos_objetivo") or []
+                         if a.get("doi_aviso", "").lower() != r["doi"].lower()]
+                if not otros:
+                    lineas.append("        that article carries no other notice (per Crossref)")
+                for a in otros:
+                    fecha = f" ({a['fecha']})" if a.get("fecha") else ""
+                    mas = ("  ← more serious than this notice"
+                           if a["gravedad"] > max(x["gravedad"] for x in r["es_aviso"]) else "")
+                    enlace = f"https://doi.org/{a['doi_aviso']}" if a.get("doi_aviso") else "(no link published)"
+                    lineas.append(f"        that article also carries: {a['etiqueta']}{fecha}: {enlace}{mas}")
     # `desc` and `sust` are subtracted too, and until 2026-09-15 they were not.
     # A single mistyped DOI used to print three lines that cannot all be true:
     # "1 reference(s) checked", then "1 not found in Crossref — not checked",
@@ -2158,7 +2298,11 @@ def informe(resultados, ancho=78):
                    "about, so NOT checked")
     if pmid_desc:
         cab.append(f"  {len(pmid_desc)} PMID(s) do not exist in PubMed — check the citation")
-    if not con and comprobadas > 0:
+    if notas:
+        uno = len(notas) == 1
+        cab.append(f"  {len(notas)} of those {'is' if uno else 'are'} not {'an article' if uno else 'articles'} "
+                   f"but a notice about another one — see below")
+    if not con and not notas and comprobadas > 0:
         cab.append("  Nothing found. That is the expected result most of the time;")
         cab.append("  it is the 1-in-N that this exists for.")
     if (sinc or sin_doi or pmid_desc or a_medias or sust or inexistentes
@@ -2234,7 +2378,10 @@ def informe(resultados, ancho=78):
 # ---------------------------------------------------------------------------
 CACHE_DIAS = float(os.environ.get("REFCHECK_CACHE_DAYS", "7"))
 CACHE_MAX = 100_000        # entries; a 1.000-record run adds ~1.000
-CACHE_V = 2                # bump when an entry stops meaning what it meant
+CACHE_V = 3                # bump when an entry stops meaning what it meant
+# v3 (2026-10-19): entries now carry `es_aviso`, read from `update-to`. A v2
+# entry was fetched without that field, so its silence means "not asked", and
+# reusing it would bring back the "Nothing found" on a retraction notice.
 REGISTROS = ("crossref", "pubmed")
 # Facts about the run and the reader's file, not about the article. Never stored.
 DE_LA_TIRADA = ("doi_citado", "pmid_pegado", "de_cache", "ra_consultado",
@@ -2875,6 +3022,10 @@ def main():
         if r["doi"] in origen:
             r["pmid"] = origen[r["doi"]]      # cited as a PMID: say so back
     resultados.extend(sueltos)
+    # After the cache, and for cached references too: what the retracted
+    # article carries today is not a fact about the notice, so it is neither
+    # stored with it nor read back from disk.
+    estado_de_objetivos(resultados)
     if ruidoso:
         print("\r" + " " * 30 + "\r", end="", file=sys.stderr)
 
@@ -2965,10 +3116,14 @@ def main():
             print("Could not write the watch file: %s" % e, file=sys.stderr)
             return 2
 
-    if any(r["avisos"] for r in resultados):
+    if any(r["avisos"] for r in resultados) or any(peor_que_el_aviso(r) for r in resultados):
         return 1
     # A reference we could not look up must not let a CI gate go green.
     if any(r["estado"] == "sin_comprobar" for r in resultados):
+        return 2
+    # Nor a notice whose article could not be asked about: whether it has been
+    # retracted since is exactly what nobody knows.
+    if any(e.get("objetivo_error") for r in resultados for e in (r.get("es_aviso") or [])):
         return 2
     # Nor one that only half of the registers answered about. Before today this
     # returned 0: a run with NCBI unreachable passed a CI gate as clean while
